@@ -30,13 +30,11 @@ struct FTile
 	
 	
 };
+
 USTRUCT(BlueprintType)
-struct FTileMesh
+struct FMatchingTile
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	UStaticMesh*TileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	TArray<UStaticMesh*>LeftTileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
@@ -46,6 +44,17 @@ struct FTileMesh
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	TArray<UStaticMesh*>DownTileMesh;
 	
+};
+
+USTRUCT(BlueprintType)
+struct FTileMesh
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	UStaticMesh*TileMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	FMatchingTile MatchingTiles;
 	
 };
 
@@ -101,4 +110,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GenerateTile( );
 	void CalculateMeshLength();
+	void WaveFunctionCollapse();
+	FMatchingTile FindSuitablePieces(FTileMesh TileMesh);
 };
+

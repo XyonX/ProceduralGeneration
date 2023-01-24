@@ -36,11 +36,12 @@ void ABaseProceduralActor::Tick(float DeltaTime)
 void ABaseProceduralActor::GenerateTile()
 {
 	
-	for (int i = 0 ; i<= Map_Length ; i++)
+	for (int i = 0 ; i< Map_Length ; i++)
 	{
-		for (int j = 0 ; j<= Map_Width ; j++)
+		for (int j = 0 ; j< Map_Width ; j++)
 		{
-			int id =(i*9)+j+1 ;
+			int id;
+			id=(i*10)+j+1;
 			FTile Tile ;
 			Tile.ID = id ;
 			Tile.Position_2D.Width=j+1;
@@ -78,4 +79,16 @@ void ABaseProceduralActor::CalculateMeshLength()
 	Actor_Length_X = (Extent.X-Center.X)*2;
 	Actor_Length_Y = (Extent.Y-Center.Y)*2;
 }
+
+void ABaseProceduralActor::WaveFunctionCollapse()
+{
+	
+}
+
+FMatchingTile ABaseProceduralActor::FindSuitablePieces(FTileMesh TileMesh)
+{
+	return  TileMesh.MatchingTiles;
+}
+
+
 
