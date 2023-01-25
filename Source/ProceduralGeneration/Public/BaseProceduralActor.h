@@ -6,6 +6,23 @@
 #include "GameFramework/Actor.h"
 #include "BaseProceduralActor.generated.h"
 
+
+
+
+
+/**
+ * @brief FTILE MESH IS THE SINGLE MESH SELECTED CONTAINS LEFT RIGHT UP DOWN SUITABLE MESH ARRAY
+ * 
+ */
+struct FTileMesh;
+
+UENUM(BlueprintType)
+enum class EcollapseStatus : uint8
+{
+	NotCollapsed = 0		UMETA(DisplayName = "Not Collapsed"),
+	Collapsed =1		UMETA(DisplayName = "Collaped")	
+};
+
 USTRUCT(BlueprintType)
 struct FMatrixPosition
 {
@@ -24,15 +41,24 @@ struct FTile
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	int ID ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	FTileMesh SelecteTiledMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	FMatrixPosition Position_2D ; 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	FVector World_Location ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	EcollapseStatus CollapseStatus ;
+	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
+	void SetSelectedMesh (UStaticMesh*SelectedMeshh);
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	TArray<FTileMesh>  AllAvailableMeshToChooseFrom;
+	
 	
 	
 };
 
 USTRUCT(BlueprintType)
-struct FMatchingTile
+struct FMatchingTileArray
 {
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
@@ -46,6 +72,16 @@ struct FMatchingTile
 	
 };
 
+USTRUCT()
+struct FSelectedMatchingMesh
+{
+	GENERATED_BODY()
+	UStaticMesh* LeftTileMesh;
+	UStaticMesh* RightTileMesh;
+	UStaticMesh*UpTileMesh;
+	UStaticMesh*DownTileMesh;
+};
+
 USTRUCT(BlueprintType)
 struct FTileMesh
 {
@@ -54,7 +90,8 @@ struct FTileMesh
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FMatchingTile MatchingTiles;
+	FMatchingTileArray MatchingTiles;
+	FMatchingTileArray GetMatchingTiles ();
 	
 };
 
@@ -80,10 +117,12 @@ public:
 	//Variables
 
 	// these are number like 100x100 procedural tile
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
 	int Map_Length ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
 	int Map_Width ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
+	FRandomStream Stream ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	float Actor_Length ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
@@ -102,6 +141,10 @@ public:
 	bool bWantCustomTileSize;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTileMesh>TotalTileMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	float AllTiles_float ;
+	
+	
 	
 	
 	
@@ -111,6 +154,25 @@ public:
 	void GenerateTile( );
 	void CalculateMeshLength();
 	void WaveFunctionCollapse();
-	FMatchingTile FindSuitablePieces(FTileMesh TileMesh);
+	FMatchingTileArray FindSuitablePieces(FTileMesh TileMesh);
+	UStaticMesh*RandomMeshFromTotalMesh (TArray<FTileMesh>TotalMesh , int & SerielNoRef);
+	FSelectedMatchingMesh  RandomSuitableMeshFromTotalMesh (TArray<FTileMesh>TotalMesh ,int  SerielNo);
+	bool  CheckCollapseStatus (int ID);
+
+	//this one only update the surrounded tile
+	//void UpdateSuitableMesh (  TArray<FTile> TotalTile ,FTileMesh SelectedTile );
+
+	// this one checks for every tile to update their suitable tile		// similar to calculating entropy
+	void UpdateAvailableMesh  (  TArray<FTile> TotalTile  );
+	void UpdateAvailableMesh_Surroundings  ( TArray<FTile> TotalTile ,   FTile SelectedTile  );
+
+	void ChooseRandomRoute();
+	bool DoesNeedMeshUpdated(TArray<FTile>AllTile, FTile SelectedTile);
+	
+	void CheckSelectedTileStatusAndAvilableTileMesh  (TArray<FTile>TotalTile , int TileIndex , EcollapseStatus & CollapseStatus , TArray<FTileMesh  >& CurrentlyAvailableTilemesh );
+
+	
+	
+	
 };
 
