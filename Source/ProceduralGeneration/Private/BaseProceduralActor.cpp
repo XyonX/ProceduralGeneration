@@ -13,10 +13,7 @@ void FTile::SetCollapseStatus(EcollapseStatus CollapseStatuss)
 	CollapseStatus =CollapseStatuss;
 }
 
-FTileMesh::FTileMesh()
-{
-	
-}
+
 
 void FTileMesh::SetTileMesh(UStaticMesh* InTileMesh)
 {
@@ -35,7 +32,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	InstancedMesh= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
-\/*	Mesh_Right= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Right Mesh"));
+/*	Mesh_Right= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Right Mesh"));
 	Mesh_Up= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Up Mesh"));
 	Mesh_Down= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Down Mesh"));
 	Mesh_LeftUp= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Left UP Mesh"));
@@ -241,6 +238,81 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile SelectedTile)
 	}
 	AllTiles[SelectedTile.ID-10].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
 	
+}
+void ABaseProceduralActor::UpdateAvailableMesh_Right(FTile SelectedTile)
+{
+	FTile RightNeighbour  = AllTiles[SelectedTile.ID+10];
+	TArray<FTileMesh> UpdatedAvailableTileMesh;
+	TArray<FTileMesh> AvailableMesh = RightNeighbour.AllAvailableMeshToChooseFrom ;
+	if(SelectedTile.ID+10 > AllTiles_float  ||  RightNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
+	{
+		return;
+	}
+
+	for (FTileMesh AvailableTileMesh_Right : RightNeighbour.AllAvailableMeshToChooseFrom )
+	{
+		for ( UStaticMesh* SuitableMesh_Left : AvailableTileMesh_Right.MatchingTiles.LeftTileMesh)
+		{
+			if(SuitableMesh_Left == SelectedTile.SelectedTiledMesh.TileMesh)
+			{
+				UpdatedAvailableTileMesh.Add(AvailableTileMesh_Right);
+				continue;
+			}
+		}
+	}
+	AllTiles[SelectedTile.ID+10].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
+}
+
+void ABaseProceduralActor::UpdateAvailableMesh_Up(FTile SelectedTile)
+{
+	FTile UpNeighbour  = AllTiles[SelectedTile.ID+1];
+	TArray<FTileMesh> UpdatedAvailableTileMesh;
+	TArray<FTileMesh> AvailableMesh = UpNeighbour.AllAvailableMeshToChooseFrom ;
+	
+	if(SelectedTile.ID+1 > AllTiles_float  ||  UpNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
+	{
+		return;
+	}
+
+	for (FTileMesh AvailableTileMesh_UP : UpNeighbour.AllAvailableMeshToChooseFrom )
+	{
+		for ( UStaticMesh* SuitableMesh_DownTileMesh : AvailableTileMesh_UP.MatchingTiles.DownTileMesh)
+		{
+			if(SuitableMesh_DownTileMesh == SelectedTile.SelectedTiledMesh.TileMesh)
+			{
+				UpdatedAvailableTileMesh.Add(AvailableTileMesh_UP);
+				continue;
+			}
+		}
+	}
+	AllTiles[SelectedTile.ID+1].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
+}
+
+void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile SelectedTile)
+{
+	{
+		FTile DownNeighbour  = AllTiles[SelectedTile.ID-1];
+		TArray<FTileMesh> UpdatedAvailableTileMesh;
+		TArray<FTileMesh> AvailableMesh = DownNeighbour.AllAvailableMeshToChooseFrom ;
+	
+		if(SelectedTile.ID+1 <= 0  ||  DownNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
+		{
+			return;
+		}
+
+		for (FTileMesh AvailableTileMesh_Down : DownNeighbour.AllAvailableMeshToChooseFrom )
+		{
+			for ( UStaticMesh* SuitableMesh_UpTileMesh : AvailableTileMesh_Down.MatchingTiles.UpTileMesh)
+			{
+				if(SuitableMesh_UpTileMesh == SelectedTile.SelectedTiledMesh.TileMesh)
+				{
+					UpdatedAvailableTileMesh.Add(AvailableTileMesh_Down);
+					continue;
+				}
+			}
+		}
+		AllTiles[SelectedTile.ID-1].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
+	}
 }
 
  

@@ -51,7 +51,7 @@ USTRUCT(BlueprintType)
 struct FTileMesh
 {
 	GENERATED_BODY()
-	FTileMesh();
+	//FTileMesh();
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
