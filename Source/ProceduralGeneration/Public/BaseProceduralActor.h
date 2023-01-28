@@ -14,7 +14,7 @@
  * @brief FTILE MESH IS THE SINGLE MESH SELECTED CONTAINS LEFT RIGHT UP DOWN SUITABLE MESH ARRAY
  * 
  */
-struct FTileMesh;
+
 
 UENUM(BlueprintType)
 enum class EcollapseStatus : uint8
@@ -32,31 +32,6 @@ struct FMatrixPosition
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
 	int Width ;
 };
-
-USTRUCT(BlueprintType)
-struct FTile
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	int ID ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FTileMesh SelecteTiledMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FMatrixPosition Position_2D ; 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FVector World_Location ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	EcollapseStatus CollapseStatus ;
-	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
-	void SetSelectedMesh (UStaticMesh*SelectedMeshh);
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTileMesh>  AllAvailableMeshToChooseFrom;
-	
-	
-	
-};
-
 USTRUCT(BlueprintType)
 struct FMatchingTileArray
 {
@@ -72,16 +47,6 @@ struct FMatchingTileArray
 	
 };
 
-USTRUCT()
-struct FSelectedMatchingMesh
-{
-	GENERATED_BODY()
-	UStaticMesh* LeftTileMesh;
-	UStaticMesh* RightTileMesh;
-	UStaticMesh*UpTileMesh;
-	UStaticMesh*DownTileMesh;
-};
-
 USTRUCT(BlueprintType)
 struct FTileMesh
 {
@@ -94,6 +59,44 @@ struct FTileMesh
 	FMatchingTileArray GetMatchingTiles ();
 	
 };
+
+USTRUCT(BlueprintType)
+struct FTile
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	int ID ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	FTileMesh SelectedTiledMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	FMatrixPosition Position_2D ; 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	FVector World_Location ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	EcollapseStatus CollapseStatus ;
+	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
+	//void SetSelectedMesh ( FTileMesh TileMesh);
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	TArray<FTileMesh>  AllAvailableMeshToChooseFrom;
+	
+	
+	
+};
+
+
+
+USTRUCT()
+struct FSelectedMatchingMesh
+{
+	GENERATED_BODY()
+	UStaticMesh* LeftTileMesh;
+	UStaticMesh* RightTileMesh;
+	UStaticMesh*UpTileMesh;
+	UStaticMesh*DownTileMesh;
+};
+
+
 
 UCLASS()
 class PROCEDURALGENERATION_API ABaseProceduralActor : public AActor
@@ -138,12 +141,14 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTile> AllTiles;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	TArray<FTile> RemainingTiles;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	bool bWantCustomTileSize;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTileMesh>TotalTileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	float AllTiles_float ;
-	
+	//std::vector<int> AllTile_Vec;
 	
 	
 	
@@ -170,6 +175,29 @@ public:
 	bool DoesNeedMeshUpdated(TArray<FTile>AllTile, FTile SelectedTile);
 	
 	void CheckSelectedTileStatusAndAvilableTileMesh  (TArray<FTile>TotalTile , int TileIndex , EcollapseStatus & CollapseStatus , TArray<FTileMesh  >& CurrentlyAvailableTilemesh );
+
+
+
+	// RENEWED FUNCTION WITH NEW ALGO APPROACH
+
+	UFUNCTION(BlueprintCallable)
+	void GenerateTile_NEW( TArray<FTile> & GeneratedTile );
+
+	// Generate All Tiles Tile 
+	FTile ChooseRandomTile(TArray<FTile>AllTileToChooseFrom);
+
+	// Updating Surrounding Mesh
+	UFUNCTION()
+	void UpdateAvailableMesh_Left(FTile SelectedTile );
+	UFUNCTION()
+	void UpdateAvailableMesh_Right(FTile SelectedTile );
+	UFUNCTION()
+	void UpdateAvailableMesh_Up(FTile SelectedTile );
+	UFUNCTION()
+	void UpdateAvailableMesh_Down(FTile SelectedTile );
+
+	FTile ReturnMeshWithLowEntropy (TArray<FTile> TotalTile);
+	FTileMesh RandomMeshFromAvailableMesh(TArray<FTileMesh>AvailableMeshArray);
 
 	
 	
