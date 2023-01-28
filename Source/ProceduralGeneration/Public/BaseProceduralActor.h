@@ -173,6 +173,9 @@ public:
 	//   THESE CHOOSE RANDOM TILE FROM GIVEN ARRAY		// MAINLY FOR FIRST RANDOM TILE CHOOSE
 	FTile ChooseRandomTile(TArray<FTile>AllTileToChooseFrom);
 
+	//CHOOSE A RANDOM MESH FROM   AVAILABLE MESH ARRAY
+	FTileMesh RandomMeshFromAvailableMesh(FTile Tile );
+
 	// THIS FUNCTION ADD AN INSTANCE TO THE  SELECTED MESH
 	UFUNCTION()
 	void AddInstanceMesh (FTile SelectedTile);
@@ -193,8 +196,7 @@ public:
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	FTile ReturnMeshWithLowEntropy (TArray<FTile> TotalTile);
 
-	//CHOOSE A RANDOM MESH FROM   AVAILABLE MESH ARRAY
-	FTileMesh RandomMeshFromAvailableMesh(TArray<FTileMesh>AvailableMeshArray);
+	
 
 	
 	

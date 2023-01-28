@@ -36,7 +36,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 	// TURNING OFF TICK
 	PrimaryActorTick.bCanEverTick = false;
 	
-	// CREATING  INSTANCE MESH FOR BASE FLOOR R
+	// CREATING  INSTANCE MESH FOR BASE FLOOR 
 	FlorInstanceMesh= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
 	FlorInstanceMesh->SetStaticMesh(StaticMesh);
 
@@ -87,14 +87,17 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		int FirstTileID =  UKismetMathLibrary::RandomIntegerFromStream(Map_Length*Map_Width,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
-		FTile FirstRandomTile = AllTiles[25];
+		RemainingTiles =AllTiles;
+		FTile FirstRandomTile = RemainingTiles[30];
 
+		//SET SELECTED FTILEMES
+		FirstRandomTile.SelectedTiledMesh =RandomMeshFromAvailableMesh(FirstRandomTile);
 		
 		// ADDING INSTANCE OF THE SELECTED MESH
 		AddInstanceMesh(FirstRandomTile);
 
 		// Remove From Remaining Tile
-		RemainingTiles =AllTiles;
+		
 		RemainingTiles.RemoveAt(FirstRandomTile.ID-1);
 
 		//UPDATE THE SURROUNDING TILES AVAILABLEMESH
@@ -112,11 +115,17 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 			// REMOVE FROM REMAINING TILE
 			RemainingTiles.RemoveAt(Tile.ID-1);
 
+			// CHOOSE A RANOM MESH FROM AVAILABLE
+			Tile.SelectedTiledMesh = RandomMeshFromAvailableMesh(Tile);
 			// ADD A INSTANCE TO THE MESH
 			AddInstanceMesh(Tile);
 
 			//UPDATING SURROUNDINGS
 			UpdateSurroundingMesh(Tile);
+
+			
+
+			
 		
 		}
 	}
@@ -183,6 +192,7 @@ FTile ABaseProceduralActor::ChooseRandomTile(TArray<FTile> AllTileToChooseFrom)
 
 void ABaseProceduralActor::AddInstanceMesh( FTile SelectedTile)
 {
+	
 	FTileMesh SelectedTileMesh = SelectedTile.SelectedTiledMesh;
 	UInstancedStaticMeshComponent*Comp = SelectedTileMesh.InstancedMesh;
 	if(SelectedTileMesh.TileMesh)
@@ -335,10 +345,11 @@ FTile ABaseProceduralActor::ReturnMeshWithLowEntropy(TArray<FTile> TotalTile)
 
 
 // CHOOSE AN RAND0M ARRAY FROM GIVEN ARRAY OF FTILEMESH BASED ON ENTROPY
-FTileMesh ABaseProceduralActor::RandomMeshFromAvailableMesh(TArray<FTileMesh>AvailableMeshArray)
+FTileMesh ABaseProceduralActor::RandomMeshFromAvailableMesh(FTile Tile)
 {
-	int RandomMESH = FMath::RandRange(0,AvailableMeshArray.Num() );
-	return AvailableMeshArray[RandomMESH];
+	
+	int RandomMESH = FMath::RandRange(0,Tile.AllAvailableMeshToChooseFrom.Num()-1 );
+	return Tile.AllAvailableMeshToChooseFrom[RandomMESH];
 }
 
 
