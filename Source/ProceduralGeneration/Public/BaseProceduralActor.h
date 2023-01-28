@@ -7,13 +7,7 @@
 #include "BaseProceduralActor.generated.h"
 
 
-
-
-
-/**
- * @brief FTILE MESH IS THE SINGLE MESH SELECTED CONTAINS LEFT RIGHT UP DOWN SUITABLE MESH ARRAY
- * 
- */
+// COLLAPSE STATUS ENUM
 
 
 UENUM(BlueprintType)
@@ -22,6 +16,8 @@ enum class EcollapseStatus : uint8
 	NotCollapsed = 0		UMETA(DisplayName = "Not Collapsed"),
 	Collapsed =1		UMETA(DisplayName = "Collaped")	
 };
+
+// 2D STRUCT FOR STORING XY LOCATION
 
 USTRUCT(BlueprintType)
 struct FMatrixPosition
@@ -32,6 +28,8 @@ struct FMatrixPosition
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
 	int Width ;
 };
+
+//  STORE SURROUNDING MATCHING TILES FOR FTILEMESH
 USTRUCT(BlueprintType)
 struct FMatchingTileArray
 {
@@ -47,6 +45,8 @@ struct FMatchingTileArray
 	
 };
 
+// CAN BE CONSIDE AS A SINGLE MESH UNIT CONTAIN ONE MAIN MESH AND OTHER NEEDED VARS
+
 USTRUCT(BlueprintType)
 struct FTileMesh
 {
@@ -56,13 +56,15 @@ struct FTileMesh
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	UStaticMeshComponent*InstancedMesh;
+	UInstancedStaticMeshComponent*InstancedMesh;
 	void SetTileMesh(UStaticMesh* InTileMesh);
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FMatchingTileArray MatchingTiles;
 	FMatchingTileArray GetMatchingTiles ();
 	
 };
+
+// THE MAIN TILE WE ARE GENERETING  AND STORING IN AN ARRAY
 
 USTRUCT(BlueprintType)
 struct FTile
@@ -89,17 +91,9 @@ struct FTile
 };
 
 
-
-USTRUCT()
-struct FSelectedMatchingMesh
-{
-	GENERATED_BODY()
-	UStaticMesh* LeftTileMesh;
-	UStaticMesh* RightTileMesh;
-	UStaticMesh*UpTileMesh;
-	UStaticMesh*DownTileMesh;
-};
-
+//									//
+// STARTING OF THE MAIN CLASS		//
+//									//
 
 
 UCLASS()
@@ -120,9 +114,11 @@ public:
 	//virtual void Tick(float DeltaTime) override;
 
 	
+	//					//
+	//Variables			//
+	//					//
 
-	//Variables
-
+	
 	// these are number like 100x100 procedural tile
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
 	int Map_Length ;
@@ -137,11 +133,13 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	float Actor_Length_Y ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*InstancedMesh ;
+	float Actor_Length_Z;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*FlorInstanceMesh ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	UStaticMesh*StaticMesh ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	bool bwantToSpawnTiles;
+	bool bWantBaseFloor;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTile> AllTiles;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
@@ -151,50 +149,37 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTileMesh>TotalTileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	float AllTiles_float ;
-	//std::vector<int> AllTile_Vec;
-
-	/*
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_Left ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_Right ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_Up ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_Down ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_LeftUp ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_RightUp;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_LeftDown;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_RightDown;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*Mesh_Middle;*/
+	float AllTiles_Float ;
 	
 		
 	
 	
-	
-	//Functions
+	//					//
+	//Functions			//
+	//					//
 
+	
+	// THE MAIN FUNCTION
 	UFUNCTION(BlueprintCallable)
-	bool GenerateTile( );
-	void CalculateMeshLength();
 	void WaveFunctionCollapse();
 
+	// CALCULATE THE LENGTH OF MESH 
+	void CalculateMeshLength();
 
-
-	// RENEWED FUNCTION WITH NEW ALGO APPROACH
-
+	// GENERATE TILE									// USES THE CALCULATE LENGTH FUNCTION DATA TO PROVIDE WORLD POSITION 
 	UFUNCTION(BlueprintCallable)
-	void GenerateTile_NEW( TArray<FTile> & GeneratedTile );
-
-	// Generate All Tiles Tile 
+	bool GenerateTile( );
+	
+	//   THESE CHOOSE RANDOM TILE FROM GIVEN ARRAY		// MAINLY FOR FIRST RANDOM TILE CHOOSE
 	FTile ChooseRandomTile(TArray<FTile>AllTileToChooseFrom);
 
+	// THIS FUNCTION ADD AN INSTANCE TO THE  SELECTED MESH
+	UFUNCTION()
+	void AddInstanceMesh (FTile SelectedTile);
+
+	// JUST CALL THOSE 4 SURROUNDED  FUNCTION UPDATE FUNCTION 
+	void UpdateSurroundingMesh (FTile SelectedTile);
+	
 	// Updating Surrounding Mesh
 	UFUNCTION()
 	void UpdateAvailableMesh_Left(FTile SelectedTile );
@@ -204,12 +189,17 @@ public:
 	void UpdateAvailableMesh_Up(FTile SelectedTile );
 	UFUNCTION()
 	void UpdateAvailableMesh_Down(FTile SelectedTile );
-
+	
+	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	FTile ReturnMeshWithLowEntropy (TArray<FTile> TotalTile);
+
+	//CHOOSE A RANDOM MESH FROM   AVAILABLE MESH ARRAY
 	FTileMesh RandomMeshFromAvailableMesh(TArray<FTileMesh>AvailableMeshArray);
 
 	
 	
 	
 };
+
+
 

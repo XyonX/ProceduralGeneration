@@ -1,13 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BaseProceduralActor.h"
-
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Containers/Array.h"
 
 
+
+
+//	SET COLLPSE STATUS IN THE FTILE STRUCT
 void FTile::SetCollapseStatus(EcollapseStatus CollapseStatuss)
 {
 	CollapseStatus =CollapseStatuss;
@@ -15,121 +15,83 @@ void FTile::SetCollapseStatus(EcollapseStatus CollapseStatuss)
 
 
 
+//SET TILE MESH IN THE FTILEMESH STRUCT
 void FTileMesh::SetTileMesh(UStaticMesh* InTileMesh)
 {
 	TileMesh = InTileMesh;
 	InstancedMesh->SetStaticMesh(TileMesh);
 }
 
+
+// RETURNS THE MATCHING TILES ARRAY FOR THE FTILEMESH CONTAINS 4 SURROUNDING  MESH
 FMatchingTileArray FTileMesh::GetMatchingTiles()
 {
 	return MatchingTiles;
 }
 
-// Sets default values
+
+// CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	InstancedMesh= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
-/*	Mesh_Right= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Right Mesh"));
-	Mesh_Up= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Up Mesh"));
-	Mesh_Down= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Down Mesh"));
-	Mesh_LeftUp= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Left UP Mesh"));
-	Mesh_RightUp= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Right UP Mesh"));
-	Mesh_LeftDown= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Left Down Mesh"));
-	Mesh_RightDown= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Right Down Mesh"));
-	Mesh_Middle= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Middle Mesh"));*/
+	// TURNING OFF TICK
+	PrimaryActorTick.bCanEverTick = false;
+	
+	// CREATING  INSTANCE MESH FOR BASE FLOOR R
+	FlorInstanceMesh= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
+	FlorInstanceMesh->SetStaticMesh(StaticMesh);
 
-	// for the FTileMeshStruct
-	InstancedMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("InstancedMesh"));
+	// CREATING INSTANCE MESH FOR  FTILE MESH
+
+	UInstancedStaticMeshComponent*instmesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("FTILEMESH INSTANCE"));
+	
 	for(FTileMesh &tileMesh : TotalTileMesh)
 	{
-		tileMesh.InstancedMesh = InstancedMesh ;
+		tileMesh.InstancedMesh = instmesh ;
 		// set other properties of tileMesh
 		if(tileMesh.TileMesh)
 		tileMesh.InstancedMesh->SetStaticMesh(tileMesh.TileMesh);
 	}
-	
-	AllTiles_float = 0 ;
+
+	// SETTING THE ALL TILE FLOAT COUNTER TO 0
+	AllTiles_Float = 0 ;
 	
 }
 
-// Called when the game starts or when spawned
+
+//BEGIN PLAY
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
-	InstancedMesh->SetStaticMesh(StaticMesh);
+	
+	// CALLING TO GET MESH LENGTH 
 	CalculateMeshLength();
+	//CALLING TO GENERATE TILE
+	GenerateTile();
+	//STARTING THE MAIN ALGORITHM
 	WaveFunctionCollapse();
-	//GenerateTile();
 
 }
 
-bool ABaseProceduralActor::GenerateTile()
-{
-	bool GenerationDone= false;
-	for (int i = 0 ; i< Map_Length ; i++)
-	{
-		for (int j = 0 ; j< Map_Width ; j++)
-		{
-			
-			int id;
-			id=(i*10)+j+1;
-			FTile Tile ;
-			Tile.ID = id ;
-			AllTiles_float ++ ;
-			Tile.Position_2D.Width=j+1;
-			Tile.Position_2D.Length=i+1;
-			Tile.World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
-			Tile.AllAvailableMeshToChooseFrom=TotalTileMesh;
-			AllTiles.Add(Tile);
-			
-			if(bwantToSpawnTiles)
-			{
-				if(InstancedMesh)
-				{
-					FTransform SpawnTransform ;
-					SpawnTransform.SetLocation(Tile.World_Location);
-					InstancedMesh->AddInstance(SpawnTransform,true);
-				}
-				
-			}
-		}
-	}
-	GenerationDone=true;
-	return GenerationDone;
-}
-
-void ABaseProceduralActor::CalculateMeshLength()
-{
-	//FBox BoundingBox  ;
-	//AActor*Ac ;
-	//Ac->GetActorBounds()
-	//Actor_Length = BoundingBox.
-	FVector Center ;
-	FVector Extent;
-	StaticMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
-	Actor_Length_X = (Extent.X-Center.X)*2;
-	Actor_Length_Y = (Extent.Y-Center.Y)*2;
-}
-
+// THE MAIN ALGORITHM
 void ABaseProceduralActor::WaveFunctionCollapse()
 {
 	
 	// Generate Tile
 	bool GenDone;
+	
 	GenDone =GenerateTile();
+	
 	if(GenDone)
 	{
-		// this one choose the first tile Randomly
+		// FIRST RANDOM ID FROM STREAM
 		int FirstTileID =  UKismetMathLibrary::RandomIntegerFromStream(Map_Length*Map_Width,Stream);
-
+		
 		//Pick A Random Tile	//For the first time choose from stream
-
 		FTile FirstRandomTile = AllTiles[25];
 
-		//TODO MAKE A FUNCTION TO SPAWN ACTOR AND CREATE A NEW INSTANCED MESH FOR ALL THE FTILE MESH
+		
+		// ADDING INSTANCE OF THE SELECTED MESH
+		AddInstanceMesh(FirstRandomTile);
 
 		// Remove From Remaining Tile
 		RemainingTiles =AllTiles;
@@ -144,26 +106,41 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 
 		while (RemainingTiles.Num()>0)
 		{
-			FTile SelectedTile = ReturnMeshWithLowEntropy(RemainingTiles);
-			//TODO SAWN MESH
-			//
-			// Remove From Remaioning Tile
+			// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE 
+			FTile Tile = ReturnMeshWithLowEntropy(RemainingTiles);
 
-			RemainingTiles.RemoveAt(SelectedTile.ID-1);
+			// REMOVE FROM REMAINING TILE
+			RemainingTiles.RemoveAt(Tile.ID-1);
 
-			// Update Surroundings
-			UpdateAvailableMesh_Left(SelectedTile);
-			UpdateAvailableMesh_Right(SelectedTile);
-			UpdateAvailableMesh_Up(SelectedTile);
-			UpdateAvailableMesh_Down(SelectedTile);
+			// ADD A INSTANCE TO THE MESH
+			AddInstanceMesh(Tile);
+
+			//UPDATING SURROUNDINGS
+			UpdateSurroundingMesh(Tile);
 		
 		}
 	}
 }
 
-void ABaseProceduralActor::GenerateTile_NEW(TArray<FTile> & GeneratedTile)
+// CALCULATE LENGTH OF THE  FLOOR MESH 
+void ABaseProceduralActor::CalculateMeshLength()
 {
-	AllTiles_float=0;
+	//FBox BoundingBox  ;
+	//AActor*Ac ;
+	//Ac->GetActorBounds()
+	//Actor_Length = BoundingBox.
+	FVector Center ;
+	FVector Extent;
+	StaticMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
+	Actor_Length_X = (Extent.X-Center.X)*2;
+	Actor_Length_Y = (Extent.Y-Center.Y)*2;
+	Actor_Length_Z = (Extent.Z-Center.Z)*2;
+}
+
+//THIS FUNCTION GENERATES TILES 
+bool ABaseProceduralActor::GenerateTile()
+{
+	bool GenerationDone= false;
 	for (int i = 0 ; i< Map_Length ; i++)
 	{
 		for (int j = 0 ; j< Map_Width ; j++)
@@ -173,40 +150,59 @@ void ABaseProceduralActor::GenerateTile_NEW(TArray<FTile> & GeneratedTile)
 			id=(i*10)+j+1;
 			FTile Tile ;
 			Tile.ID = id ;
-			AllTiles_float ++ ;
+			AllTiles_Float ++ ;
 			Tile.Position_2D.Width=j+1;
 			Tile.Position_2D.Length=i+1;
-			if(bWantCustomTileSize)
-			{
-				Tile.World_Location = FVector (i*Actor_Length , j*Actor_Length,0.0f);
-			}
 			Tile.World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
 			Tile.AllAvailableMeshToChooseFrom=TotalTileMesh;
-			GeneratedTile.Add(Tile);
+			AllTiles.Add(Tile);
 			
-			if(bwantToSpawnTiles)
+			if(bWantBaseFloor)
 			{
-				if(InstancedMesh)
+				if(FlorInstanceMesh)
 				{
 					FTransform SpawnTransform ;
 					SpawnTransform.SetLocation(Tile.World_Location);
-					InstancedMesh->AddInstance(SpawnTransform,true);
+					FlorInstanceMesh->AddInstance(SpawnTransform,true);
 				}
 				
 			}
 		}
 	}
-	
-	
+	GenerationDone=true;
+	return GenerationDone;
 }
 
+// THIS FUNCTION CHOOSE RANDOM TILE FROM GIVEN ARRAY
 FTile ABaseProceduralActor::ChooseRandomTile(TArray<FTile> AllTileToChooseFrom)
 {
-	// Random Suitable left Mesh
-	int RandomTile = FMath::RandRange(0,AllTiles.Num() );
+	
+	int RandomTile = FMath::RandRange(0,AllTileToChooseFrom.Num() );
 	return AllTiles[RandomTile];
 }
 
+void ABaseProceduralActor::AddInstanceMesh( FTile SelectedTile)
+{
+	FTileMesh SelectedTileMesh = SelectedTile.SelectedTiledMesh;
+	UInstancedStaticMeshComponent*Comp = SelectedTileMesh.InstancedMesh;
+	if(SelectedTileMesh.TileMesh)
+	{
+		FTransform SpawnTransform ;
+		SpawnTransform.SetLocation(SelectedTile.World_Location);
+		Comp->AddInstance(SpawnTransform);
+	}
+}
+
+// THIS FUNCTION UPDATE SURROUNDING MAINLY CALL THOSE 4 FUNCTION
+void ABaseProceduralActor::UpdateSurroundingMesh(FTile SelectedTile)
+{
+	UpdateAvailableMesh_Left(SelectedTile);
+	UpdateAvailableMesh_Right(SelectedTile);
+	UpdateAvailableMesh_Up(SelectedTile);
+	UpdateAvailableMesh_Down(SelectedTile);
+}
+
+// UPDATE LEFT SIDE OF THE SELECTED MESH
 void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile SelectedTile)
 {
 	
@@ -239,12 +235,14 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile SelectedTile)
 	AllTiles[SelectedTile.ID-10].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
 	
 }
+
+// UPDATE RIGHT SIDE OF THE SELECTED MESH
 void ABaseProceduralActor::UpdateAvailableMesh_Right(FTile SelectedTile)
 {
 	FTile RightNeighbour  = AllTiles[SelectedTile.ID+10];
 	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	TArray<FTileMesh> AvailableMesh = RightNeighbour.AllAvailableMeshToChooseFrom ;
-	if(SelectedTile.ID+10 > AllTiles_float  ||  RightNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
+	if(SelectedTile.ID+10 > AllTiles_Float  ||  RightNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
@@ -263,13 +261,14 @@ void ABaseProceduralActor::UpdateAvailableMesh_Right(FTile SelectedTile)
 	AllTiles[SelectedTile.ID+10].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
 }
 
+// UPDATE UP SIDE OF SELECTED MESH
 void ABaseProceduralActor::UpdateAvailableMesh_Up(FTile SelectedTile)
 {
 	FTile UpNeighbour  = AllTiles[SelectedTile.ID+1];
 	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	TArray<FTileMesh> AvailableMesh = UpNeighbour.AllAvailableMeshToChooseFrom ;
 	
-	if(SelectedTile.ID+1 > AllTiles_float  ||  UpNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
+	if(SelectedTile.ID+1 > AllTiles_Float  ||  UpNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
@@ -288,6 +287,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Up(FTile SelectedTile)
 	AllTiles[SelectedTile.ID+1].AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
 }
 
+// UPDATE DOWN SIDE OF SELECTED MESH 
 void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile SelectedTile)
 {
 	{
@@ -316,7 +316,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile SelectedTile)
 }
 
  
-
+// RETURNS TILE WITH LOWEST ENTROPY 
 FTile ABaseProceduralActor::ReturnMeshWithLowEntropy(TArray<FTile> TotalTile)
 {
 	int LowestNumberOfTile =999;
@@ -333,12 +333,16 @@ FTile ABaseProceduralActor::ReturnMeshWithLowEntropy(TArray<FTile> TotalTile)
 	return TileWithLowEntropy;
 }
 
+
+// CHOOSE AN RAND0M ARRAY FROM GIVEN ARRAY OF FTILEMESH BASED ON ENTROPY
 FTileMesh ABaseProceduralActor::RandomMeshFromAvailableMesh(TArray<FTileMesh>AvailableMeshArray)
 {
 	int RandomMESH = FMath::RandRange(0,AvailableMeshArray.Num() );
 	return AvailableMeshArray[RandomMESH];
 }
 
+
+// THIS FUNCTION IS  CURRENTLY NOT IN USE ITS MAINLY  TELLS US  AVAILABLE MESH AFTER  CHECKING SURROUNDINGS
 void CheckSelectedTileStatusAndAvilableTileMesh  (TArray<FTile>TotalTile , int TileIndex , EcollapseStatus & CollapseStatus , TArray<FTileMesh  >& CurrentlyAvailableTilemesh)
 {
 
@@ -467,8 +471,6 @@ void CheckSelectedTileStatusAndAvilableTileMesh  (TArray<FTile>TotalTile , int T
 	}
 
 	CurrentlyAvailableTilemesh = UpdatedAvailableTileMesh_D;
-
-	
 	
 }
 
