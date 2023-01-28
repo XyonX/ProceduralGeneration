@@ -51,9 +51,13 @@ USTRUCT(BlueprintType)
 struct FTileMesh
 {
 	GENERATED_BODY()
+	FTileMesh();
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	UStaticMeshComponent*InstancedMesh;
+	void SetTileMesh(UStaticMesh* InTileMesh);
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FMatchingTileArray MatchingTiles;
 	FMatchingTileArray GetMatchingTiles ();
@@ -113,9 +117,9 @@ protected:
 
 public:
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
-
+	
 
 	//Variables
 
@@ -149,32 +153,37 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	float AllTiles_float ;
 	//std::vector<int> AllTile_Vec;
+
+	/*
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_Left ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_Right ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_Up ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_Down ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_LeftUp ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_RightUp;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_LeftDown;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_RightDown;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*Mesh_Middle;*/
 	
+		
 	
 	
 	
 	//Functions
 
 	UFUNCTION(BlueprintCallable)
-	void GenerateTile( );
+	bool GenerateTile( );
 	void CalculateMeshLength();
 	void WaveFunctionCollapse();
-	FMatchingTileArray FindSuitablePieces(FTileMesh TileMesh);
-	UStaticMesh*RandomMeshFromTotalMesh (TArray<FTileMesh>TotalMesh , int & SerielNoRef);
-	FSelectedMatchingMesh  RandomSuitableMeshFromTotalMesh (TArray<FTileMesh>TotalMesh ,int  SerielNo);
-	bool  CheckCollapseStatus (int ID);
-
-	//this one only update the surrounded tile
-	//void UpdateSuitableMesh (  TArray<FTile> TotalTile ,FTileMesh SelectedTile );
-
-	// this one checks for every tile to update their suitable tile		// similar to calculating entropy
-	void UpdateAvailableMesh  (  TArray<FTile> TotalTile  );
-	void UpdateAvailableMesh_Surroundings  ( TArray<FTile> TotalTile ,   FTile SelectedTile  );
-
-	void ChooseRandomRoute();
-	bool DoesNeedMeshUpdated(TArray<FTile>AllTile, FTile SelectedTile);
-	
-	void CheckSelectedTileStatusAndAvilableTileMesh  (TArray<FTile>TotalTile , int TileIndex , EcollapseStatus & CollapseStatus , TArray<FTileMesh  >& CurrentlyAvailableTilemesh );
 
 
 
