@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "BaseProceduralActor.generated.h"
 
@@ -30,22 +31,6 @@ struct FMatrixPosition
 	int Width ;
 };
 
-//  STORE SURROUNDING MATCHING TILES FOR FTILEMESH
-USTRUCT(BlueprintType)
-struct FMatchingTileArray
-{
-	GENERATED_BODY()
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	TArray<UStaticMesh*>LeftTileMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	TArray<UStaticMesh*>RightTileMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	TArray<UStaticMesh*>UpTileMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	TArray<UStaticMesh*>DownTileMesh;
-	
-};
-
 // CAN BE CONSIDE AS A SINGLE MESH UNIT CONTAIN ONE MAIN MESH AND OTHER NEEDED VARS
 
 USTRUCT(BlueprintType)
@@ -57,11 +42,17 @@ struct FTileMesh
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	UInstancedStaticMeshComponent*InstancedMesh;
-	void SetTileMesh(UStaticMesh* InTileMesh);
+	FGameplayTag MeshTag ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FMatchingTileArray MatchingTiles;
-	FMatchingTileArray GetMatchingTiles ();
+	FGameplayTagContainer ComaptileMeshTag_Left ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	FGameplayTagContainer ComaptileMeshTag_Right ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	FGameplayTagContainer ComaptileMeshTag_Up ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	FGameplayTagContainer ComaptileMeshTag_Down ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	UInstancedStaticMeshComponent*InstancedMesh;
 	
 };
 
@@ -122,7 +113,7 @@ public:
 	
 	// these are number like 100x100 procedural tile
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
-	int Map_Length ;
+	int Map_Height ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
 	int Map_Width ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
@@ -138,6 +129,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	UInstancedStaticMeshComponent*FlorInstanceMesh ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UInstancedStaticMeshComponent*TileMeshInstance;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	UStaticMesh*StaticMesh ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	bool bWantBaseFloor;
@@ -145,6 +138,8 @@ public:
 	TArray<FTile> AllTiles;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTile> RemainingTiles;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	TArray<FTile> CollapsedTiles;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	bool bWantCustomTileSize;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
@@ -198,10 +193,6 @@ public:
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	FTile ReturnMeshWithLowEntropy (TArray<FTile> TotalTile);
 
-	
-
-	
-	
 	
 };
 
