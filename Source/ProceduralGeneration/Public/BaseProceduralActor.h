@@ -8,6 +8,7 @@
 
 
 // COLLAPSE STATUS ENUM
+class ACoreDebugContainer ;
 
 
 UENUM(BlueprintType)
@@ -150,7 +151,8 @@ public:
 	TArray<FTileMesh>TotalTileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	float AllTiles_Float ;
-	
+	UPROPERTY(VisibleAnywhere , BlueprintReadWrite,Category="Debug")
+	ACoreDebugContainer* DebugContainerAcotr;
 		
 	
 	

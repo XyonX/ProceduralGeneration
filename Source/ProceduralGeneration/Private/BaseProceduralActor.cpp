@@ -2,6 +2,7 @@
 #include "BaseProceduralActor.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ProceduralGeneration/Public/CoreDebugContainer.h"
 #include "Containers/Array.h"
 
 
@@ -33,6 +34,7 @@ FMatchingTileArray FTileMesh::GetMatchingTiles()
 // CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
 {
+	
 	// TURNING OFF TICK
 	PrimaryActorTick.bCanEverTick = false;
 	
@@ -62,6 +64,8 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
+	// SpawningActor
+	DebugContainerAcotr = GetWorld()->SpawnActor<ACoreDebugContainer>(FVector::ZeroVector, FRotator::ZeroRotator);
 	
 	// CALLING TO GET MESH LENGTH 
 	CalculateMeshLength();
@@ -69,7 +73,7 @@ void ABaseProceduralActor::BeginPlay()
 	GenerateTile();
 	//STARTING THE MAIN ALGORITHM
 	WaveFunctionCollapse();
-
+	//if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("LENGTH OF ALLTileArray : %f "),AllTiles.Num());}
 }
 
 // THE MAIN ALGORITHM
@@ -190,9 +194,9 @@ FTile ABaseProceduralActor::ChooseRandomTile(TArray<FTile> AllTileToChooseFrom)
 	return AllTiles[RandomTile];
 }
 
-void ABaseProceduralActor::AddInstanceMesh( FTile SelectedTile)
+//ADD STATIC MESH INSTANCE
+void ABaseProceduralActor::AddInstanceMesh(FTile SelectedTile)
 {
-	
 	FTileMesh SelectedTileMesh = SelectedTile.SelectedTiledMesh;
 	UInstancedStaticMeshComponent*Comp = SelectedTileMesh.InstancedMesh;
 	if(SelectedTileMesh.TileMesh)
@@ -347,6 +351,11 @@ FTile ABaseProceduralActor::ReturnMeshWithLowEntropy(TArray<FTile> TotalTile)
 // CHOOSE AN RAND0M ARRAY FROM GIVEN ARRAY OF FTILEMESH BASED ON ENTROPY
 FTileMesh ABaseProceduralActor::RandomMeshFromAvailableMesh(FTile Tile)
 {
+	if(Tile.AllAvailableMeshToChooseFrom.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Mesh found!"));
+		return FTileMesh();
+	}
 	
 	int RandomMESH = FMath::RandRange(0,Tile.AllAvailableMeshToChooseFrom.Num()-1 );
 	return Tile.AllAvailableMeshToChooseFrom[RandomMESH];
@@ -484,8 +493,6 @@ void CheckSelectedTileStatusAndAvilableTileMesh  (TArray<FTile>TotalTile , int T
 	CurrentlyAvailableTilemesh = UpdatedAvailableTileMesh_D;
 	
 }
-
-
 
 
 
