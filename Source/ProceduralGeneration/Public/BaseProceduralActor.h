@@ -195,7 +195,7 @@ public:
 	UFUNCTION()
 	void UpdateAvailableMesh_Down(FTile SelectedTile );
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
-	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh> TotalTileMeshes);
+	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh>& TotalTileMeshes);
 	
 	
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES

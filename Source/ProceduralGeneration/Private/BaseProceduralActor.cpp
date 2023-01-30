@@ -56,7 +56,7 @@ void ABaseProceduralActor::BeginPlay()
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT(" BOTH TILE AND TOTAL MESH AVAILABLE WAVE FUNCTION CALLING  "));}
 
 		//STARTING THE MAIN ALGORITHM
-		//WaveFunctionCollapse();
+		WaveFunctionCollapse();
 	}
 }
 
@@ -71,8 +71,9 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 				RemainingTiles.Add(Tile)  ;
 			}
 		
-	
+	/*
 		// FIRST RANDOM ID FROM STREAM
+		Stream.GenerateNewSeed();
 		int FirstTileID =  UKismetMathLibrary::RandomIntegerFromStream(Map_Height*Map_Width-1,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
@@ -96,7 +97,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		UpdateAvailableMesh_Right(FirstRandomTile);
 		UpdateAvailableMesh_Up(FirstRandomTile);
 		UpdateAvailableMesh_Down(FirstRandomTile);
-/*
+
 		while (RemainingTiles.Num()>0)
 		{
 			// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE 
@@ -121,7 +122,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 }
 
 // THIS FUNCTION CREATE THE INSTANCED MESH OBJET FOR ALL THE TILEMESH
-void ABaseProceduralActor::CreteInstanceMeshObjectForTotalTileMesh(TArray<FTileMesh> TotalTileMeshes)
+void ABaseProceduralActor::CreteInstanceMeshObjectForTotalTileMesh(TArray<FTileMesh>& TotalTileMeshes)
 {
 	for(FTileMesh &tileMesh : TotalTileMeshes)
 	{
