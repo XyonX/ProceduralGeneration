@@ -26,13 +26,6 @@ ABaseProceduralActor::ABaseProceduralActor()
 	
 	// CREATING  INSTANCE MESH FOR BASE FLOOR 
 	FlorInstanceMesh= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
-	
-
-	// CREATING INSTANCE MESH FOR  FTILE MESH
-
-	 TileMeshInstance = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("FTILEMESH INSTANCE"));
-	
-	
 
 	// SETTING THE ALL TILE FLOAT COUNTER TO 0
 	AllTiles_Float = 0 ;
@@ -44,74 +37,48 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	// SETTING INSTANCE MESH FOR TOTAL TILE MESH
-	for(FTileMesh &tileMesh : TotalTileMesh)
-	{
-		tileMesh.InstancedMesh = TileMeshInstance ;
-		// set other properties of tileMesh
-		if(tileMesh.TileMesh)
-			tileMesh.InstancedMesh->SetStaticMesh(tileMesh.TileMesh);
-	}
-	// SetTing Static mesh for floor Instance Mesh
+	
+	// SETTING UP INSTANCED MESH COMPONENT FOR FLOOR ACTOR AND ALL THE TILEMESH
+	CreteInstanceMeshObjectForTotalTileMesh(TotalTileMesh);
 	FlorInstanceMesh->SetStaticMesh(StaticMesh);
 
-	
-	// SPAWNING DEBUG ACTOR
+	//FOR DEBUG CONTAINER ACTOR
 	DebugContainerAcotr = GetWorld()->SpawnActor<ACoreDebugContainer>(FVector::ZeroVector, FRotator::ZeroRotator);
 
-	
-
-	
-	
-	// CALLING TO GET MESH LENGTH 
+	//GENERATING TILE
 	CalculateMeshLength();
-	
-	//CALLING TO GENERATE TILE
 	GenerateTile();
-	//Adding RemainingTile To All Tile 
-	RemainingTiles =AllTiles ;
+	SetDefaultMeshForAllTiles(AllTiles,TotalTileMesh);
+	GenerateBaseFloor(AllTiles);
 	
-	//STARTING THE MAIN ALGORITHM
-	WaveFunctionCollapse();
-	//if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("LENGTH OF ALLTileArray : %f "),AllTiles.Num());}
+	if ( !AllTiles.IsEmpty()  && !TotalTileMesh.IsEmpty() )
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT(" BOTH TILE AND TOTAL MESH AVAILABLE WAVE FUNCTION CALLING  "));}
+
+		//STARTING THE MAIN ALGORITHM
+		//WaveFunctionCollapse();
+	}
 }
 
 // THE MAIN ALGORITHM
 void ABaseProceduralActor::WaveFunctionCollapse()
 {
+
+		//Adding RemainingTile To All Tile
+		RemainingTiles.Reserve(AllTiles.Num());
+		for(FTile& Tile : AllTiles)
+			{
+				RemainingTiles.Add(Tile)  ;
+			}
+		
 	
-	// Generate Tile
-	bool GenDone;
-	
-	GenDone =GenerateTile();
-	
-	if(AllTiles.IsEmpty())
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" ALL TILES ARRAY IS EMPTY WAVE FUNCTION ABORTED"));}
-		return;
-	}
-	if(RemainingTiles.IsEmpty())
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" Remaining TILES ARRAY IS EMPTY WAVE FUNCTION ABORTED"));}
-		return;
-	}
-	if(TotalTileMesh.IsEmpty())
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" Total TileMesh IS EMPTY WAVE FUNCTION ABORTED"));}
-		return;
-	}
-	
-	if(GenDone)
-	{
 		// FIRST RANDOM ID FROM STREAM
 		int FirstTileID =  UKismetMathLibrary::RandomIntegerFromStream(Map_Height*Map_Width-1,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
-		
 		FTile FirstRandomTile = RemainingTiles[FirstTileID];
 
+		
 		//SET SELECTED FTILEMES
 		FirstRandomTile.SelectedTiledMesh =RandomMeshFromAvailableMesh(FirstRandomTile);
 		
@@ -151,16 +118,26 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 			
 		
 		}*/
+}
+
+// THIS FUNCTION CREATE THE INSTANCED MESH OBJET FOR ALL THE TILEMESH
+void ABaseProceduralActor::CreteInstanceMeshObjectForTotalTileMesh(TArray<FTileMesh> TotalTileMeshes)
+{
+	for(FTileMesh &tileMesh : TotalTileMeshes)
+	{
+		tileMesh.InstancedMesh = NewObject<UInstancedStaticMeshComponent>(this);
+		tileMesh.InstancedMesh->SetStaticMesh(tileMesh.TileMesh);
 	}
 }
 
 // CALCULATE LENGTH OF THE  FLOOR MESH 
 void ABaseProceduralActor::CalculateMeshLength()
 {
-	//FBox BoundingBox  ;
-	//AActor*Ac ;
-	//Ac->GetActorBounds()
-	//Actor_Length = BoundingBox.
+	if(StaticMesh ==nullptr)
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("  Tile Size Calculation Failed"));}
+		return;
+	}
 	FVector Center ;
 	FVector Extent;
 	StaticMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
@@ -186,19 +163,7 @@ bool ABaseProceduralActor::GenerateTile()
 			Tile.Position_2D.Width=j+1;
 			Tile.Position_2D.Length=i+1;
 			Tile.World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
-			Tile.AllAvailableMeshToChooseFrom=TotalTileMesh;
 			AllTiles.Add(Tile);
-			
-			if(bWantBaseFloor)
-			{
-				if(FlorInstanceMesh)
-				{
-					FTransform SpawnTransform ;
-					SpawnTransform.SetLocation(Tile.World_Location);
-					FlorInstanceMesh->AddInstance(SpawnTransform,true);
-				}
-				
-			}
 		}
 	}
 	GenerationDone=true;
@@ -223,6 +188,51 @@ void ABaseProceduralActor::AddInstanceMesh(FTile SelectedTile)
 		FTransform SpawnTransform ;
 		SpawnTransform.SetLocation(SelectedTile.World_Location);
 		Comp->AddInstance(SpawnTransform);
+	}
+}
+
+void ABaseProceduralActor::GenerateBaseFloor(TArray<FTile> TotalTies)
+{
+	if(!bWantBaseFloor)
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("  want base floor : false "));}
+		return;
+	}
+	if(TotalTies.IsEmpty())
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("  TotalTile Empty Base Floor Generation Aborted "));}
+		return;
+	}
+	if(FlorInstanceMesh)
+	{
+		for(FTile Tile : TotalTies)
+		{
+			FTransform Transform ;
+			Transform.SetLocation(Tile.World_Location);
+			FlorInstanceMesh->AddInstance(Transform);
+		}
+	}
+}
+
+void ABaseProceduralActor::SetDefaultMeshForAllTiles(TArray<FTile> TotalTiles ,TArray<FTileMesh> TotalMesh )
+{
+	if(TotalTiles.IsEmpty())
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" ALLTiles Array is Empty !!! Set Default Mesh Failed  "));}
+		return;
+	}
+	if(TotalMesh.IsEmpty())
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" Total Mesh Array is Empty !!! Set Default Mesh Failed  "));}
+	}
+	
+	for(FTile Tiles : TotalTiles)
+	{
+		Tiles.AllAvailableMeshToChooseFrom.Reserve(TotalMesh.Num());
+		for ( FTileMesh& MeshElement : TotalTileMesh)
+		{
+			Tiles.AllAvailableMeshToChooseFrom.Add(MeshElement);
+		}
 	}
 }
 
@@ -323,7 +333,6 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile SelectedTile)
 	}
 }
 
- 
 // RETURNS TILE WITH LOWEST ENTROPY 
 FTile ABaseProceduralActor::ReturnMeshWithLowEntropy(TArray<FTile> TotalTile)
 {
@@ -355,6 +364,9 @@ FTileMesh ABaseProceduralActor::RandomMeshFromAvailableMesh(FTile Tile)
 	int RandomMESH = FMath::RandRange(0,Tile.AllAvailableMeshToChooseFrom.Num()-1 );
 	return Tile.AllAvailableMeshToChooseFrom[RandomMESH];
 }
+
+
+
 
 
 

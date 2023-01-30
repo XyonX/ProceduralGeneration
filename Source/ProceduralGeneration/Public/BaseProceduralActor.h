@@ -176,9 +176,14 @@ public:
 	// THIS FUNCTION ADD AN INSTANCE TO THE  SELECTED MESH
 	UFUNCTION()
 	void AddInstanceMesh (FTile SelectedTile);
+	UFUNCTION()
+	void GenerateBaseFloor (TArray<FTile>TotalTies);
+	UFUNCTION()
+	void SetDefaultMeshForAllTiles (TArray<FTile> TotalTiles ,TArray<FTileMesh> TotalMesh );
 
 	// JUST CALL THOSE 4 SURROUNDED  FUNCTION UPDATE FUNCTION 
 	void UpdateSurroundingMesh (FTile SelectedTile);
+
 	
 	// Updating Surrounding Mesh
 	UFUNCTION()
@@ -189,12 +194,17 @@ public:
 	void UpdateAvailableMesh_Up(FTile SelectedTile );
 	UFUNCTION()
 	void UpdateAvailableMesh_Down(FTile SelectedTile );
+	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
+	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh> TotalTileMeshes);
+	
 	
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	FTile ReturnMeshWithLowEntropy (TArray<FTile> TotalTile);
 
 	
 };
+
+
 
 
 
