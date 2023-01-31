@@ -148,7 +148,8 @@ public:
 	float AllTiles_Float ;
 	UPROPERTY(VisibleAnywhere , BlueprintReadWrite,Category="Debug")
 	ACoreDebugContainer* DebugContainerAcotr;
-		
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	FTileMesh DefaultTileMesh;	
 	
 	
 	//					//
@@ -171,35 +172,35 @@ public:
 	FTile ChooseRandomTile(TArray<FTile>AllTileToChooseFrom);
 
 	//CHOOSE A RANDOM MESH FROM   AVAILABLE MESH ARRAY
-	FTileMesh RandomMeshFromAvailableMesh(FTile Tile );
+	FTileMesh& RandomMeshFromAvailableMesh(FTile& Tile );
 
 	// THIS FUNCTION ADD AN INSTANCE TO THE  SELECTED MESH
 	UFUNCTION()
-	void AddInstanceMesh (FTile SelectedTile);
+	void AddInstanceMesh (int ID , TArray<FTile>&TotalTile);
 	UFUNCTION()
 	void GenerateBaseFloor (TArray<FTile>TotalTies);
 	UFUNCTION()
-	void SetDefaultMeshForAllTiles (TArray<FTile> TotalTiles ,TArray<FTileMesh> TotalMesh );
+	void SetDefaultMeshForAllTiles (TArray<FTile>& TotalTiles ,TArray<FTileMesh>& TotalMesh );
 
 	// JUST CALL THOSE 4 SURROUNDED  FUNCTION UPDATE FUNCTION 
-	void UpdateSurroundingMesh (FTile SelectedTile);
+	void UpdateSurroundingMesh (FTile& SelectedTile , TArray<FTile>&TotalTile);
 
 	
 	// Updating Surrounding Mesh
 	UFUNCTION()
-	void UpdateAvailableMesh_Left(FTile SelectedTile );
+	void UpdateAvailableMesh_Left(FTile& SelectedTile , TArray<FTile>&TotalTile );
 	UFUNCTION()
-	void UpdateAvailableMesh_Right(FTile SelectedTile );
+	void UpdateAvailableMesh_Right(FTile& SelectedTile, TArray<FTile>&TotalTile );
 	UFUNCTION()
-	void UpdateAvailableMesh_Up(FTile SelectedTile );
+	void UpdateAvailableMesh_Up(FTile& SelectedTile, TArray<FTile>&TotalTile );
 	UFUNCTION()
-	void UpdateAvailableMesh_Down(FTile SelectedTile );
+	void UpdateAvailableMesh_Down(FTile& SelectedTile, TArray<FTile>&TotalTile );
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh>& TotalTileMeshes);
-	
+	void UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<FTile>& TotalTile ,TArray<FTile>& RemainingTile, TArray<FTile>& TotalCollapsedTile );
 	
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
-	FTile ReturnMeshWithLowEntropy (TArray<FTile> TotalTile);
+	int ReturnMeshIDWithLowEntropy (TArray<FTile>& TotalTile);
 
 	
 };
