@@ -147,7 +147,9 @@ public:
 	UPROPERTY(VisibleAnywhere , BlueprintReadWrite,Category="Debug")
 	ACoreDebugContainer* DebugContainerAcotr;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FTileMesh DefaultTileMesh;	
+	FTileMesh DefaultTileMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	FTile DefaultTile;
 	
 	
 	//					//
@@ -181,25 +183,25 @@ public:
 	void SetDefaultMeshForAllTiles (TArray<FTile>& TotalTiles ,TArray<FTileMesh>& TotalMesh );
 
 	// JUST CALL THOSE 4 SURROUNDED  FUNCTION UPDATE FUNCTION 
-	void UpdateSurroundingMesh (FTile& SelectedTile , TArray<FTile>&TotalTile);
+	void UpdateSurroundingMesh (FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
 
 	
 	// Updating Surrounding Mesh
 	UFUNCTION()
-	void UpdateAvailableMesh_Left(FTile& SelectedTile , TArray<FTile>&TotalTile );
+	void UpdateAvailableMesh_Left(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
 	UFUNCTION()
-	void UpdateAvailableMesh_Right(FTile& SelectedTile, TArray<FTile>&TotalTile );
+	void UpdateAvailableMesh_Right(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
 	UFUNCTION()
-	void UpdateAvailableMesh_Up(FTile& SelectedTile, TArray<FTile>&TotalTile );
+	void UpdateAvailableMesh_Up(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
 	UFUNCTION()
-	void UpdateAvailableMesh_Down(FTile& SelectedTile, TArray<FTile>&TotalTile );
+	void UpdateAvailableMesh_Down(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile );
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh>& TotalTileMeshes);
 	void UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<FTile>& TotalTile ,TArray<FTile>& RemainingTilee, TArray<FTile>& TotalCollapsedTile );
 	
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	int ReturnMeshIDWithLowEntropy (TArray<FTile>& TotalTile);
-
+	FTile& GetTileByID(int ID , TArray<FTile>& TotalTile );
 	
 };
 
