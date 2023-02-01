@@ -25,7 +25,7 @@ struct FMatrixPosition
 {
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
-	int Length ;
+	int Height ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
 	int Width ;
 };
@@ -195,7 +195,7 @@ public:
 	void UpdateAvailableMesh_Down(FTile& SelectedTile, TArray<FTile>&TotalTile );
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh>& TotalTileMeshes);
-	void UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<FTile>& TotalTile ,TArray<FTile>& RemainingTile, TArray<FTile>& TotalCollapsedTile );
+	void UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<FTile>& TotalTile ,TArray<FTile>& RemainingTilee, TArray<FTile>& TotalCollapsedTile );
 	
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	int ReturnMeshIDWithLowEntropy (TArray<FTile>& TotalTile);
