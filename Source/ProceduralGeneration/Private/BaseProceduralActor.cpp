@@ -74,15 +74,15 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 	
 		// FIRST RANDOM ID FROM STREAM
 		Stream.GenerateNewSeed();
-		int FirstTileID =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
+		int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
-		FTile& FirstRandomTile = RemainingTiles[FirstTileID];
+		FTile& FirstRandomTile = RemainingTiles[FirstIndices];
 		
 		// ADDING INSTANCE OF THE SELECTED MESH
-		AddInstanceMesh(FirstTileID+1,AllTiles);
+		AddInstanceMesh(FirstRandomTile.ID,AllTiles);
 		//Update  Collapsed Tile Data
-		UpdateCollapsedTileData(FirstRandomTile.ID,FirstTileID,AllTiles,RemainingTiles,CollapsedTiles);
+		UpdateCollapsedTileData(FirstRandomTile.ID,FirstIndices,AllTiles,RemainingTiles,CollapsedTiles);
 
 		//UPDATE THE SURROUNDING TILES AVAILABLEMESH
 
@@ -99,7 +99,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 			// REMOVE FROM REMAINING TILE
 			RemainingTiles.RemoveAt(Tile.ID-1);
 
-			// CHOOSE A RANOM MESH FROM AVAILABLE
+			// CHOOSE A RANDOM MESH FROM AVAILABLE
 			Tile.SelectedTiledMesh = RandomMeshFromAvailableMesh(Tile);
 			// ADD A INSTANCE TO THE MESH
 			AddInstanceMesh(Tile);
@@ -128,7 +128,7 @@ void ABaseProceduralActor::UpdateCollapsedTileData(int ID ,int ArrayPosition , T
 {
 	//Update Collapse Status in the main tile
 
-	FTile&CollapsedTile = TotalTile[ID];
+	FTile&CollapsedTile = TotalTile[ID-1];
 	CollapsedTile.CollapseStatus=EcollapseStatus::Collapsed;
 
 	//Remove From Remaining Title
@@ -228,7 +228,7 @@ void ABaseProceduralActor::SetDefaultMeshForAllTiles(TArray<FTile> &TotalTiles ,
 	for(FTile &Tiles : TotalTiles)
 	{
 		Tiles.AllAvailableMeshToChooseFrom.Reserve(TotalMesh.Num());
-		for ( FTileMesh& MeshElement : TotalTileMesh)
+		for ( FTileMesh& MeshElement : TotalMesh)
 		{
 			Tiles.AllAvailableMeshToChooseFrom.Add(MeshElement);
 		}
@@ -255,7 +255,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile& SelectedTile , TArray
 	}
 	FTile& LeftNeighbour  = AllTiles[SelectedTile.ID-10];
 	TArray<FTileMesh> UpdatedAvailableTileMesh;
-	TArray<FTileMesh>& AvailableMesh = LeftNeighbour.AllAvailableMeshToChooseFrom ;
+	TArray<FTileMesh> AvailableMesh = LeftNeighbour.AllAvailableMeshToChooseFrom ;
 
 	if( LeftNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
 	{
@@ -342,17 +342,17 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile& SelectedTile , TArray
 int ReturnMeshIDWithLowEntropy (TArray<FTile>& TotalTile)
 {
 	int LowestNumberOfTile =999;
-	FTile TileWithLowEntropy;
+	int id;
 	for(FTile& Tile : TotalTile )
 	{
 		if(Tile.AllAvailableMeshToChooseFrom.Num()<LowestNumberOfTile )
 		{
 
 			LowestNumberOfTile=Tile.AllAvailableMeshToChooseFrom.Num();
-			TileWithLowEntropy =Tile;
+			id =Tile.ID;
 		}
 	}
-	return TileWithLowEntropy.ID;
+	return id;
 }
 
 

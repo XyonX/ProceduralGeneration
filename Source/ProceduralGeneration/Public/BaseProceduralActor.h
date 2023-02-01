@@ -7,7 +7,6 @@
 #include "GameFramework/Actor.h"
 #include "BaseProceduralActor.generated.h"
 
-
 // COLLAPSE STATUS ENUM
 class ACoreDebugContainer ;
 
@@ -74,9 +73,8 @@ struct FTile
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	EcollapseStatus CollapseStatus ;
 	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
-	//void SetSelectedMesh ( FTileMesh TileMesh);
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTileMesh>  AllAvailableMeshToChooseFrom;
+	TArray<FTileMesh > AllAvailableMeshToChooseFrom;
 	
 	
 	
