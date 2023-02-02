@@ -24,10 +24,23 @@ USTRUCT(BlueprintType)
 struct FMatrixPosition
 {
 	GENERATED_BODY()
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
 	int Height ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
 	int Width ;
+	void SetPositon (int height , int width)
+	{
+		Height=height;
+		Width=width;
+	};
+	FMatrixPosition GetPosition ()
+	{
+		FMatrixPosition pos;
+		pos.Height = Height;
+		pos.Width = Width;
+		return pos;
+	}
 };
 
 // CAN BE CONSIDE AS A SINGLE MESH UNIT CONTAIN ONE MAIN MESH AND OTHER NEEDED VARS
@@ -202,6 +215,8 @@ public:
 	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
 	int ReturnMeshIDWithLowEntropy (TArray<FTile>& TotalTile);
 	FTile& GetTileByID(int ID , TArray<FTile>& TotalTile );
+	FTile& GetTileByPosition2D (FMatrixPosition Pos , TArray<FTile>& TotalTile);
+	
 	
 };
 

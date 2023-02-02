@@ -77,7 +77,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
-		FTile& FirstRandomTile = RemainingTiles[10];
+		FTile& FirstRandomTile = RemainingTiles[FirstIndices];
 		
 		// ADDING INSTANCE OF THE SELECTED MESH
 		AddInstanceMesh(FirstRandomTile.ID,AllTiles);
@@ -147,6 +147,19 @@ FTile& ABaseProceduralActor::GetTileByID(int ID, TArray<FTile>& TotalTile)
 		if(Tile.ID==ID)
 			return  Tile ;
 	}
+	return DefaultTile;
+}
+
+FTile& ABaseProceduralActor::GetTileByPosition2D(FMatrixPosition Pos, TArray<FTile>& TotalTile)
+{
+	for (FTile&Tile :TotalTile)
+	{
+		if(Tile.Position_2D.Height == Pos.Height && Tile.Position_2D.Height == Pos.Width )
+		{
+			return Tile;
+		}
+	}
+	if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("  ERROR IN TILE FOUND RETURN DEFAULT TILE  "));}
 	return DefaultTile;
 }
 
@@ -265,7 +278,9 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FMatrixPosition Position2D ,
 	{
 		return;
 	}
-	FTile& LeftNeighbour  = AllTiles[Position2D.Width-1 <=0];
+	FMatrixPosition Pos;
+	Pos.SetPositon(Position2D.Height,Position2D.Width-1);
+	FTile& LeftNeighbour  = GetTileByPosition2D(Pos,AllTiles);
 	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	TArray<FTileMesh> AvailableMesh = LeftNeighbour.AllAvailableMeshToChooseFrom ;
 
@@ -291,7 +306,10 @@ void ABaseProceduralActor::UpdateAvailableMesh_Right(FMatrixPosition Position2D 
 	{
 		return;
 	}
-	FTile& RightNeighbour  = AllTiles[Position2D.Width+1];
+	FMatrixPosition Pos;
+	Pos.SetPositon(Position2D.Height,Position2D.Width+1);
+	FTile& RightNeighbour =GetTileByPosition2D(Pos,AllTiles);
+	
 	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	TArray<FTileMesh>& AvailableMesh = RightNeighbour.AllAvailableMeshToChooseFrom ;
 	if(RightNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
@@ -314,7 +332,9 @@ void ABaseProceduralActor::UpdateAvailableMesh_Up(FMatrixPosition Position2D ,in
 	{
 		return;
 	}
-	FTile& UpNeighbour  = AllTiles[Position2D.Height+1];
+	FMatrixPosition Pos;
+	Pos.SetPositon(Position2D.Height+1,Position2D.Width);
+	FTile& UpNeighbour  = GetTileByPosition2D(Pos,AllTiles);
 	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	TArray<FTileMesh> &AvailableMesh = UpNeighbour.AllAvailableMeshToChooseFrom ;
 	if(UpNeighbour.CollapseStatus==EcollapseStatus::Collapsed)
@@ -337,7 +357,9 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(FMatrixPosition Position2D ,
 		{
 			return;
 		}
-		FTile& DownNeighbour  = AllTiles[Position2D.Height-1];
+		FMatrixPosition Pos;
+		Pos.SetPositon(Position2D.Height-1,Position2D.Width);
+		FTile& DownNeighbour  = GetTileByPosition2D(Pos,AllTiles);
 		TArray<FTileMesh> UpdatedAvailableTileMesh;
 		TArray<FTileMesh>& AvailableMesh = DownNeighbour.AllAvailableMeshToChooseFrom ;
 	
