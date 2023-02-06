@@ -9,7 +9,7 @@
 
 // COLLAPSE STATUS ENUM
 class ACoreDebugContainer ;
-
+struct FTile;
 
 UENUM(BlueprintType)
 enum class EcollapseStatus : uint8
@@ -53,6 +53,8 @@ struct FTileMesh
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
+	//UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	//TArray<FTile>OwnerTileList;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FGameplayTag MeshTag ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")

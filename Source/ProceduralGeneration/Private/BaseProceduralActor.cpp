@@ -87,14 +87,14 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		//UPDATE THE SURROUNDING TILES AVAILABLE MESH
 		UpdateSurroundingMesh(FirstRandomTile.Position_2D,FirstRandomTile.ID,AllTiles);
 	
-		while (!RemainingTiles.IsEmpty())
+		/*while (!RemainingTiles.IsEmpty())
 		{
 			// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
 			int TileID = ReturnMeshIDWithLowEntropy(AllTiles);
 			FTile& Tile = AllTiles[TileID-1];
 			AddInstanceMesh(TileID,AllTiles);
 			UpdateSurroundingMesh(Tile.Position_2D,TileID,AllTiles);
-		}
+		}*/
 }
 
 // THIS FUNCTION CREATE THE INSTANCED MESH OBJET FOR ALL THE TILEMESH
