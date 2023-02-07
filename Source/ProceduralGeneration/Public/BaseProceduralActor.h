@@ -43,7 +43,23 @@ struct FMatrixPosition
 	}
 };
 
+
+USTRUCT()
+struct FTileContainer
+{
+	GENERATED_BODY()
+	FTile* Tile ;
+	FTileContainer * NextTileContainer ;
+	
+	~FTileContainer()
+	{
+		delete NextTileContainer;
+	}
+	
+};
+
 // CAN BE CONSIDE AS A SINGLE MESH UNIT CONTAIN ONE MAIN MESH AND OTHER NEEDED VARS
+
 
 USTRUCT(BlueprintType)
 struct FTileMesh
@@ -149,6 +165,7 @@ public:
 	bool bWantBaseFloor;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTile> AllTiles;
+	FTileContainer * AllTiles_HEAD ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	TArray<FTile> RemainingTiles;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
@@ -182,6 +199,8 @@ public:
 	// GENERATE TILE									// USES THE CALCULATE LENGTH FUNCTION DATA TO PROVIDE WORLD POSITION 
 	UFUNCTION(BlueprintCallable)
 	bool GenerateTile( );
+	UFUNCTION(BlueprintCallable)
+	bool GenerateTile_V2( );
 	
 	//   THESE CHOOSE RANDOM TILE FROM GIVEN ARRAY		// MAINLY FOR FIRST RANDOM TILE CHOOSE
 	FTile ChooseRandomTile(TArray<FTile>AllTileToChooseFrom);

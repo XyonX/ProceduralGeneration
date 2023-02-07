@@ -205,6 +205,44 @@ bool ABaseProceduralActor::GenerateTile()
 	return GenerationDone;
 }
 
+bool ABaseProceduralActor::GenerateTile_V2()
+{
+	bool GenerationDone= false;
+	int id=0;
+	FTileContainer*CurrentTileContainer ;
+	for (int i = 0 ; i< Map_Height ; i++)
+	{
+		for (int j = 0 ; j< Map_Width ; j++)
+		{
+			
+			FTile *Tile =new FTile ;
+			id++;
+			Tile->ID = id ;
+			AllTiles_Float ++ ;
+			Tile->Position_2D.Height=i+1;
+			Tile->Position_2D.Width=j+1;
+			Tile->World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
+
+			FTileContainer* TileContainer = new FTileContainer;
+			TileContainer->Tile=Tile;
+			CurrentTileContainer=TileContainer;
+			FTileContainer*NextTileCotainer =new FTileContainer;
+			CurrentTileContainer->NextTileContainer =NextTileCotainer;
+			CurrentTileContainer=NextTileCotainer;
+
+			if(AllTiles_HEAD==nullptr)
+			{
+				AllTiles_HEAD=new FTileContainer;
+				AllTiles_HEAD->Tile=Tile;
+				AllTiles_HEAD->NextTileContainer=CurrentTileContainer;
+			}
+		}
+	}
+	GenerationDone=true;
+	return GenerationDone;
+	
+}
+
 // THIS FUNCTION CHOOSE RANDOM TILE FROM GIVEN ARRAY
 FTile ABaseProceduralActor::ChooseRandomTile(TArray<FTile> AllTileToChooseFrom)
 {
