@@ -48,7 +48,7 @@ USTRUCT()
 struct FTileContainer
 {
 	GENERATED_BODY()
-	FTile* Tile ;
+	std::unique_ptr<FTile> Tile ;
 	FTileContainer * NextTileContainer ;
 	
 	~FTileContainer()

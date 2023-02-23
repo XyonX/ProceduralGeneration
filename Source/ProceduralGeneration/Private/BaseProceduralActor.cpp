@@ -215,16 +215,16 @@ bool ABaseProceduralActor::GenerateTile_V2()
 		for (int j = 0 ; j< Map_Width ; j++)
 		{
 			
-			FTile *Tile =new FTile ;
+			std::unique_ptr<FTile> tile(new FTile);
 			id++;
-			Tile->ID = id ;
+			tile->ID = id ;
 			AllTiles_Float ++ ;
-			Tile->Position_2D.Height=i+1;
-			Tile->Position_2D.Width=j+1;
-			Tile->World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
+			tile->Position_2D.Height=i+1;
+			tile->Position_2D.Width=j+1;
+			tile->World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
 
 			FTileContainer* TileContainer = new FTileContainer;
-			TileContainer->Tile=Tile;
+			TileContainer->Tile=std::move(tile);
 			CurrentTileContainer=TileContainer;
 			FTileContainer*NextTileCotainer =new FTileContainer;
 			CurrentTileContainer->NextTileContainer =NextTileCotainer;
@@ -233,7 +233,7 @@ bool ABaseProceduralActor::GenerateTile_V2()
 			if(AllTiles_HEAD==nullptr)
 			{
 				AllTiles_HEAD=new FTileContainer;
-				AllTiles_HEAD->Tile=Tile;
+				AllTiles_HEAD->Tile=std::move(tile);
 				AllTiles_HEAD->NextTileContainer=CurrentTileContainer;
 			}
 		}
