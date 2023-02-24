@@ -1,245 +1,149 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
+#include <Templates/SharedPointer.h>
+#include "FTile.h"
 #include "BaseProceduralActor.generated.h"
 
 // COLLAPSE STATUS ENUM
-class ACoreDebugContainer ;
-struct FTile;
+class ACoreDebugContainer;
+struct FMatrixPosition;
 
-UENUM(BlueprintType)
-enum class EcollapseStatus : uint8
-{
-	NotCollapsed = 0		UMETA(DisplayName = "Not Collapsed"),
-	Collapsed =1		UMETA(DisplayName = "Collaped")	
-};
-
-// 2D STRUCT FOR STORING XY LOCATION
-
-USTRUCT(BlueprintType)
-struct FMatrixPosition
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
-	int Height ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
-	int Width ;
-	void SetPositon (int height , int width)
-	{
-		Height=height;
-		Width=width;
-	};
-	FMatrixPosition GetPosition ()
-	{
-		FMatrixPosition pos;
-		pos.Height = Height;
-		pos.Width = Width;
-		return pos;
-	}
-};
-
-
+// LLinked list for tile		// NOT USING CURRENTLY
 USTRUCT()
 struct FTileContainer
 {
-	GENERATED_BODY()
-	std::unique_ptr<FTile> Tile ;
-	FTileContainer * NextTileContainer ;
-	
-	~FTileContainer()
-	{
-		delete NextTileContainer;
-	}
-	
+    GENERATED_BODY()
+    std::unique_ptr<FTile> Tile;
+    FTileContainer* NextTileContainer;
+
+    ~FTileContainer()
+    {
+        delete NextTileContainer;
+    }
 };
 
-// CAN BE CONSIDE AS A SINGLE MESH UNIT CONTAIN ONE MAIN MESH AND OTHER NEEDED VARS
+// CAN BE CONSIDERED AS A SINGLE MESH UNIT CONTAINING ONE MAIN MESH AND OTHER NEEDED VARIABLES
 
+// THE MAIN TILE WE ARE GENERATING AND STORING IN AN ARRAY
 
-USTRUCT(BlueprintType)
-struct FTileMesh
-{
-	GENERATED_BODY()
-	//FTileMesh();
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	UStaticMesh*TileMesh;
-	//UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	//TArray<FTile>OwnerTileList;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FGameplayTag MeshTag ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FGameplayTagContainer ComaptileMeshTag_Left ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FGameplayTagContainer ComaptileMeshTag_Right ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FGameplayTagContainer ComaptileMeshTag_Up ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	FGameplayTagContainer ComaptileMeshTag_Down ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
-	UInstancedStaticMeshComponent*InstancedMesh;
-	
-};
-
-// THE MAIN TILE WE ARE GENERETING  AND STORING IN AN ARRAY
-
-USTRUCT(BlueprintType)
-struct FTile
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	int ID ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FTileMesh SelectedTiledMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FMatrixPosition Position_2D ; 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FVector World_Location ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	EcollapseStatus CollapseStatus ;
-	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTileMesh > AllAvailableMeshToChooseFrom;
-	
-	
-	
-};
-
-
-//									//
-// STARTING OF THE MAIN CLASS		//
-//									//
-
+// STARTING OF THE MAIN CLASS
 
 UCLASS()
 class PROCEDURALGENERATION_API ABaseProceduralActor : public AActor
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
-	ABaseProceduralActor();
+    // Sets default values for this actor's properties
+    ABaseProceduralActor();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
+    // Called every frame
+    //virtual void Tick(float DeltaTime) override;
 
-	
-	//					//
-	//Variables			//
-	//					//
+    // Variables
+    // these are numbers like 100x100 procedural tile
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
+    int Map_Height;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
+    int Map_Width;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
+    FRandomStream Stream;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    float Actor_Length;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    float Actor_Length_X;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    float Actor_Length_Y;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    float Actor_Length_Z;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    UInstancedStaticMeshComponent* FlorInstanceMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    UInstancedStaticMeshComponent* TileMeshInstance;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    UStaticMesh* StaticMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    bool bWantBaseFloor;
 
-	
-	// these are number like 100x100 procedural tile
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
-	int Map_Height ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
-	int Map_Width ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generation")
-	FRandomStream Stream ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	float Actor_Length ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	float Actor_Length_X ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	float Actor_Length_Y ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	float Actor_Length_Z;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*FlorInstanceMesh ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UInstancedStaticMeshComponent*TileMeshInstance;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UStaticMesh*StaticMesh ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	bool bWantBaseFloor;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTile> AllTiles;
-	FTileContainer * AllTiles_HEAD ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTile> RemainingTiles;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTile> CollapsedTiles;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	bool bWantCustomTileSize;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	TArray<FTileMesh>TotalTileMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	float AllTiles_Float ;
-	UPROPERTY(VisibleAnywhere , BlueprintReadWrite,Category="Debug")
-	ACoreDebugContainer* DebugContainerAcotr;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FTileMesh DefaultTileMesh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FTile DefaultTile;
-	
-	
-	//					//
-	//Functions			//
-	//					//
+    // THE MAIN TILES CONTAINER
+    TArray<FTile*> AllTilesPTR;
+    TArray<FTile*> RemainingTiles;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
+    TArray<FTile> AllTilesREF;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    TArray<FTile*> CollapsedTiles;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    bool bWantCustomTileSize;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    TArray<FTileMesh> TotalTileMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    float AllTiles_Float;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Debug")
+    ACoreDebugContainer* DebugContainerAcotr;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    FTileMesh DefaultTileMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    FTile DefaultTile;
 
-	
-	// THE MAIN FUNCTION
+    // Functions
+
+	// The Main function
 	UFUNCTION(BlueprintCallable)
 	void WaveFunctionCollapse();
 
-	// CALCULATE THE LENGTH OF MESH 
+	// Calculate the length of mesh
 	void CalculateMeshLength();
 
-	// GENERATE TILE									// USES THE CALCULATE LENGTH FUNCTION DATA TO PROVIDE WORLD POSITION 
+	// Generate tile
+	// Uses the Calculate Length function data to provide world position
 	UFUNCTION(BlueprintCallable)
-	bool GenerateTile( );
-	UFUNCTION(BlueprintCallable)
-	bool GenerateTile_V2( );
-	
-	//   THESE CHOOSE RANDOM TILE FROM GIVEN ARRAY		// MAINLY FOR FIRST RANDOM TILE CHOOSE
-	FTile ChooseRandomTile(TArray<FTile>AllTileToChooseFrom);
+	bool GenerateTile();
 
-	//CHOOSE A RANDOM MESH FROM   AVAILABLE MESH ARRAY
-	FTileMesh& RandomMeshFromAvailableMesh(FTile& Tile );
+	void SetAllTilesREF(TArray<FTile*>& alltile);
 
-	// THIS FUNCTION ADD AN INSTANCE TO THE  SELECTED MESH
-	UFUNCTION()
-	void AddInstanceMesh (int ID , TArray<FTile>&TotalTile);
-	UFUNCTION()
-	void GenerateBaseFloor (TArray<FTile>TotalTies);
-	UFUNCTION()
-	void SetDefaultMeshForAllTiles (TArray<FTile>& TotalTiles ,TArray<FTileMesh>& TotalMesh );
+	// Choose a random tile from given array
+	// Mainly for first random tile choose
+	FTile* ChooseRandomTile(TArray<FTile*> AllTileToChooseFrom);
 
-	// JUST CALL THOSE 4 SURROUNDED  FUNCTION UPDATE FUNCTION 
-	void UpdateSurroundingMesh (FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
+	// Choose a random mesh from available mesh array
+	FTileMesh* RandomMeshFromAvailableMesh(FTile* Tile);
 
-	
+	// This function adds an instance to the selected mesh
+	void AddInstanceMesh(int ID, TArray<FTile*> TotalTile);
+
+	void GenerateBaseFloor(TArray<FTile*>& TotalTies);
+
+	// Just call those 4 surrounded function update function
+	void UpdateSurroundingMesh(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+
 	// Updating Surrounding Mesh
-	UFUNCTION()
-	void UpdateAvailableMesh_Left(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
-	UFUNCTION()
-	void UpdateAvailableMesh_Right(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
-	UFUNCTION()
-	void UpdateAvailableMesh_Up(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile);
-	UFUNCTION()
-	void UpdateAvailableMesh_Down(FMatrixPosition Position2D ,int SelectedTileID, TArray<FTile>&TotalTile );
-	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
-	void CreteInstanceMeshObjectForTotalTileMesh (TArray<FTileMesh>& TotalTileMeshes);
-	void UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<FTile>& TotalTile ,TArray<FTile>& RemainingTilee, TArray<FTile>& TotalCollapsedTile );
-	
-	// RETURNS MESH WITH LOWEST ENTROPY FROM GIVEN ARRAY OF TILES
-	int ReturnMeshIDWithLowEntropy (TArray<FTile>& TotalTile);
-	FTile& GetTileByID(int ID , TArray<FTile>& TotalTile );
-	FTile& GetTileByPosition2D (FMatrixPosition Pos , TArray<FTile>& TotalTile);
+	void UpdateAvailableMesh_Left(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+	void UpdateAvailableMesh_Right(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+	void UpdateAvailableMesh_Up(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+	void UpdateAvailableMesh_Down(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+
+	// Returns mesh with lowest entropy from given array of tiles
+	void InitTileMesh(TArray<FTileMesh>& TotalTileMeshes);
+	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<FTile*> TotalTile, TArray<FTile*> RemainingTilee, TArray<FTile*> TotalCollapsedTile);
+
+	// Returns mesh with lowest entropy from given array of tiles
+	int ReturnMeshIDWithLowEntropy(TArray<FTile*> TotalTile);
+	FTile* GetTileByID(int ID, TArray<FTile*> TotalTile);
+	FTile* GetTileByPosition2D(FMatrixPosition Pos, TArray<FTile*> TotalTile);
 	
 	
 };
+
+
 
 
 
