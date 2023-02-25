@@ -24,4 +24,14 @@ void ACoreDebugContainer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+/*
+void TDebugger::log()
+{
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("Function called: %s"), TEXT(__FUNCTION__));
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, Message);
+	}
+
+}*/
 

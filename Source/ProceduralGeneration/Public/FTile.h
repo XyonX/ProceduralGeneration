@@ -22,13 +22,13 @@ USTRUCT(BlueprintType)
 struct FMatrixPosition
 {
 	GENERATED_BODY()
-	
-	FMatrixPosition(int height , int width) :Height(height),Width(width){}
+	FMatrixPosition():X(0),Y(0){};
+	FMatrixPosition(int height , int width) :X(height),Y(width){}
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
-	int Height ;
+	int X ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
-	int Width ;
-	FORCEINLINE FMatrixPosition GetPosition () { FMatrixPosition pos(Height,Width); return pos;}
+	int Y ;
+	FORCEINLINE FMatrixPosition GetPosition () { FMatrixPosition pos(X,Y); return pos;}
 };
 
 

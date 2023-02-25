@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
-#include "FTile.h"
 #include "FTileMesh.generated.h"
 
+struct FTile ;
 
 // Must call Init Function From 
 USTRUCT(BlueprintType)

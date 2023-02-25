@@ -8,6 +8,8 @@ FTile::FTile()
 {
 	ID = 6969;
 	FMatrixPosition pos(0,0);
+	SelectedTiledMesh=nullptr;
+	CollapseStatus=EcollapseStatus::NotCollapsed;
 	Position_2D = pos;
 	World_Location = FVector(0,0,0);
 }

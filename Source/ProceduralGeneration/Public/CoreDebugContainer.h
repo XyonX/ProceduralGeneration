@@ -96,4 +96,30 @@ public:
 
 	
 
+	
+
 };
+
+
+class TDebugger
+{
+	
+public:
+	
+	template<class T>	
+	bool Check ( T* Var , FString ErrorMessage );
+	//void log ();
+	
+	
+};
+
+template <class T>
+bool TDebugger::Check(T* Var ,FString ErrorMessage  )
+{
+	if (Var==nullptr)
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, ErrorMessage); }
+		return false ;
+	}
+	return true ;
+}

@@ -4,6 +4,8 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include <Templates/SharedPointer.h>
+
+#include "CoreDebugContainer.h"
 #include "FTile.h"
 #include "BaseProceduralActor.generated.h"
 
@@ -11,6 +13,7 @@
 class ACoreDebugContainer;
 struct FMatrixPosition;
 
+/*
 // LLinked list for tile		// NOT USING CURRENTLY
 USTRUCT()
 struct FTileContainer
@@ -23,7 +26,7 @@ struct FTileContainer
     {
         delete NextTileContainer;
     }
-};
+};*/
 
 // CAN BE CONSIDERED AS A SINGLE MESH UNIT CONTAINING ONE MAIN MESH AND OTHER NEEDED VARIABLES
 
@@ -66,7 +69,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     float Actor_Length_Z;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    UInstancedStaticMeshComponent* FlorInstanceMesh;
+    UInstancedStaticMeshComponent* FlorInstanceMeshComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	UInstancedStaticMeshComponent* DefaultInstanceMeshComponent;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     UInstancedStaticMeshComponent* TileMeshInstance;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
@@ -79,7 +84,7 @@ public:
     TArray<FTile*> RemainingTiles;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tile")
     TArray<FTile> AllTilesREF;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     TArray<FTile*> CollapsedTiles;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantCustomTileSize;
@@ -94,6 +99,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     FTile DefaultTile;
 
+	//Debugger	custom debug manager class
+	TDebugger Debugger ;
+	
     // Functions
 
 	// The Main function
@@ -107,38 +115,39 @@ public:
 	// Uses the Calculate Length function data to provide world position
 	UFUNCTION(BlueprintCallable)
 	bool GenerateTile();
+	void SetTileLength(int Lenght ,int Width);
 
 	void SetAllTilesREF(TArray<FTile*>& alltile);
 
 	// Choose a random tile from given array
 	// Mainly for first random tile choose
-	FTile* ChooseRandomTile(TArray<FTile*> AllTileToChooseFrom);
+	FTile* ChooseRandomTile(TArray<FTile*>& AllTileToChooseFrom);
 
 	// Choose a random mesh from available mesh array
 	FTileMesh* RandomMeshFromAvailableMesh(FTile* Tile);
 
 	// This function adds an instance to the selected mesh
-	void AddInstanceMesh(int ID, TArray<FTile*> TotalTile);
+	void AddInstanceMesh(int ID, TArray<FTile*>& TotalTile);
 
 	void GenerateBaseFloor(TArray<FTile*>& TotalTies);
 
 	// Just call those 4 surrounded function update function
-	void UpdateSurroundingMesh(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+	void UpdateSurroundingMesh(FTile* SelectedTile, TArray<FTile*>& TotalTile);
 
 	// Updating Surrounding Mesh
-	void UpdateAvailableMesh_Left(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
-	void UpdateAvailableMesh_Right(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
-	void UpdateAvailableMesh_Up(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
-	void UpdateAvailableMesh_Down(FMatrixPosition Position2D, int SelectedTileID, TArray<FTile*> TotalTile);
+	void UpdateAvailableMesh_Left(FTile* SelectedTile, TArray<FTile*>& TotalTile);
+	void UpdateAvailableMesh_Right(FTile* SelectedTile, TArray<FTile*>& TotalTile);
+	void UpdateAvailableMesh_Up(FTile* SelectedTile, TArray<FTile*>& TotalTile);
+	void UpdateAvailableMesh_Down(FTile* SelectedTile, TArray<FTile*>& TotalTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
 	void InitTileMesh(TArray<FTileMesh>& TotalTileMeshes);
-	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<FTile*> TotalTile, TArray<FTile*> RemainingTilee, TArray<FTile*> TotalCollapsedTile);
+	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<FTile*>& TotalTile, TArray<FTile*>& RemainingTilee, TArray<FTile*>& TotalCollapsedTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	int ReturnMeshIDWithLowEntropy(TArray<FTile*> TotalTile);
-	FTile* GetTileByID(int ID, TArray<FTile*> TotalTile);
-	FTile* GetTileByPosition2D(FMatrixPosition Pos, TArray<FTile*> TotalTile);
+	int ReturnMeshIDWithLowEntropy(TArray<FTile*>& TotalTile);
+	FTile* GetTileByID(int ID, TArray<FTile*>& TotalTile);
+	FTile* GetTileByPosition2D(FMatrixPosition Pos, TArray<FTile*>& TotalTile);
 	
 	
 };
