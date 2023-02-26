@@ -4,7 +4,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "ProceduralGeneration/Public/CoreDebugContainer.h"
 #include "Containers/Array.h"
-#include "FTile.h"
+#include "Tile.h"
+
+
 
 // CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
@@ -25,9 +27,9 @@ ABaseProceduralActor::ABaseProceduralActor()
 	DefaultTileMesh.InstancedMesh=DefaultInstanceMeshComponent;
 	
 	//SETTING UP DEFAULT TILE
-	DefaultTile.World_Location=FVector(0.0f,0.0f,100.0f);
-	DefaultTile.Position_2D=FMatrixPosition(0,0);
-	DefaultTile.SelectedTiledMesh= &DefaultTileMesh;
+	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
+	DefaultTile->Position_2D=FMatrixPosition(0,0);
+	DefaultTile->SelectedTiledMesh= DefaultTileMesh;
 	
 }
 
@@ -49,7 +51,6 @@ void ABaseProceduralActor::BeginPlay()
 	//GENERATING TILE
 	CalculateMeshLength();
 	GenerateTile();
-	SetAllTilesREF(AllTilesPTR);
 	GenerateBaseFloor(AllTilesPTR);
 	
 	if ( !AllTilesPTR.IsEmpty()  && !TotalTileMesh.IsEmpty() )
@@ -64,10 +65,6 @@ void ABaseProceduralActor::BeginPlay()
 void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	for(FTile * Tile : AllTilesPTR)
-	{
-		delete Tile ;
-	}
 }
 
 // THE MAIN ALGORITHM
@@ -76,7 +73,8 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 
 		//Adding RemainingTile To All Tile
 		RemainingTiles.Reserve(AllTilesPTR.Num());
-		for(FTile* Tile : AllTilesPTR)
+	
+		for(TSharedPtr<UTile> Tile : AllTilesPTR)
 			{
 				RemainingTiles.Add(Tile)  ;
 			}
@@ -87,7 +85,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
-		FTile* FirstRandomTile = RemainingTiles[FirstIndices];
+		TSharedPtr<UTile> FirstRandomTile = RemainingTiles[FirstIndices];
 		
 		// ADDING INSTANCE OF THE SELECTED MESH
 		AddInstanceMesh(FirstRandomTile->ID,AllTilesPTR);
@@ -101,7 +99,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		{
 			// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
 			int TileID = ReturnMeshIDWithLowEntropy(RemainingTiles);
-			FTile* Tile = RemainingTiles[TileID-1];
+			TSharedPtr<UTile> Tile = RemainingTiles[TileID-1];
 			AddInstanceMesh(TileID,RemainingTiles);
 			UpdateSurroundingMesh(Tile,RemainingTiles);
 		}
@@ -117,7 +115,7 @@ void ABaseProceduralActor::InitTileMesh(TArray<FTileMesh>& TotalTileMeshes)
 	}
 }
 
-void ABaseProceduralActor::UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<FTile*>& TotalTilee ,TArray<FTile*>& RemainingTile, TArray<FTile*>& TotalCollapsedTile)
+void ABaseProceduralActor::UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<TSharedPtr<UTile>>& TotalTilee ,TArray<TSharedPtr<UTile>>& RemainingTile, TArray<TSharedPtr<UTile>>& TotalCollapsedTile)
 {
 	//Update Collapse Status in the main tile
 
@@ -131,11 +129,11 @@ void ABaseProceduralActor::UpdateCollapsedTileData(int ID ,int ArrayPosition , T
 	TotalCollapsedTile.Add(TotalTilee[ID-1]);
 }
 
-int ABaseProceduralActor::ReturnMeshIDWithLowEntropy(TArray<FTile*>& TotalTile)
+int ABaseProceduralActor::ReturnMeshIDWithLowEntropy(TArray<TSharedPtr<UTile>>& TotalTile)
 {
 	int LowestNumberOfTile =999;
 	int id=0;
-	for(FTile* Tile : TotalTile )
+	for(TSharedPtr<UTile> Tile : TotalTile )
 	{
 		if(Tile->AllAvailableMeshToChooseFrom.Num()<LowestNumberOfTile )
 		{
@@ -147,27 +145,29 @@ int ABaseProceduralActor::ReturnMeshIDWithLowEntropy(TArray<FTile*>& TotalTile)
 	return id;
 }
 
-FTile* ABaseProceduralActor::GetTileByID(int ID, TArray<FTile*>& TotalTile)
+TSharedPtr<UTile> ABaseProceduralActor::GetTileByID(int ID, TArray<TSharedPtr<UTile>>& TotalTile)
 {
-	for (FTile* Tile : TotalTile)
+	for (TSharedPtr<UTile> Tile : TotalTile)
 	{
 		if(Tile->ID==ID)
 			return  Tile ;
 	}
-	return &DefaultTile;
+	//return &DefaultTile;
+	return nullptr;
 }
 
-FTile* ABaseProceduralActor::GetTileByPosition2D(FMatrixPosition Pos, TArray<FTile*>& TotalTile)
+TSharedPtr<UTile> ABaseProceduralActor::GetTileByPosition2D(FMatrixPosition Pos, TArray<TSharedPtr<UTile>>& TotalTile)
 {
-	for (FTile*Tile :TotalTile)
+	for (TSharedPtr<UTile> Tile :TotalTile)
 	{
 		if(Tile->Position_2D.X == Pos.X && Tile->Position_2D.Y == Pos.Y )
 		{
 			return Tile;
 		}
 	}
-	if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("  ERROR IN TILE FOUND RETURN DEFAULT TILE  "));}
-	return &DefaultTile;
+	//if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("  ERROR IN TILE FOUND RETURN DEFAULT TILE  "));}
+	//return &DefaultTile;
+	return  nullptr;
 }
 
 // CALCULATE LENGTH OF THE  FLOOR MESH 
@@ -200,17 +200,25 @@ bool ABaseProceduralActor::GenerateTile()
 		for (int j = 0 ; j< Map_Width ; j++)
 		{
 			
-			
-			
-			
 			id++;
 			AllTiles_Float ++ ;
 			int Yvar=i+1;
 			int Xvar=j+1;
 			FMatrixPosition POS(Xvar,Yvar);
 			FVector World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
-			FTile* Tile = new FTile (id,POS,World_Location,TotalTileMesh);
-			AllTilesPTR.Add(Tile);
+
+			
+			// create a new instance of UTile with NewObject
+			UTile* Tile = NewObject<UTile>();
+
+			// create a shared pointer to Tile
+			TSharedPtr<UTile> TilePtr(Tile);
+
+			// Call the Init function to initialize the object
+			TilePtr->Init(id, POS, World_Location, TotalTileMesh);
+
+			// Add the shared pointer to the array
+			AllTilesPTR.Add(TilePtr);
 			
 		}
 	}
@@ -221,22 +229,6 @@ bool ABaseProceduralActor::GenerateTile()
 void ABaseProceduralActor::SetTileLength(int Lenght ,int Width)
 {
 	
-}
-
-void ABaseProceduralActor::SetAllTilesREF(TArray<FTile*>& alltile)
-{
-	if (alltile.IsEmpty())
-	{
-		UE_LOG(LogTemp,Warning,TEXT("AllTiles ARRAY IS EMPTY REF SET UNSUCCESSFULL"));
-		return;
-	}
-	for (FTile* tile : alltile)
-	{
-		//FTile& TileRef = *tile; // create a reference to the FTile object pointed to by TilePtr
-		FTile& TileRef = *tile; 
-		AllTilesREF.Add(TileRef);
-		//AllTilesREF.Add(std::ref(*TilePtr));
-	}
 }
 
 /*
@@ -279,7 +271,7 @@ bool ABaseProceduralActor::GenerateTile_V2()
 }*/
 
 // THIS FUNCTION CHOOSE RANDOM TILE FROM GIVEN ARRAY
-FTile* ABaseProceduralActor::ChooseRandomTile(TArray<FTile*>& AllTileToChooseFrom)
+TSharedPtr<UTile> ABaseProceduralActor::ChooseRandomTile(TArray<TSharedPtr<UTile>>& AllTileToChooseFrom)
 {
 	
 	int RandomTile = FMath::RandRange(0,AllTileToChooseFrom.Num() );
@@ -288,7 +280,7 @@ FTile* ABaseProceduralActor::ChooseRandomTile(TArray<FTile*>& AllTileToChooseFro
 
 
 
-void ABaseProceduralActor::GenerateBaseFloor( TArray<FTile*>&TotalTies)
+void ABaseProceduralActor::GenerateBaseFloor( TArray<TSharedPtr<UTile>>& TotalTies)
 {
 	if(!bWantBaseFloor)
 	{
@@ -302,7 +294,7 @@ void ABaseProceduralActor::GenerateBaseFloor( TArray<FTile*>&TotalTies)
 	}
 	if(FlorInstanceMeshComponent)
 	{
-		for(FTile* Tile : TotalTies)
+		for(TSharedPtr<UTile> Tile : TotalTies)
 		{
 			FTransform Transform ;
 			Transform.SetLocation(Tile->World_Location);
@@ -312,7 +304,7 @@ void ABaseProceduralActor::GenerateBaseFloor( TArray<FTile*>&TotalTies)
 }
 
 // THIS FUNCTION UPDATE SURROUNDING MAINLY CALL THOSE 4 FUNCTION
-void ABaseProceduralActor::UpdateSurroundingMesh(FTile* SelectedTile, TArray<FTile*>&TotalTile)
+void ABaseProceduralActor::UpdateSurroundingMesh(TSharedPtr<UTile> SelectedTile, TArray<TSharedPtr<UTile>>& TotalTile)
 {
 	UpdateAvailableMesh_Left(SelectedTile,TotalTile);
 	UpdateAvailableMesh_Right( SelectedTile,TotalTile);
@@ -321,7 +313,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(FTile* SelectedTile, TArray<FTi
 }
 
 // UPDATE LEFT SIDE OF THE SELECTED MESH
-void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile* SelectedTile,TArray<FTile*>&TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Left(TSharedPtr<UTile> SelectedTile,TArray<TSharedPtr<UTile>>& TotalTile)
 {
 	
 	FMatrixPosition Position2D = SelectedTile->Position_2D;
@@ -330,8 +322,8 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile* SelectedTile,TArray<F
 		return;
 	}
 	FMatrixPosition Pos (Position2D.X,Position2D.Y-1);
-	FTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
-	TArray<FTileMesh*> UpdatedAvailableTileMesh;
+	TSharedPtr<UTile> LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+	TArray<FTileMesh> UpdatedAvailableTileMesh;
 
 	if( LeftNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
 	{
@@ -339,9 +331,9 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile* SelectedTile,TArray<F
 	}
 	
 
-	for (FTileMesh* AvailableTileMesh_Left : LeftNeighbour->AllAvailableMeshToChooseFrom )
+	for (FTileMesh& AvailableTileMesh_Left : LeftNeighbour->AllAvailableMeshToChooseFrom )
 	{
-		if(AvailableTileMesh_Left->ComaptileMeshTag_Right.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+		if(AvailableTileMesh_Left.ComaptileMeshTag_Right.HasTag(SelectedTile->SelectedTiledMesh.MeshTag))
 		{
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Left);
 		}
@@ -352,7 +344,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(FTile* SelectedTile,TArray<F
 }
 
 // UPDATE RIGHT SIDE OF THE SELECTED MESH
-void ABaseProceduralActor::UpdateAvailableMesh_Right(FTile* SelectedTile,TArray<FTile*>&TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Right(TSharedPtr<UTile> SelectedTile,TArray<TSharedPtr<UTile>>& TotalTile)
 {
 	FMatrixPosition Position2D = SelectedTile->Position_2D;
 	if(Position2D.Y+1 > AllTiles_Float  )
@@ -360,25 +352,25 @@ void ABaseProceduralActor::UpdateAvailableMesh_Right(FTile* SelectedTile,TArray<
 		return;
 	}
 	FMatrixPosition Pos(Position2D.X,Position2D.Y+1);
-	FTile* RightNeighbour =GetTileByPosition2D(Pos,AllTilesPTR);
+	TSharedPtr<UTile> RightNeighbour =GetTileByPosition2D(Pos,AllTilesPTR);
 	
-	TArray<FTileMesh*> UpdatedAvailableTileMesh;
+	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	
 	if(RightNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
 
-	for (FTileMesh* AvailableTileMesh_Right : RightNeighbour->AllAvailableMeshToChooseFrom )
+	for (FTileMesh& AvailableTileMesh_Right : RightNeighbour->AllAvailableMeshToChooseFrom )
 	{
-			if(AvailableTileMesh_Right->ComaptileMeshTag_Left.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+			if(AvailableTileMesh_Right.ComaptileMeshTag_Left.HasTag(SelectedTile->SelectedTiledMesh.MeshTag))
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Right);
 	}
 	SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
 }
 
 // UPDATE UP SIDE OF SELECTED MESH
-void ABaseProceduralActor::UpdateAvailableMesh_Up(FTile* SelectedTile,TArray<FTile*>&TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Up(TSharedPtr<UTile> SelectedTile,TArray<TSharedPtr<UTile>>& TotalTile)
 {
 	FMatrixPosition Position2D =SelectedTile->Position_2D;
 	if(Position2D.X+1 > AllTiles_Float )
@@ -386,23 +378,23 @@ void ABaseProceduralActor::UpdateAvailableMesh_Up(FTile* SelectedTile,TArray<FTi
 		return;
 	}
 	FMatrixPosition Pos(Position2D.X+1,Position2D.Y);
-	FTile* UpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
-	TArray<FTileMesh*> UpdatedAvailableTileMesh;
+	TSharedPtr<UTile> UpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+	TArray<FTileMesh> UpdatedAvailableTileMesh;
 	
 	if(UpNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	for (FTileMesh* AvailableTileMesh_Up : UpNeighbour->AllAvailableMeshToChooseFrom )
+	for (FTileMesh& AvailableTileMesh_Up : UpNeighbour->AllAvailableMeshToChooseFrom )
 	{
-		if(AvailableTileMesh_Up->ComaptileMeshTag_Down.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+		if(AvailableTileMesh_Up.ComaptileMeshTag_Down.HasTag(SelectedTile->SelectedTiledMesh.MeshTag))
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Up);
 	}
 	SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
 }
 
 // UPDATE DOWN SIDE OF SELECTED MESH 
-void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile* SelectedTile,TArray<FTile*>&TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Down(TSharedPtr<UTile> SelectedTile,TArray<TSharedPtr<UTile>>& TotalTile)
 {
 	{
 		FMatrixPosition Position2D = SelectedTile->Position_2D;
@@ -411,16 +403,16 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile* SelectedTile,TArray<F
 			return;
 		}
 		FMatrixPosition Pos(Position2D.X-1,Position2D.Y);
-		FTile* DownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
-		TArray<FTileMesh*> UpdatedAvailableTileMesh;
+		TSharedPtr<UTile> DownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+		TArray<FTileMesh> UpdatedAvailableTileMesh;
 	
 		if(DownNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
 		{
 			return;
 		}
-		for (FTileMesh* AvailableTileMesh_Down : DownNeighbour->AllAvailableMeshToChooseFrom )
+		for (FTileMesh& AvailableTileMesh_Down : DownNeighbour->AllAvailableMeshToChooseFrom )
 		{
-			if(AvailableTileMesh_Down->ComaptileMeshTag_Up.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+			if(AvailableTileMesh_Down.ComaptileMeshTag_Up.HasTag(SelectedTile->SelectedTiledMesh.MeshTag))
 				UpdatedAvailableTileMesh.Add(AvailableTileMesh_Down);
 		}
 		SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
@@ -429,37 +421,37 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(FTile* SelectedTile,TArray<F
 
 
 // CHOOSE AN RAND0M ARRAY FROM GIVEN ARRAY OF FTILEMESH BASED ON ENTROPY
-FTileMesh* ABaseProceduralActor::RandomMeshFromAvailableMesh(FTile* Tile)
+FTileMesh& ABaseProceduralActor::RandomMeshFromAvailableMesh(TSharedPtr<UTile> Tile)
 {
 	static FTileMesh& DefaultMesh=DefaultTileMesh ;
 	//if(Tile.AllAvailableMeshToChooseFrom.Num() == 0)
 	if(Tile->AllAvailableMeshToChooseFrom.IsEmpty())
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("   Available mesh list is empty For this tile unable to select any random Mesh "));}
-		return &DefaultMesh;
+		return DefaultMesh;
 	}
 	
 	int RandomMESH = FMath::RandRange(0,Tile->AllAvailableMeshToChooseFrom.Num()-1 );
-	FTileMesh*SelectedTileMesh = Tile->AllAvailableMeshToChooseFrom[RandomMESH];
+	FTileMesh& SelectedTileMesh = Tile->AllAvailableMeshToChooseFrom[RandomMESH];
 	return SelectedTileMesh;
 }
 
-void ABaseProceduralActor::AddInstanceMesh(int ID, TArray<FTile*>& TotalTile)
+void ABaseProceduralActor::AddInstanceMesh(int ID, TArray<TSharedPtr<UTile>>& TotalTile)
 {
-	FTile*SelectedTile = TotalTile[ID-1];
+	TSharedPtr<UTile> SelectedTile = TotalTile[ID-1];
 	
 	SelectedTile->SelectedTiledMesh = RandomMeshFromAvailableMesh(SelectedTile);
-	if(SelectedTile->SelectedTiledMesh->TileMesh ==nullptr  )
+	if(SelectedTile->SelectedTiledMesh.TileMesh ==nullptr  )
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Instance Add Failedd Selected Tile Didint have any Selected  Mesh "));}
 		return;
 	}
-	SelectedTile->SelectedTiledMesh->OwnerTileList.Add(SelectedTile);
-	if(SelectedTile->SelectedTiledMesh->TileMesh != nullptr)
+	//SelectedTile->SelectedTiledMesh.OwnerTileList.Add(SelectedTile);
+	if(SelectedTile->SelectedTiledMesh.TileMesh != nullptr)
 	{
 		FTransform SpawnTransform ;
 		SpawnTransform.SetLocation(TotalTile[ID-1]->World_Location);
-		SelectedTile->SelectedTiledMesh->InstancedMesh->AddInstance(SpawnTransform);
+		SelectedTile->SelectedTiledMesh.InstancedMesh->AddInstance(SpawnTransform);
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,  TEXT(" INSTANCE ADING DONE "));}
 	}
 }

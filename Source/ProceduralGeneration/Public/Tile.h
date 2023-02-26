@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "FTileMesh.h"
-#include "FTile.generated.h"
+#include "Tile.generated.h"
 
 
 //Collapse status enum
@@ -32,18 +32,23 @@ struct FMatrixPosition
 };
 
 
-USTRUCT(BlueprintType)
-struct FTile
+UCLASS(BlueprintType)
+class PROCEDURALGENERATION_API UTile : public UObject
 {
 	GENERATED_BODY()
 
-	FTile();
-	FTile(int id ,FMatrixPosition pos2d ,FVector worldloc  , TArray<FTileMesh>& totaltilemesh); 
+public:
 
+	// Constructor and distructor
+	UTile();
+	//UTile(int id ,FMatrixPosition pos2d ,FVector worldloc  , TArray<FTileMesh>& totaltilemesh);
+
+	void Init (int id ,FMatrixPosition pos2d ,FVector worldloc  , TArray<FTileMesh>& totaltilemesh);
+    
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	int ID ;
-	//UPROPERTY(EditInstanceOnly,Category="Tile")
-	FTileMesh* SelectedTiledMesh;
+	UPROPERTY(EditInstanceOnly,Category="Tile")
+	FTileMesh SelectedTiledMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	FMatrixPosition Position_2D ; 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
@@ -52,14 +57,6 @@ struct FTile
 	EcollapseStatus CollapseStatus ;
 	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
 	//UPROPERTY(BlueprintReadWrite,Category="Tile")
-	TArray<FTileMesh* > AllAvailableMeshToChooseFrom;
+	TArray<FTileMesh > AllAvailableMeshToChooseFrom;
 	
-	
-	
-};
-
-UCLASS()
-class PROCEDURALGENERATION_API UFTile : public UObject
-{
-	GENERATED_BODY()
 };

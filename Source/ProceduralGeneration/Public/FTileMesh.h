@@ -7,7 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "FTileMesh.generated.h"
 
-struct FTile ;
+class UTile ;
 
 // Must call Init Function From 
 USTRUCT(BlueprintType)
@@ -18,7 +18,8 @@ struct FTileMesh
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	UStaticMesh*TileMesh;
-	TArray<FTile*>OwnerTileList;
+	//UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	//TArray<TSharedPtr<UTile>>OwnerTileList;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FGameplayTag MeshTag ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
@@ -42,4 +43,5 @@ UCLASS()
 class PROCEDURALGENERATION_API UFTileMesh : public UObject
 {
 	GENERATED_BODY()
+	
 };
