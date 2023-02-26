@@ -4,32 +4,16 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include <memory>
-
 #include "CoreDebugContainer.h"
 #include "Tile.h"
 #include "BaseProceduralActor.generated.h"
-
-
 
 
 // COLLAPSE STATUS ENUM
 class ACoreDebugContainer;
 struct FMatrixPosition;
 
-/*
-// LLinked list for tile		// NOT USING CURRENTLY
-USTRUCT()
-struct FTileContainer
-{
-    GENERATED_BODY()
-    std::unique_ptr<FTile> Tile;
-    FTileContainer* NextTileContainer;
 
-    ~FTileContainer()
-    {
-        delete NextTileContainer;
-    }
-};*/
 
 // CAN BE CONSIDERED AS A SINGLE MESH UNIT CONTAINING ONE MAIN MESH AND OTHER NEEDED VARIABLES
 
@@ -82,31 +66,30 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantBaseFloor;
 
-    // THE MAIN TILES CONTAINER
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<TSharedPtr<UTile>> AllTilesPTR;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<TSharedPtr<UTile>> RemainingTiles;
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<TSharedPtr<UTile>> CollapsedTiles;
-	
+    // THE MAIN TILES CONTAINER			//TODO DELETE THEM LATER
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	TArray<UTile*> AllTiles;
+    TArray<UTile*> AllTilesPTR;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    TArray<UTile*> RemainingTiles;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    TArray<UTile*> CollapsedTiles;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	TArray<UTileMesh*> TotalTileMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	UTileMesh* DefaultTileMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	UTile* DefaultTile;
 	
 
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantCustomTileSize;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<FTileMesh> TotalTileMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     float AllTiles_Float;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Debug")
     ACoreDebugContainer* DebugContainerAcotr;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    FTileMesh DefaultTileMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    UTile* DefaultTile;
+    
 
 	//Debugger	custom debug manager class
 	TDebugger Debugger ;
@@ -128,33 +111,33 @@ public:
 
 	// Choose a random tile from given array
 	// Mainly for first random tile choose
-	TSharedPtr<UTile> ChooseRandomTile(TArray<TSharedPtr<UTile>>& AllTileToChooseFrom);
+	UTile* ChooseRandomTile(TArray<UTile*>& AllTileToChooseFrom);
 
 	// Choose a random mesh from available mesh array
-	FTileMesh& RandomMeshFromAvailableMesh(TSharedPtr<UTile> Tile);
+	UTileMesh* RandomMeshFromAvailableMesh(UTile* Tile);
 
 	// This function adds an instance to the selected mesh
-	void AddInstanceMesh(int ID, TArray<TSharedPtr<UTile>>& TotalTile);
+	void AddInstanceMesh(int ID, TArray<UTile*>& TotalTile);
 
-	void GenerateBaseFloor(TArray<TSharedPtr<UTile>>& TotalTile);
+	void GenerateBaseFloor(TArray<UTile*>& TotalTile);
 
 	// Just call those 4 surrounded function update function
-	void UpdateSurroundingMesh(TSharedPtr<UTile> SelectedTile, TArray<TSharedPtr<UTile>>& TotalTile);
+	void UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>& TotalTile);
 
 	// Updating Surrounding Mesh
-	void UpdateAvailableMesh_Left(TSharedPtr<UTile> SelectedTile, TArray<TSharedPtr<UTile>>& TotalTile);
-	void UpdateAvailableMesh_Right(TSharedPtr<UTile> SelectedTile, TArray<TSharedPtr<UTile>>& TotalTile);
-	void UpdateAvailableMesh_Up(TSharedPtr<UTile> SelectedTile, TArray<TSharedPtr<UTile>>& TotalTile);
-	void UpdateAvailableMesh_Down(TSharedPtr<UTile> SelectedTile, TArray<TSharedPtr<UTile>>& TotalTile);
+	void UpdateAvailableMesh_Left(UTile* SelectedTile, TArray<UTile*>& TotalTile);
+	void UpdateAvailableMesh_Right(UTile* SelectedTile, TArray<UTile*>& TotalTile);
+	void UpdateAvailableMesh_Up(UTile* SelectedTile, TArray<UTile*>& TotalTile);
+	void UpdateAvailableMesh_Down(UTile* SelectedTile, TArray<UTile*>& TotalTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	void InitTileMesh(TArray<FTileMesh>& TotalTileMeshes);
-	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<TSharedPtr<UTile>>& TotalTile, TArray<TSharedPtr<UTile>>& RemainingTilee, TArray<TSharedPtr<UTile>>&  TotalCollapsedTile);
+	void InitTileMesh(TArray<UTileMesh*>& TotalTileMeshes);
+	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	int ReturnMeshIDWithLowEntropy(TArray<TSharedPtr<UTile>>&  TotalTile);
-	TSharedPtr<UTile> GetTileByID(int ID,TArray<TSharedPtr<UTile>>& TotalTile);
-	TSharedPtr<UTile> GetTileByPosition2D(FMatrixPosition Pos, TArray<TSharedPtr<UTile>>& TotalTile);
+	int ReturnMeshIDWithLowEntropy(TArray<UTile*>&  TotalTile);
+	UTile* GetTileByID(int ID,TArray<UTile*>& TotalTile);
+	UTile* GetTileByPosition2D(FMatrixPosition Pos, TArray<UTile*>& TotalTile);
 	
 	
 };
