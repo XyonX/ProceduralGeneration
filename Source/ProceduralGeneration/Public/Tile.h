@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "FTileMesh.h"
+#include "TileMesh.h"
 #include "Tile.generated.h"
 
 
@@ -41,14 +41,16 @@ public:
 
 	// Constructor and distructor
 	UTile();
+	~UTile();
 	//UTile(int id ,FMatrixPosition pos2d ,FVector worldloc  , TArray<FTileMesh>& totaltilemesh);
 
-	void Init (int id ,FMatrixPosition pos2d ,FVector worldloc  , TArray<FTileMesh>& totaltilemesh);
+	void Init (int id ,FMatrixPosition pos2d ,FVector worldloc  , TArray<UTileMesh*>& totaltilemesh);
     
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	int ID ;
-	UPROPERTY(EditInstanceOnly,Category="Tile")
-	FTileMesh SelectedTiledMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
+	UTileMesh* SelectedTiledMesh;
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	FMatrixPosition Position_2D ; 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
@@ -56,7 +58,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	EcollapseStatus CollapseStatus ;
 	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
-	//UPROPERTY(BlueprintReadWrite,Category="Tile")
-	TArray<FTileMesh > AllAvailableMeshToChooseFrom;
+	UPROPERTY(BlueprintReadWrite,Category="Tile")
+	TArray<UTileMesh*> AllAvailableMeshToChooseFrom;
 	
 };

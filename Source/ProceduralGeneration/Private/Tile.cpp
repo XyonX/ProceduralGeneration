@@ -14,7 +14,16 @@ UTile::UTile()
 	World_Location = FVector(0,0,0);
 }
 
-void UTile::Init(int id, FMatrixPosition pos2d, FVector worldloc, TArray<FTileMesh>& totaltilemesh)
+UTile::~UTile()
+{
+	SelectedTiledMesh = nullptr;
+	for (int32 i = AllAvailableMeshToChooseFrom.Num() - 1; i >= 0; i--)
+	{
+		AllAvailableMeshToChooseFrom.RemoveAt(i);
+	}
+}
+
+void UTile::Init(int id, FMatrixPosition pos2d, FVector worldloc, TArray<UTileMesh*>& totaltilemesh)
 {
 	ID=id;
 	Position_2D=pos2d;
@@ -24,7 +33,7 @@ void UTile::Init(int id, FMatrixPosition pos2d, FVector worldloc, TArray<FTileMe
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Total Mesh Array is Empty !!! Set Default Mesh Failed  "));}
 	}
-	for ( FTileMesh&MeshElement : totaltilemesh)
+	for ( UTileMesh* MeshElement : totaltilemesh)
 	{
 		AllAvailableMeshToChooseFrom.Add(MeshElement);
 	}
