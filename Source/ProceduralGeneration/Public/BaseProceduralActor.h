@@ -94,6 +94,7 @@ public:
 	TArray<FTileMeshData*>TileMeshDataArray ;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	FString TileMeshDataAssetName = "DT_TileMesh";
+	FName TileMeshDataAssetName_FName = "DT_TileMesh";
 
 	//Debugger	custom debug manager class
 	TDebugger Debugger ;
@@ -101,13 +102,13 @@ public:
     // Functions
 
 	//Setting up initial variables 
-	void Init();
+	bool Init();
 
 	// gets the tilemesh data from data table 
-    void GetTileMeshData();
+    bool GetTileMeshData();
 
 	// setup the data in totaltilemesh
-	void SetTileMeshData ();
+	bool SetTileMeshData ();
 	void InitTileMesh(TArray<UTileMesh*>& totaltilemeshes ,TArray<FTileMeshData*>& totaltilemeshedatas);
 	
 	// The Main function

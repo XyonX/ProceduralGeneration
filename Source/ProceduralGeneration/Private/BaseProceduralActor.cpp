@@ -7,6 +7,9 @@
 #include "Tile.h"
 
 
+#define LogSwitch 1
+
+
 // CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
 {
@@ -38,6 +41,14 @@ ABaseProceduralActor::ABaseProceduralActor()
 	DefaultTile->Position_2D=FMatrixPosition(0,0);
 	DefaultTile->SelectedTiledMesh = DefaultTileMesh ;
 	
+	//static ConstructorHelpers::FObjectFinder<UDataTable> TileMeshDataAssetObject(TEXT("DataTable'/ProceduralGeneration/Data/DT_TileMesh.DT_TileMesh'"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> TileMeshDataAssetObject(TEXT("DataTable'/ProceduralGeneration/Data/DT_TileMesh.DT_TileMesh'"));
+
+	if (TileMeshDataAssetObject.Succeeded())
+	{
+		TileMeshDataAsset = TileMeshDataAssetObject.Object;
+	}
+	
 }
 
 
@@ -55,12 +66,21 @@ void ABaseProceduralActor::BeginPlay()
 	SetTileLength(Actor_Length_X,Actor_Length_Y);
 	GenerateBaseFloor(AllTilesPTR);
 	
-	if ( !AllTilesPTR.IsEmpty()  && !TotalTileMesh.IsEmpty() )
+	if (!AllTilesPTR.IsEmpty() && !TotalTileMesh.IsEmpty())
 	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT(" BOTH TILE AND TOTAL MESH AVAILABLE WAVE FUNCTION CALLING  "));}
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT(" BOTH TILE AND TOTAL MESH AVAILABLE WAVE FUNCTION CALLING  "));
+		}
 
-		//STARTING THE MAIN ALGORITHM
+		// STARTING THE MAIN ALGORITHM
 		WaveFunctionCollapse();
+	}
+	else
+	{
+		// error occurred, display an error message
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Could not generate tile or total mesh. Aborting."));
+		}
 	}
 }
 
@@ -68,72 +88,93 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	for (UTile* Tile : AllTilesPTR)
+	for (int32 i = AllTilesPTR.Num() - 1; i >= 0; i--)
 	{
+		UTile* Tile = AllTilesPTR[i];
 		Tile->ConditionalBeginDestroy();
-		AllTilesPTR.Remove(Tile);
+		AllTilesPTR.RemoveAt(i);
 		RemainingTiles.Remove(Tile);
 		CollapsedTiles.Remove(Tile);
 		
 	}
+	for(int32 j = TotalTileMesh.Num()-1 ; j>= 0 ; j--)
+	{
+		UTileMesh* TileMesh =TotalTileMesh[j];
+		TileMesh->ConditionalBeginDestroy();
+		TotalTileMesh.RemoveAt(j);
+	}
 	AllTilesPTR.Empty();
 	RemainingTiles.Empty();
 	CollapsedTiles.Empty();
+	TotalTileMesh.Empty();
 
 	if(DefaultTile != nullptr)
 	{
 		DefaultTile->ConditionalBeginDestroy();
 		DefaultTile=nullptr;
 	}
+	if(DefaultTileMesh != nullptr)
+	{
+		DefaultTileMesh->ConditionalBeginDestroy();
+		DefaultTileMesh = nullptr ;
+	}
 	
 }
 
-void ABaseProceduralActor::Init()
+bool ABaseProceduralActor::Init()
 {
-	GetTileMeshData();
-	SetTileMeshData();
-	
-	//setting the floor mesh
-	FlorInstanceMeshComponent->SetStaticMesh(FloorMesh);
+	if (GetTileMeshData())
+	{
+		if (SetTileMeshData())
+		{
+			//setting the floor mesh
+			FlorInstanceMeshComponent->SetStaticMesh(FloorMesh);
 
-	//FOR DEBUG CONTAINER ACTOR
-	DebugContainerAcotr = GetWorld()->SpawnActor<ACoreDebugContainer>(FVector::ZeroVector, FRotator::ZeroRotator);
+			//FOR DEBUG CONTAINER ACTOR
+			DebugContainerAcotr = GetWorld()->SpawnActor<ACoreDebugContainer>(FVector::ZeroVector, FRotator::ZeroRotator);
+
+			return true;
+		}
+	}
+
+	return false;
 	
 }
 
-void ABaseProceduralActor::GetTileMeshData()
+bool ABaseProceduralActor::GetTileMeshData()
 {
-	FString AssetPath = FString::Printf(TEXT("/Game/Plugins/ProceduralGeneration/%s.%s"), *TileMeshDataAssetName, *TileMeshDataAssetName);
+	if( TileMeshDataAsset != nullptr)
+	{
+		return true ;
+	}
+	FString AssetPath = FString::Printf(TEXT("ProceduralGeneration/Data/%s.%s"), *TileMeshDataAssetName, *TileMeshDataAssetName);
 	TileMeshDataAsset = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetPath));
 
 	// or
 	//FName AssetName = FName(*TileMeshDataAssetName);
-	//TileMeshDataAsset = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetName.ToString()));
-	if(!TileMeshDataAsset)
+	//TileMeshDataAsset = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *TileMeshDataAssetName_FName.ToString()));
+	if(TileMeshDataAsset == nullptr)
 	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("  TileMesh Data Import ERROR !!!"));}
-		return;
+		return false ;
 	}
-	if(TileMeshDataAsset)
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("  Data asset imported  !!"));}
-		TileMeshDataAsset->GetAllRows<FTileMeshData>(TEXT(""), TileMeshDataArray);
-	}
+	if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("  Data asset imported  !!"));}
+	return true;
+	
 }
 
-void ABaseProceduralActor::SetTileMeshData()
+bool ABaseProceduralActor::SetTileMeshData()
 {
 	
+	TileMeshDataAsset->GetAllRows<FTileMeshData>(TEXT(""), TileMeshDataArray);
 	if(TileMeshDataArray.IsEmpty())
 	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("  ERROR DATA TABLE IS EMPTY : Fill the row !!"));}
+		return  false ;
 	}
-	if(!TileMeshDataArray.IsEmpty())
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" TileMesh Initializing ...."));}
-		DefaultTileMesh->Init(this ,TileMeshDataArray[0]);
-		InitTileMesh(TotalTileMesh,TileMeshDataArray);
-	}
+	if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" TileMesh Initializing ...."));}
+	DefaultTileMesh->Init(this ,TileMeshDataArray[0]);
+	InitTileMesh(TotalTileMesh,TileMeshDataArray);
+	return true;
+	
 }
 
 void ABaseProceduralActor::InitTileMesh(TArray<UTileMesh*>& totaltilemeshes, TArray<FTileMeshData*>& totaltilemeshedatas)
@@ -153,7 +194,6 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 
 		//Adding RemainingTile To All Tile
 		RemainingTiles.Reserve(AllTilesPTR.Num());
-	
 		for(UTile* Tile : AllTilesPTR)
 			
 			{
@@ -174,7 +214,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		UpdateCollapsedTileData(FirstRandomTile->ID,FirstIndices,AllTilesPTR,RemainingTiles,CollapsedTiles);
 
 		//UPDATE THE SURROUNDING TILES AVAILABLE MESH
-		UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
+		//UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
 	/*
 		while (!RemainingTiles.IsEmpty())
 		{
@@ -533,6 +573,7 @@ void ABaseProceduralActor::AddInstanceMesh(int ID, TArray<UTile*>& TotalTile)
 		FTransform SpawnTransform ;
 		SpawnTransform.SetLocation(TotalTile[ID-1]->World_Location);
 		SelectedTile->SelectedTiledMesh->InstancedMesh->AddInstance(SpawnTransform);
+		//FlorInstanceMeshComponent->AddInstance(SpawnTransform);
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,  TEXT(" INSTANCE ADING DONE "));}
 	}
 }

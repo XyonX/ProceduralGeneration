@@ -11,12 +11,20 @@ UTileMesh::UTileMesh()
 
 UTileMesh::~UTileMesh()
 {
+	// Unregister the component from its owning actor
+	if (InstancedMesh != nullptr)
+	{
+		InstancedMesh->UnregisterComponent();
+	}
+    
+	// Remove the component from the scene, so that it can be garbage collected
+	InstancedMesh = nullptr;
+
+	// Remove any references to this component from the owning tiles
 	for (int32 i = OwnerTileList.Num() - 1; i >= 0; i--)
 	{
 		OwnerTileList.RemoveAt(i);
 	}
-	if(InstancedMesh != nullptr)
-		delete InstancedMesh ;
 }
 
 void UTileMesh::Init(AActor* owneractor, FTileMeshData* TileMeshData)
@@ -30,6 +38,7 @@ void UTileMesh::Init(AActor* owneractor, FTileMeshData* TileMeshData)
 	CompatibleMeshTag_Down = TileMeshData->ComaptileMeshTag_Down;
 
 	InstancedMesh =  NewObject<UInstancedStaticMeshComponent>(owneractor);
+	InstancedMesh->RegisterComponent();
 	InstancedMesh->AttachToComponent(owneractor->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	InstancedMesh->SetStaticMesh(TileMesh);
 	InstancedMesh->SetVisibility(true);
