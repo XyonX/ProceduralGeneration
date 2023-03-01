@@ -19,16 +19,21 @@ ABaseProceduralActor::ABaseProceduralActor()
 
 	// SETTING THE ALL TILE FLOAT COUNTER TO 0
 	AllTiles_Float = 0 ;
-	
-	DefaultTileMesh = NewObject<UTileMesh>(this, TEXT("DefaultTileMeshInstance"));
-	DefaultTileMesh->Init(this);
+
+	//Settign default tile Length
+	Actor_Length_X = 200;
+	Actor_Length_Y = 200;
+	Actor_Length_Z = 200 ;
+
+	bWantCustomTileSize =false;
 	
 	//Setting up Default tile mesh
-	DefaultInstanceMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("DEFAULT MESH INSTANCE CONTAINER"));
+	//DefaultInstanceMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("DEFAULT MESH INSTANCE CONTAINER"));
 	
 	
 	//SETTING UP DEFAULT TILE
-	DefaultTile= NewObject<UTile>(this, TEXT("DefaultTileInstance"));
+	DefaultTile = CreateDefaultSubobject<UTile>("DefaultTile");
+	DefaultTileMesh=CreateDefaultSubobject<UTileMesh>("DefaultTileMesh");
 	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
 	DefaultTile->Position_2D=FMatrixPosition(0,0);
 	DefaultTile->SelectedTiledMesh = DefaultTileMesh ;
@@ -41,18 +46,13 @@ void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//init Tile Mesh
-	InitTileMesh(TotalTileMesh);
-
-	//setting the floor mesh
-	FlorInstanceMeshComponent->SetStaticMesh(StaticMesh);
-
-	//FOR DEBUG CONTAINER ACTOR
-	DebugContainerAcotr = GetWorld()->SpawnActor<ACoreDebugContainer>(FVector::ZeroVector, FRotator::ZeroRotator);
+	//init the class
+	Init();
 
 	//GENERATING TILE
 	CalculateMeshLength();
 	GenerateTile();
+	SetTileLength(Actor_Length_X,Actor_Length_Y);
 	GenerateBaseFloor(AllTilesPTR);
 	
 	if ( !AllTilesPTR.IsEmpty()  && !TotalTileMesh.IsEmpty() )
@@ -79,26 +79,73 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	AllTilesPTR.Empty();
 	RemainingTiles.Empty();
 	CollapsedTiles.Empty();
-	
-	for (UTileMesh* TileMesh : TotalTileMesh)
-	{
-		TileMesh->ConditionalBeginDestroy();
-	}
 
 	if(DefaultTile != nullptr)
 	{
 		DefaultTile->ConditionalBeginDestroy();
 		DefaultTile=nullptr;
 	}
-
-	if (DefaultTileMesh != nullptr)
-	{
-		DefaultTileMesh->ConditionalBeginDestroy();
-		DefaultTileMesh = nullptr;
-	}
 	
 }
 
+void ABaseProceduralActor::Init()
+{
+	GetTileMeshData();
+	SetTileMeshData();
+	
+	//setting the floor mesh
+	FlorInstanceMeshComponent->SetStaticMesh(FloorMesh);
+
+	//FOR DEBUG CONTAINER ACTOR
+	DebugContainerAcotr = GetWorld()->SpawnActor<ACoreDebugContainer>(FVector::ZeroVector, FRotator::ZeroRotator);
+	
+}
+
+void ABaseProceduralActor::GetTileMeshData()
+{
+	FString AssetPath = FString::Printf(TEXT("/Game/Plugins/ProceduralGeneration/%s.%s"), *TileMeshDataAssetName, *TileMeshDataAssetName);
+	TileMeshDataAsset = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetPath));
+
+	// or
+	//FName AssetName = FName(*TileMeshDataAssetName);
+	//TileMeshDataAsset = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetName.ToString()));
+	if(!TileMeshDataAsset)
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("  TileMesh Data Import ERROR !!!"));}
+		return;
+	}
+	if(TileMeshDataAsset)
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("  Data asset imported  !!"));}
+		TileMeshDataAsset->GetAllRows<FTileMeshData>(TEXT(""), TileMeshDataArray);
+	}
+}
+
+void ABaseProceduralActor::SetTileMeshData()
+{
+	
+	if(TileMeshDataArray.IsEmpty())
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("  ERROR DATA TABLE IS EMPTY : Fill the row !!"));}
+	}
+	if(!TileMeshDataArray.IsEmpty())
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT(" TileMesh Initializing ...."));}
+		DefaultTileMesh->Init(this ,TileMeshDataArray[0]);
+		InitTileMesh(TotalTileMesh,TileMeshDataArray);
+	}
+}
+
+void ABaseProceduralActor::InitTileMesh(TArray<UTileMesh*>& totaltilemeshes, TArray<FTileMeshData*>& totaltilemeshedatas)
+{
+	for (FTileMeshData* tilemeshdata : totaltilemeshedatas )
+	{
+		UTileMesh* TileMesh = NewObject<UTileMesh>();
+		TileMesh->Init(this,tilemeshdata);
+		totaltilemeshes.Add(TileMesh);
+			
+	}
+}
 
 // THE MAIN ALGORITHM
 void ABaseProceduralActor::WaveFunctionCollapse()
@@ -108,6 +155,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		RemainingTiles.Reserve(AllTilesPTR.Num());
 	
 		for(UTile* Tile : AllTilesPTR)
+			
 			{
 				RemainingTiles.Add(Tile)  ;
 			}
@@ -127,7 +175,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 
 		//UPDATE THE SURROUNDING TILES AVAILABLE MESH
 		UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
-	
+	/*
 		while (!RemainingTiles.IsEmpty())
 		{
 			// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
@@ -135,17 +183,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 			UTile* Tile = RemainingTiles[TileID-1];
 			AddInstanceMesh(TileID,RemainingTiles);
 			UpdateSurroundingMesh(Tile,RemainingTiles);
-		}
-}
-
-// THIS FUNCTION CREATE THE INSTANCED MESH OBJET FOR ALL THE TILEMESH
-void ABaseProceduralActor::InitTileMesh(TArray<UTileMesh*>& TotalTileMeshes)
-{
-	for(UTileMesh* tileMesh : TotalTileMeshes)
-	{
-		tileMesh->Init(this);
-		
-	}
+		}*/
 }
 
 void ABaseProceduralActor::UpdateCollapsedTileData(int ID ,int ArrayPosition , TArray<UTile*>& TotalTilee ,TArray<UTile*>& RemainingTile, TArray<UTile*>& TotalCollapsedTile)
@@ -206,17 +244,20 @@ UTile* ABaseProceduralActor::GetTileByPosition2D(FMatrixPosition Pos, TArray<UTi
 // CALCULATE LENGTH OF THE  FLOOR MESH 
 void ABaseProceduralActor::CalculateMeshLength()
 {
-	if(StaticMesh ==nullptr)
+	if(bWantCustomTileSize == false)
 	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("  Tile Size Calculation Failed"));}
-		return;
+		if(FloorMesh ==nullptr)
+		{
+			if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("  Tile Size Calculation Failed"));}
+			return;
+		}
+		FVector Center ;
+		FVector Extent;
+		FloorMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
+		Actor_Length_X = (Extent.X-Center.X)*2;
+		Actor_Length_Y = (Extent.Y-Center.Y)*2;
+		Actor_Length_Z = (Extent.Z-Center.Z)*2;
 	}
-	FVector Center ;
-	FVector Extent;
-	StaticMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
-	Actor_Length_X = (Extent.X-Center.X)*2;
-	Actor_Length_Y = (Extent.Y-Center.Y)*2;
-	Actor_Length_Z = (Extent.Z-Center.Z)*2;
 }
 
 //THIS FUNCTION GENERATES TILES 
@@ -228,17 +269,18 @@ bool ABaseProceduralActor::GenerateTile()
 	}
 	bool GenerationDone= false;
 	int id=0;
-	for (int i = 0 ; i< Map_Height ; i++)
+	for (int Y = 0 ; Y<  Map_Width ; Y++)
 	{
-		for (int j = 0 ; j< Map_Width ; j++)
+		for (int X = 0 ; X< Map_Height ; X++)
 		{
 			
 			id++;
 			AllTiles_Float ++ ;
-			int Yvar=i+1;
-			int Xvar=j+1;
-			FMatrixPosition POS(Xvar,Yvar);
-			FVector World_Location = FVector (i*Actor_Length_X , j*Actor_Length_Y,0.0f);
+			int Ypos=Y+1;
+			int Xpos=X+1;
+			FMatrixPosition POS(Xpos,Ypos);
+			FVector2D UnscaledLoc = FVector2d(X,Y);
+			
 
 			
 			// create a new instance of UTile with NewObject
@@ -248,7 +290,7 @@ bool ABaseProceduralActor::GenerateTile()
 			UTile* TilePtr(Tile);
 
 			// Call the Init function to initialize the object
-			TilePtr->Init(id, POS, World_Location, TotalTileMesh);
+			TilePtr->Init(id, POS,UnscaledLoc, TotalTileMesh);
 
 			// Add the shared pointer to the array
 			AllTilesPTR.Add(TilePtr);
@@ -259,9 +301,16 @@ bool ABaseProceduralActor::GenerateTile()
 	return GenerationDone;
 }
 
-void ABaseProceduralActor::SetTileLength(int Lenght ,int Width)
+void ABaseProceduralActor::SetTileLength(int Length_X ,int Length_Y )
 {
-	
+	if(AllTilesPTR.IsEmpty())
+	{
+		return;
+	}
+	for (UTile * Tile : AllTilesPTR)
+	{
+		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
+	}
 }
 
 /*
@@ -366,7 +415,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(UTile* SelectedTile,TArray<U
 
 	for (UTileMesh* AvailableTileMesh_Left : LeftNeighbour->AllAvailableMeshToChooseFrom )
 	{
-		if(AvailableTileMesh_Left->ComaptileMeshTag_Right.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+		if(AvailableTileMesh_Left->CompatibleMeshTag_Right.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
 		{
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Left);
 		}
@@ -396,7 +445,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Right(UTile* SelectedTile,TArray<
 
 	for (UTileMesh* AvailableTileMesh_Right : RightNeighbour->AllAvailableMeshToChooseFrom )
 	{
-			if(AvailableTileMesh_Right->ComaptileMeshTag_Left.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+			if(AvailableTileMesh_Right->CompatibleMeshTag_Left.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Right);
 	}
 	SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
@@ -420,7 +469,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Up(UTile* SelectedTile,TArray<UTi
 	}
 	for (UTileMesh* AvailableTileMesh_Up : UpNeighbour->AllAvailableMeshToChooseFrom )
 	{
-		if(AvailableTileMesh_Up->ComaptileMeshTag_Down.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+		if(AvailableTileMesh_Up->CompatibleMeshTag_Down.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Up);
 	}
 	SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
@@ -445,7 +494,7 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(UTile* SelectedTile,TArray<U
 		}
 		for (UTileMesh* AvailableTileMesh_Down : DownNeighbour->AllAvailableMeshToChooseFrom )
 		{
-			if(AvailableTileMesh_Down->ComaptileMeshTag_Up.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
+			if(AvailableTileMesh_Down->CompatibleMeshTag_Up.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
 				UpdatedAvailableTileMesh.Add(AvailableTileMesh_Down);
 		}
 		SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
@@ -456,7 +505,6 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(UTile* SelectedTile,TArray<U
 // CHOOSE AN RAND0M ARRAY FROM GIVEN ARRAY OF UTile BASED ON ENTROPY
 UTileMesh* ABaseProceduralActor::RandomMeshFromAvailableMesh(UTile* Tile)
 {
-	static UTileMesh* DefaultMesh=DefaultTileMesh ;
 	//if(Tile.AllAvailableMeshToChooseFrom.Num() == 0)
 	if(Tile->AllAvailableMeshToChooseFrom.IsEmpty())
 	{

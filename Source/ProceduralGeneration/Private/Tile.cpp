@@ -14,20 +14,12 @@ UTile::UTile()
 	World_Location = FVector(0,0,0);
 }
 
-UTile::~UTile()
-{
-	SelectedTiledMesh = nullptr;
-	for (int32 i = AllAvailableMeshToChooseFrom.Num() - 1; i >= 0; i--)
-	{
-		AllAvailableMeshToChooseFrom.RemoveAt(i);
-	}
-}
-
-void UTile::Init(int id, FMatrixPosition pos2d, FVector worldloc, TArray<UTileMesh*>& totaltilemesh)
+void UTile::Init(int id, FMatrixPosition pos2d,FVector2D Unscaledloc, TArray<UTileMesh*>& totaltilemesh)
 {
 	ID=id;
 	Position_2D=pos2d;
-	World_Location=worldloc;
+	World_Location_2D_UnScaled =Unscaledloc;
+	World_Location = FVector(0.f,0.f,0.f);
 	AllAvailableMeshToChooseFrom.Reserve(totaltilemesh.Num());
 	if(totaltilemesh.IsEmpty())
 	{
@@ -38,22 +30,16 @@ void UTile::Init(int id, FMatrixPosition pos2d, FVector worldloc, TArray<UTileMe
 		AllAvailableMeshToChooseFrom.Add(MeshElement);
 	}
 }
-/*
-UTile::UTile(int id, FMatrixPosition pos2d, FVector worldloc, TArray<FTileMesh>& totaltilemesh)
+
+UTile::~UTile()
 {
-	ID=id;
-	Position_2D=pos2d;
-	World_Location=worldloc;
-	AllAvailableMeshToChooseFrom.Reserve(totaltilemesh.Num());
-	if(totaltilemesh.IsEmpty())
+	
+	SelectedTiledMesh = nullptr;
+	for (int32 i = AllAvailableMeshToChooseFrom.Num() - 1; i >= 0; i--)
 	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Total Mesh Array is Empty !!! Set Default Mesh Failed  "));}
+		AllAvailableMeshToChooseFrom.RemoveAt(i);
 	}
-	for ( FTileMesh&MeshElement : totaltilemesh)
-	{
-		AllAvailableMeshToChooseFrom.Add(MeshElement);
-	}
-}*/
+}
 
 //	SET COLLPSE STATUS IN THE FTILE STRUCT
 void UTile::SetCollapseStatus(EcollapseStatus CollapseStatuss)

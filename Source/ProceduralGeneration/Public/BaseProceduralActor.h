@@ -36,8 +36,6 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-    // Called every frame
-    //virtual void Tick(float DeltaTime) override;
 	
     // Variables
     // these are numbers like 100x100 procedural tile
@@ -62,7 +60,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     UInstancedStaticMeshComponent* TileMeshInstance;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    UStaticMesh* StaticMesh;
+    UStaticMesh* FloorMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantBaseFloor;
 
@@ -81,7 +79,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UTile* DefaultTile;
 	
-
+	
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantCustomTileSize;
@@ -89,13 +87,29 @@ public:
     float AllTiles_Float;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Debug")
     ACoreDebugContainer* DebugContainerAcotr;
-    
+	
+    //Data
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
+	UDataTable* TileMeshDataAsset ;
+	TArray<FTileMeshData*>TileMeshDataArray ;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	FString TileMeshDataAssetName = "DT_TileMesh";
 
 	//Debugger	custom debug manager class
 	TDebugger Debugger ;
 	
     // Functions
 
+	//Setting up initial variables 
+	void Init();
+
+	// gets the tilemesh data from data table 
+    void GetTileMeshData();
+
+	// setup the data in totaltilemesh
+	void SetTileMeshData ();
+	void InitTileMesh(TArray<UTileMesh*>& totaltilemeshes ,TArray<FTileMeshData*>& totaltilemeshedatas);
+	
 	// The Main function
 	UFUNCTION(BlueprintCallable)
 	void WaveFunctionCollapse();
@@ -107,7 +121,7 @@ public:
 	// Uses the Calculate Length function data to provide world position
 	UFUNCTION(BlueprintCallable)
 	bool GenerateTile();
-	void SetTileLength(int Lenght ,int Width);
+	void SetTileLength(int Length_X ,int Length_Y);
 
 	// Choose a random tile from given array
 	// Mainly for first random tile choose
@@ -131,7 +145,6 @@ public:
 	void UpdateAvailableMesh_Down(UTile* SelectedTile, TArray<UTile*>& TotalTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	void InitTileMesh(TArray<UTileMesh*>& TotalTileMeshes);
 	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
