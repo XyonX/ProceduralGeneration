@@ -140,10 +140,10 @@ public:
 	void UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>& TotalTile);
 
 	// Updating Surrounding Mesh
-	void UpdateAvailableMesh_Left(UTile* SelectedTile, TArray<UTile*>& TotalTile);
-	void UpdateAvailableMesh_Right(UTile* SelectedTile, TArray<UTile*>& TotalTile);
-	void UpdateAvailableMesh_Up(UTile* SelectedTile, TArray<UTile*>& TotalTile);
-	void UpdateAvailableMesh_Down(UTile* SelectedTile, TArray<UTile*>& TotalTile);
+	void UpdateAvailableMesh_Left(UTile* SelectedTile,UTile* LeftNeighbour);
+	void UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNeighbour);
+	void UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbour);
+	void UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeighbour);
 
 	// Returns mesh with lowest entropy from given array of tiles
 	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);

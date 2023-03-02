@@ -214,7 +214,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		UpdateCollapsedTileData(FirstRandomTile->ID,FirstIndices,AllTilesPTR,RemainingTiles,CollapsedTiles);
 
 		//UPDATE THE SURROUNDING TILES AVAILABLE MESH
-		//UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
+		UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
 	/*
 		while (!RemainingTiles.IsEmpty())
 		{
@@ -428,23 +428,41 @@ void ABaseProceduralActor::GenerateBaseFloor( TArray<UTile*>& TotalTies)
 // THIS FUNCTION UPDATE SURROUNDING MAINLY CALL THOSE 4 FUNCTION
 void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>& TotalTile)
 {
-	UpdateAvailableMesh_Left(SelectedTile,TotalTile);
-	UpdateAvailableMesh_Right( SelectedTile,TotalTile);
-	UpdateAvailableMesh_Up( SelectedTile,TotalTile);
-	UpdateAvailableMesh_Down( SelectedTile,TotalTile);
+	FMatrixPosition Position2D = SelectedTile->Position_2D;
+	if(Position2D.Y-1 >=1 )
+	{
+		
+		FMatrixPosition Pos (Position2D.X,Position2D.Y-1);
+		UTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+		UpdateAvailableMesh_Left(SelectedTile,LeftNeighbour);
+	}
+	if(Position2D.Y+1 <Map_Width )
+	{
+		
+		FMatrixPosition Pos (Position2D.X,Position2D.Y+1);
+		UTile* RightNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+		UpdateAvailableMesh_Right(SelectedTile,RightNeighbour);
+	}
+	if(Position2D.X+1 <Map_Height )
+	{
+		
+		FMatrixPosition Pos (Position2D.X,Position2D.Y+1);
+		UTile* UpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+		UpdateAvailableMesh_Up(SelectedTile,UpNeighbour);
+	}
+	if(Position2D.X-1 >=1 )
+	{
+		
+		FMatrixPosition Pos (Position2D.X,Position2D.Y+1);
+		UTile* DownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
+		UpdateAvailableMesh_Up(SelectedTile,DownNeighbour);
+	}
 }
 
 // UPDATE LEFT SIDE OF THE SELECTED MESH
-void ABaseProceduralActor::UpdateAvailableMesh_Left(UTile* SelectedTile,TArray<UTile*>& TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Left(UTile* SelectedTile,UTile* LeftNeighbour)
 {
 	
-	FMatrixPosition Position2D = SelectedTile->Position_2D;
-	if(Position2D.Y-1 <=0 )
-	{
-		return;
-	}
-	FMatrixPosition Pos (Position2D.X,Position2D.Y-1);
-	UTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 	TArray<UTileMesh*> UpdatedAvailableTileMesh;
 
 	if( LeftNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
@@ -452,7 +470,6 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(UTile* SelectedTile,TArray<U
 		return;
 	}
 	
-
 	for (UTileMesh* AvailableTileMesh_Left : LeftNeighbour->AllAvailableMeshToChooseFrom )
 	{
 		if(AvailableTileMesh_Left->CompatibleMeshTag_Right.HasTag(SelectedTile->SelectedTiledMesh->MeshTag))
@@ -466,15 +483,8 @@ void ABaseProceduralActor::UpdateAvailableMesh_Left(UTile* SelectedTile,TArray<U
 }
 
 // UPDATE RIGHT SIDE OF THE SELECTED MESH
-void ABaseProceduralActor::UpdateAvailableMesh_Right(UTile* SelectedTile,TArray<UTile*>& TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Right(UTile* SelectedTile,UTile* RightNeighbour)
 {
-	FMatrixPosition Position2D = SelectedTile->Position_2D;
-	if(Position2D.Y+1 > AllTiles_Float  )
-	{
-		return;
-	}
-	FMatrixPosition Pos(Position2D.X,Position2D.Y+1);
-	UTile* RightNeighbour =GetTileByPosition2D(Pos,AllTilesPTR);
 	
 	TArray<UTileMesh*> UpdatedAvailableTileMesh;
 	
@@ -492,15 +502,8 @@ void ABaseProceduralActor::UpdateAvailableMesh_Right(UTile* SelectedTile,TArray<
 }
 
 // UPDATE UP SIDE OF SELECTED MESH
-void ABaseProceduralActor::UpdateAvailableMesh_Up(UTile* SelectedTile,TArray<UTile*>& TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Up(UTile* SelectedTile,UTile* UpNeighbour)
 {
-	FMatrixPosition Position2D =SelectedTile->Position_2D;
-	if(Position2D.X+1 > AllTiles_Float )
-	{
-		return;
-	}
-	FMatrixPosition Pos(Position2D.X+1,Position2D.Y);
-	UTile* UpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 	TArray<UTileMesh*> UpdatedAvailableTileMesh;
 	
 	if(UpNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
@@ -516,16 +519,8 @@ void ABaseProceduralActor::UpdateAvailableMesh_Up(UTile* SelectedTile,TArray<UTi
 }
 
 // UPDATE DOWN SIDE OF SELECTED MESH 
-void ABaseProceduralActor::UpdateAvailableMesh_Down(UTile* SelectedTile,TArray<UTile*>& TotalTile)
+void ABaseProceduralActor::UpdateAvailableMesh_Down(UTile* SelectedTile,UTile* DownNeighbour)
 {
-	{
-		FMatrixPosition Position2D = SelectedTile->Position_2D;
-		if(Position2D.X-1 <= 0 )
-		{
-			return;
-		}
-		FMatrixPosition Pos(Position2D.X-1,Position2D.Y);
-		UTile* DownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		TArray<UTileMesh*> UpdatedAvailableTileMesh;
 	
 		if(DownNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
@@ -538,7 +533,6 @@ void ABaseProceduralActor::UpdateAvailableMesh_Down(UTile* SelectedTile,TArray<U
 				UpdatedAvailableTileMesh.Add(AvailableTileMesh_Down);
 		}
 		SelectedTile->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
-	}
 }
 
 
