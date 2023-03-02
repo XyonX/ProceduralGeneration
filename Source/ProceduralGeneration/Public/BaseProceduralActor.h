@@ -132,7 +132,7 @@ public:
 	UTileMesh* RandomMeshFromAvailableMesh(UTile* Tile);
 
 	// This function adds an instance to the selected mesh
-	void AddInstanceMesh(int ID, TArray<UTile*>& TotalTile);
+	void AddInstanceMesh(UTile* SelectedTile);
 
 	void GenerateBaseFloor(TArray<UTile*>& TotalTile);
 
@@ -146,10 +146,10 @@ public:
 	void UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeighbour);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	void UpdateCollapsedTileData(int ID, int ArrayPosition, TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);
+	void UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	int ReturnMeshIDWithLowEntropy(TArray<UTile*>&  TotalTile);
+	UTile* ReturnTileWithLowestEntropy(TArray<UTile*>&  TotalTile);
 	UTile* GetTileByID(int ID,TArray<UTile*>& TotalTile);
 	UTile* GetTileByPosition2D(FMatrixPosition Pos, TArray<UTile*>& TotalTile);
 	

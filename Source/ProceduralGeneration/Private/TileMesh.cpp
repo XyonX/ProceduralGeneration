@@ -32,6 +32,8 @@ void UTileMesh::Init(AActor* owneractor, FTileMeshData* TileMeshData)
 	TileMesh = TileMeshData->TileMesh;
 	OwnerTileList.Empty();
 	MeshTag = TileMeshData->MeshTag;
+	Tiling = TileMeshData->TilingType;
+	Frequency =TileMeshData->Frequency;
 	CompatibleMeshTag_Left =TileMeshData->ComaptileMeshTag_Left;
 	CompatibleMeshTag_Right = TileMeshData->ComaptileMeshTag_Right;
 	CompatibleMeshTag_Up = TileMeshData->ComaptileMeshTag_Up;

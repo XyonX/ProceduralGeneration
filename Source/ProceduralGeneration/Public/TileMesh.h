@@ -8,7 +8,15 @@
 #include "Engine/DataTable.h"
 #include "TileMesh.generated.h"
 
-
+UENUM(BlueprintType)
+enum class ETilingType : uint8
+{
+	BothDirection	UMETA(DisplayName = "Both Direction"),
+	Horizontal 		UMETA(DisplayName = "Horizontal"),
+	Vertical 		UMETA(DisplayName = "Vertical"),
+	UnSupported 	UMETA(DisplayName = "Not Tilable"),
+	
+};
 
 class UTile ;
 class UTileMeshData;
@@ -23,6 +31,10 @@ struct FTileMeshData : public FTableRowBase
 	UStaticMesh*TileMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FGameplayTag MeshTag ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
+	ETilingType TilingType ;
+	UPROPERTY(EditAnywhere, Category = "My Category", meta = (ClampMin = "0", ClampMax = "1") ,meta = (ToolTip = "Percentage How Much Tile Should Repeat before break (of total Length )"))
+	float Frequency;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FGameplayTagContainer ComaptileMeshTag_Left ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
@@ -47,6 +59,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMesh")
 		UStaticMesh* TileMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMesh")
+		ETilingType Tiling ;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMesh")
+		float Frequency;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMesh")
 		TArray<UTile*>OwnerTileList;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMesh")
