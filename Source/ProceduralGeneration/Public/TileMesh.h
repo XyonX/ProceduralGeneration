@@ -56,6 +56,7 @@ public:
 	~UTileMesh();
 
 	void Init(AActor* owneractor , FTileMeshData * FTileMeshData );
+	void SetMeshPivot (UStaticMesh * In_Mesh) ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TileMesh")
 		UStaticMesh* TileMesh;

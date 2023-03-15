@@ -2,6 +2,7 @@
 
 
 #include "TileMesh.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 
 UTileMesh::UTileMesh()
@@ -45,4 +46,10 @@ void UTileMesh::Init(AActor* owneractor, FTileMeshData* TileMeshData)
 	InstancedMesh->SetStaticMesh(TileMesh);
 	InstancedMesh->SetVisibility(true);
 	
+}
+
+void UTileMesh::SetMeshPivot(UStaticMesh* In_Mesh)
+{
+	FVector BoundsOrigin , BoundsExtent ;
+	//In_Mesh->GetLocalBound
 }
