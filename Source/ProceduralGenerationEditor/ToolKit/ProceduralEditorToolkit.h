@@ -2,7 +2,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ToolKits/AssetEditorToolkit.h"
+#include "ProceduralGenerationEditor/DockTab/ProceduralEditorTab.h"
+#include "Toolkits/AssetEditorToolkit.h"
+
+class UProceduralGenerationData;
 
 class FProceduralEditorToolkit : public FAssetEditorToolkit
 {
@@ -13,28 +16,35 @@ public:
 	// Destructor
 	virtual ~FProceduralEditorToolkit();
 
-	// Initialize the editor toolkit
-	virtual void Initialize(UObject* InAsset, const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InToolkitHost) ;
-	
+	// Initialize the asset editor
+	void Initialize(UProceduralGenerationData* InProceduralAsset, const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost>& InitToolkitHost);
 
-	// Extend the toolbar with additional functionality
-	virtual void ExtendToolbar();
-
-	// Create the main tab layout of the editor toolkit
-	//virtual void CreateToolkitTabs(TSharedPtr<class FTabManager> TabManager) ;
+	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
 
 	// Get the name of the editor toolkit
-	virtual FName GetToolkitFName() const override;
+	FString GetToolkitName() const override;
 
-	// Get the label of the editor toolkit
-	virtual FText GetBaseToolkitName() const override;
+	// Get the default layout for the editor toolkit
+	FName GetToolkitFName() const override;
 
-	// Get the object being edited by this editor toolkit
-	virtual UObject* GetEditingObject()    ;
+	// Get the tab identifier for the procedural editor tab
+	FName GetTabName() const;
+	
 
-	// Save the asset being edited by this editor toolkit
+
+	//ADDITIONAL OVERRIDES
 	virtual void SaveAsset_Execute() override;
+	virtual void SaveAssetAs_Execute() override;
+	
+	
 
-	FName DefaultName ;
-	FText DefaultText ;
+	
+	
+private:
+	// Pointer to the procedural asset being edited
+	UProceduralGenerationData* ProceduralAsset;
+	TSharedPtr<SProceduralEditorTab>EditorTab ;
+	// Create the procedural editor tab
+	void CreateProceduralEditorTab(const TSharedPtr<class SDockTab>& Tab);
+	
 };
