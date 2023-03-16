@@ -3,6 +3,19 @@
 
 #include "ProceduralEditorTab.h"
 
+//  Defining   the  
+const FName SProceduralEditorTab::TabName(TEXT("ProceduralEditorTab"));
+
+SProceduralEditorTab::SProceduralEditorTab()
+{
+	
+}
+
+FName SProceduralEditorTab::GetTabIdentifier() const
+{
+	return TabName;
+}
+
 void SProceduralEditorTab::Construct(const FArguments& InArgs)
 {
 	// Call the parent constructor
