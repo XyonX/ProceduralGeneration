@@ -17,7 +17,7 @@ public class ProceduralGenerationEditor : ModuleRules
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] {
-            "ProceduralGeneration"
+            "ProceduralGeneration", "EditorStyle","UnrealEd","Slate","EditorFramework"
         });
     }
 }

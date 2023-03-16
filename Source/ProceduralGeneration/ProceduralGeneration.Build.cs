@@ -26,6 +26,10 @@ public class ProceduralGeneration : ModuleRules
 			new string[]
 			{
 				"Core",
+				"UMG", 
+				"Slate", 
+				"SlateCore",
+				"UnrealEd"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

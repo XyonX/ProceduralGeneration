@@ -5,6 +5,7 @@
 #include "ProceduralGeneration/Public/CoreDebugContainer.h"
 #include "Containers/Array.h"
 #include "Tile.h"
+#include "UObject/ConstructorHelpers.h"
 
 
 #define LogSwitch 1
