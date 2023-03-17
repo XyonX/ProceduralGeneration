@@ -1,0 +1,28 @@
+﻿/*	EditorTab =SNew(SProceduralEditorTab);
+
+	// Add the tab to the tab manager
+	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("MyLayout")
+		->AddArea
+		(
+			FTabManager::NewPrimaryArea()
+			->Split
+			(
+				FTabManager::NewStack()
+				->AddTab(GetToolbarTabId(), ETabState::OpenedTab)
+				->SetHideTabWell(true)
+			)
+			->Split
+			(
+				FTabManager::NewStack()
+				->AddTab(EditorTab->GetTabId(), ETabState::OpenedTab)
+			)
+		);
+	// Register the tab spawners
+	FAssetEditorToolkit::InitAssetEditor(
+		EToolkitMode::Standalone,
+		nullptr,
+		FName(TEXT("MyEditor")),
+		Layout,
+		true,
+		true
+	);*/
