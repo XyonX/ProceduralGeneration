@@ -21,6 +21,13 @@ void FProceduralEditorToolkit::Initialize(UProceduralGenerationData* InProcedura
 {
 	EditorTab =SNew(SProceduralEditorTab);
 
+	// Create the procedural editor tab
+	TSharedPtr<SDockTab> ProceduralEditorTab = FGlobalTabmanager::Get()->TryInvokeTab(FProceduralEditorToolkit::GetTabName());
+	if (ProceduralEditorTab)
+	{
+		CreateProceduralEditorTab(ProceduralEditorTab);
+	}
+
 	// Register the procedural editor tab with the toolkit host
 	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ProceduralGenerationEditor_Layout_v1")
 		->AddArea
