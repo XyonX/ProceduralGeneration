@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
+#include "ProceduralGenerationData.generated.h"
 
 UCLASS(BlueprintType)
 class UProceduralGenerationData : public UDataAsset
