@@ -1,39 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ProceduralEditorToolkit.h"
 #include  "Toolkits/AssetEditorToolkit.h"
+#include "Framework/Docking/TabManager.h"
+#include "ProceduralGenerationData.h"
+
 
 FProceduralEditorToolkit::FProceduralEditorToolkit()
 {
-/*	EditorTab =SNew(SProceduralEditorTab);
-
-	// Add the tab to the tab manager
-	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("MyLayout")
-		->AddArea
-		(
-			FTabManager::NewPrimaryArea()
-			->Split
-			(
-				FTabManager::NewStack()
-				->AddTab(GetToolbarTabId(), ETabState::OpenedTab)
-				->SetHideTabWell(true)
-			)
-			->Split
-			(
-				FTabManager::NewStack()
-				->AddTab(EditorTab->GetTabId(), ETabState::OpenedTab)
-			)
-		);
-	// Register the tab spawners
-	FAssetEditorToolkit::InitAssetEditor(
-		EToolkitMode::Standalone,
-		nullptr,
-		FName(TEXT("MyEditor")),
-		Layout,
-		true,
-		true
-	);*/
+	
 }
 
 FProceduralEditorToolkit::~FProceduralEditorToolkit()
@@ -50,25 +25,30 @@ void FProceduralEditorToolkit::Initialize(UProceduralGenerationData* InProcedura
 	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ProceduralGenerationEditor_Layout_v1")
 		->AddArea
 		(
-			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)->Split
+			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
+			
+			->Split
 			(
 				FTabManager::NewStack()->AddTab(GetTabName(), ETabState::OpenedTab)->SetHideTabWell(true)
 			)
 		);
-/*
+
+	TArray<UObject*> ObjectsToEdit;
+	ObjectsToEdit.Add(InProceduralAsset);
+
 	FAssetEditorToolkit::InitAssetEditor(
 		Mode,
 		InitToolkitHost,
 		GetToolkitFName(),
 		Layout,
 		true /*bCreateDefaultStandaloneMenu*/,
-		//true /*bCreateDefaultToolbar*/,
-		//InProceduralAsset /*ObjectToEdit*/
-	//);
+		true /*bCreateDefaultToolbar*/,
+		InProceduralAsset /*ObjectToEdit*/
+		
+	);
 	
 }
-
-void FProceduralEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
+void FProceduralEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
 	// Register the spawner for our tab widget
 	const auto SpawnTab = [this](const FSpawnTabArgs& Args) -> TSharedRef<SDockTab>
@@ -82,11 +62,38 @@ void FProceduralEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>
 			];
 	};
 	
-	FAssetEditorToolkit::RegisterTabSpawners(EditorTab->GetTabIdentifier(), SpawnTab);
+	
+	// Register the tab spawner
+	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
+}
+
+FName FProceduralEditorToolkit::GetToolkitFName() const
+{
+	return FName("ProceduralEditor");
+}
+
+FLinearColor FProceduralEditorToolkit::GetWorldCentricTabColorScale() const
+{
+	return FLinearColor::Yellow;
+}
+
+void FProceduralEditorToolkit::SaveAsset_Execute()
+{
+	FAssetEditorToolkit::SaveAsset_Execute();
+}
+
+FName FProceduralEditorToolkit::GetTabName() const
+{
+	return EditorTab->TabName;
 }
 
 void FProceduralEditorToolkit::CreateProceduralEditorTab(const TSharedPtr<SDockTab>& Tab)
 {
 	Tab->SetContent(EditorTab.ToSharedRef());
 	
+}
+
+void FProceduralEditorToolkit::SaveAssetAs_Execute()
+{
+	FAssetEditorToolkit::SaveAssetAs_Execute();
 }
