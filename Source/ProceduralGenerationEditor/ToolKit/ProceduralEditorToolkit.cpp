@@ -4,6 +4,7 @@
 #include  "Toolkits/AssetEditorToolkit.h"
 #include "Framework/Docking/TabManager.h"
 #include "ProceduralGenerationData.h"
+#include "ProceduralGenerationEditor/DockTab/CollapsibleBoxTab.h"
 
 
 FProceduralEditorToolkit::FProceduralEditorToolkit()
@@ -19,14 +20,7 @@ FProceduralEditorToolkit::~FProceduralEditorToolkit()
 void FProceduralEditorToolkit::Initialize(UProceduralGenerationData* InProceduralAsset, const EToolkitMode::Type Mode,
 	const TSharedPtr<IToolkitHost>& InitToolkitHost)
 {
-	EditorTab =SNew(SProceduralEditorTab);
-
-	// Create the procedural editor tab
-	TSharedPtr<SDockTab> ProceduralEditorTab = FGlobalTabmanager::Get()->TryInvokeTab(FProceduralEditorToolkit::GetTabName());
-	if (ProceduralEditorTab)
-	{
-		CreateProceduralEditorTab(ProceduralEditorTab);
-	}
+	EditorTab =SNew(SCollapsibleBoxTab);
 
 	// Register the procedural editor tab with the toolkit host
 	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("ProceduralGenerationEditor_Layout_v1")
@@ -36,7 +30,9 @@ void FProceduralEditorToolkit::Initialize(UProceduralGenerationData* InProcedura
 			
 			->Split
 			(
-				FTabManager::NewStack()->AddTab(GetTabName(), ETabState::OpenedTab)->SetHideTabWell(true)
+				FTabManager::NewStack()
+				->AddTab(GetTabName(), ETabState::OpenedTab)
+				->SetHideTabWell(true)
 			)
 		);
 
@@ -55,6 +51,7 @@ void FProceduralEditorToolkit::Initialize(UProceduralGenerationData* InProcedura
 	);
 	
 }
+
 void FProceduralEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
 	// Register the spawner for our tab widget
@@ -77,6 +74,11 @@ void FProceduralEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>
 FName FProceduralEditorToolkit::GetToolkitFName() const
 {
 	return FName("ProceduralEditor");
+}
+
+FText FProceduralEditorToolkit::GetBaseToolkitName() const
+{
+	return FText::FromString("ProceduralEditor");
 }
 
 FLinearColor FProceduralEditorToolkit::GetWorldCentricTabColorScale() const

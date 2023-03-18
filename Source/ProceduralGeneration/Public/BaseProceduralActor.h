@@ -8,12 +8,9 @@
 #include "Tile.h"
 #include "BaseProceduralActor.generated.h"
 
-
 // COLLAPSE STATUS ENUM
 class ACoreDebugContainer;
 struct FMatrixPosition;
-
-
 
 // CAN BE CONSIDERED AS A SINGLE MESH UNIT CONTAINING ONE MAIN MESH AND OTHER NEEDED VARIABLES
 

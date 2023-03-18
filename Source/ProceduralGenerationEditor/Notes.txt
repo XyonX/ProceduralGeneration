@@ -26,3 +26,13 @@
 		true,
 		true
 	);*/
+	
+	
+	toolkit  init  remove  code
+	
+	// Create the procedural editor tab
+    	TSharedPtr<SDockTab> ProceduralEditorTab = FGlobalTabmanager::Get()->TryInvokeTab(FProceduralEditorToolkit::GetTabName());
+    	if (ProceduralEditorTab)
+    	{
+    		CreateProceduralEditorTab(ProceduralEditorTab);
+    	}

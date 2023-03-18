@@ -18,7 +18,7 @@ public:
 
 	// Register the dockable tab
 	static void RegisterTabSpawner();
-
+	
 	// Create an instance of the dockable tab
 	static TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& SpawnTabArgs);
 
