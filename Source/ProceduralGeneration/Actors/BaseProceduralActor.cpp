@@ -2,9 +2,10 @@
 #include "BaseProceduralActor.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "ProceduralGeneration/Public/CoreDebugContainer.h"
+#include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
 #include "Containers/Array.h"
-#include "Tile.h"
+#include "ProceduralGeneration/Tiles/Tile.h"
+#include  "ProceduralGeneration/TileMesh/TileMesh.h"
 #include "UObject/ConstructorHelpers.h"
 
 

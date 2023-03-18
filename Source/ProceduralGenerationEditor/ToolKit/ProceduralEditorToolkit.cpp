@@ -3,7 +3,7 @@
 #include "ProceduralEditorToolkit.h"
 #include  "Toolkits/AssetEditorToolkit.h"
 #include "Framework/Docking/TabManager.h"
-#include "ProceduralGenerationData.h"
+#include "ProceduralGeneration/Data/ProceduralGenerationData.h"
 #include "ProceduralGenerationEditor/DockTab/CollapsibleBoxTab.h"
 
 

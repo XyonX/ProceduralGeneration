@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "TileMesh.h"
+#include "ProceduralGeneration/TileMesh/TileMesh.h"
 #include "Tile.generated.h"
 
 

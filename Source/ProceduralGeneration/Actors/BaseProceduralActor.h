@@ -1,16 +1,17 @@
 ﻿#pragma once
-#include <Templates/SharedPointer.h>
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
-#include <memory>
-#include "CoreDebugContainer.h"
-#include "Tile.h"
+#include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
 #include "BaseProceduralActor.generated.h"
+
 
 // COLLAPSE STATUS ENUM
 class ACoreDebugContainer;
 struct FMatrixPosition;
+class UTile;
+class UTileMesh;
+struct FTileMeshData;
 
 // CAN BE CONSIDERED AS A SINGLE MESH UNIT CONTAINING ONE MAIN MESH AND OTHER NEEDED VARIABLES
 
