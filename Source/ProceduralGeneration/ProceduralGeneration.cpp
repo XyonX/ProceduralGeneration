@@ -2,14 +2,7 @@
 
 #include "ProceduralGeneration.h"
 
-#include "AssetToolsModule.h"
-#include "CollectionManagerModule.h"
-#include "CollectionManagerTypes.h"
-#include "EditorStyleSet.h"
-#include "IAssetTools.h"
-#include "AssetRegistry/AssetRegistryModule.h"
-#include "AssetRegistry/IAssetRegistry.h"
-#include "CustomAssetType/Actions/CustomAssetActions.h"
+
 
 #define LOCTEXT_NAMESPACE "FProceduralGenerationModule"
 
