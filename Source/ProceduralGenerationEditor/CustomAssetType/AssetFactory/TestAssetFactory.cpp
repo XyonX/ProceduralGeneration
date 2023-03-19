@@ -1,5 +1,5 @@
 ﻿#include "TestAssetFactory.h"
-#include "ProceduralGeneration/CustomAssetType/Class/TestAsset.h"
+#include "ProceduralGenerationEditor/CustomAssetType/Class/TestAsset.h"
 
 UTestAssetFactory::UTestAssetFactory()
 {

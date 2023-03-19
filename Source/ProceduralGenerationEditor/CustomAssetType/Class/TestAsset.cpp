@@ -31,3 +31,8 @@ void ATestAsset::Serialize(FArchive& Ar)
 	
 }
 
+void ATestAsset::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+

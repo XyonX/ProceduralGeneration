@@ -7,7 +7,7 @@
 #include "TestAsset.generated.h"
 
 UCLASS()
-class PROCEDURALGENERATION_API ATestAsset : public AActor
+class PROCEDURALGENERATIONEDITOR_API ATestAsset : public AActor
 {
 	GENERATED_BODY()
 
@@ -32,4 +32,7 @@ public:
 	int TestFloat;
 	UPROPERTY(SaveGame,EditAnywhere,BlueprintReadWrite,Category="Asset")
 	TArray<int>TestIntArray;
+	/** Holds the stored text. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="TextAsset")
+	FText Text;
 };
