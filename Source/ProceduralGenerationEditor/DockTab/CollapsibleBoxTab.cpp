@@ -6,7 +6,7 @@
 #include "WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
 
-#define LOCTEXT_NAMESPACE "ProceduralEditorLocalization"
+
 
 //  Defining   the  
 const FName SCollapsibleBoxTab::TabName(TEXT("CollapsibleBoxTab"));

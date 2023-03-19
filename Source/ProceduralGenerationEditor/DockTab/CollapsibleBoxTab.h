@@ -3,6 +3,8 @@
 #include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Layout/SScrollBox.h"
 
+
+#define LOCTEXT_NAMESPACE "ProceduralEditorLocalization"
 class SCollapsibleBox_01;
 
 class SCollapsibleBoxTab : public SDockTab
