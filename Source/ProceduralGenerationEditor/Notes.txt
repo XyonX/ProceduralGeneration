@@ -36,3 +36,41 @@
     	{
     		CreateProceduralEditorTab(ProceduralEditorTab);
     	}
+    	
+    	
+   //DUMPER CODE 
+    /* // Get the plugin's base directory
+       FString BaseDir = IPluginManager::Get().FindPlugin("ProceduralGeneration")->GetBaseDir();
+   
+       // Add an auto-import directory
+       FString AutoImportDir = FPaths::Combine(BaseDir, TEXT("Content"));
+   
+       //LOAD thew Module and register
+       IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+       AssetRegistry.Get()->AddPath(AutoImportDir);*/
+   
+      /*
+    FString PluginDir = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("ProceduralGeneration"));
+       FString AutoImportDir = FPaths::Combine(PluginDir, TEXT("Content"));
+       IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+       AssetRegistry.Get()->AddPath(AutoImportDir);*/
+   
+     /*  // Get the plugin's content directory
+       FString PluginDir = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("ProceduralGeneration"));
+       FString AutoImportDir = FPaths::Combine(PluginDir, TEXT("Content"));
+   
+       // Convert the relative path to an absolute path
+       FString FullPath = FPaths::ConvertRelativePathToFull(AutoImportDir);
+   
+       // Add the directory to the AssetRegistry
+       IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+       AssetRegistry.Get()->AddPath(FullPath);*/
+   /*
+       FString PluginDir = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("ProceduralGeneration"));
+       FString AutoImportDir = FPaths::Combine(PluginDir, TEXT("Content"));
+       FPaths::NormalizeDirectoryName(AutoImportDir); // convert backslashes to forward slashes
+       IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+       AssetRegistry.Get()->AddPath(AutoImportDir);*/
+   
+   
+      // FString ModuleDirectory = FString::Printf(TEXT("%s/Source/ProceduralGeneration"), *FPaths::ProjectPluginsDir());
