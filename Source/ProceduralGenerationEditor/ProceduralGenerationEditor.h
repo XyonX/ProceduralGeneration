@@ -12,7 +12,19 @@ public:
 	virtual void ShutdownModule() override;
 
 	
+	
+	void RegisterAssetAction () ;
+	void UnRegisterAssetAction ();
+
+	void RegisterMenuExtensions();
+	void UnregisterMenuExtensions();
+
+
+private:
 	TSharedPtr<IAssetTypeActions>CustomAssetActions;
+	TSharedPtr<FExtensibilityManager> MenuExtensibilityManager;
+	TSharedPtr<FExtensibilityManager> ToolBarExtensibilityManager;
+	
 };
 
 IMPLEMENT_MODULE(FMyEditorModule, MyEditorModule)
