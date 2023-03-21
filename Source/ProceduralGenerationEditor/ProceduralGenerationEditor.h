@@ -12,7 +12,7 @@ public:
 	virtual void ShutdownModule() override;
 
 	
-	
+	TSharedPtr<IAssetTypeActions>CustomAssetActions;
 };
 
 IMPLEMENT_MODULE(FMyEditorModule, MyEditorModule)
