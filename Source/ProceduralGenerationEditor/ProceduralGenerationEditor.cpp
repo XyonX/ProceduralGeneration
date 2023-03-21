@@ -42,8 +42,15 @@ void FMyEditorModule::ShutdownModule()
 {
 	IModuleInterface::ShutdownModule();
 
-	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	AssetTools.UnregisterAssetTypeActions(CustomAssetActions.ToSharedRef());
+	//IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	//AssetTools.UnregisterAssetTypeActions(CustomAssetActions.ToSharedRef());
+
+	FAssetToolsModule* AssetToolsModule = FModuleManager::GetModulePtr<FAssetToolsModule>("AssetTools");
+	if (AssetToolsModule != nullptr)
+	{
+		IAssetTools& AssetTools = AssetToolsModule->Get();
+		AssetTools.UnregisterAssetTypeActions(CustomAssetActions.ToSharedRef());
+	}
 
 /*	FAssetToolsModule* AssetToolsModule = FModuleManager::GetModulePtr<FAssetToolsModule>("AssetTools");
 
