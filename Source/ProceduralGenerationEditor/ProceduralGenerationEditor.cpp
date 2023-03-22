@@ -57,6 +57,18 @@ void FMyEditorModule::UnRegisterAssetAction()
 		}*/
 }
 
+void FMyEditorModule::RegisterToolkit()
+{
+	// Register the editor toolkit
+	FAssetEditorToolkitModule& AssetEditorModule = FModuleManager::LoadModuleChecked<IAssetEditorToolkitModule>("AssetEditorToolkit");
+	AssetEditorModule.RegisterAssetEditorToolkit(MakeShareable(new FMyCustomTextureEditorToolkit()));
+	
+}
+
+void FMyEditorModule::UnRegisterToolkit()
+{
+}
+
 void FMyEditorModule::RegisterMenuExtensions()
 {
 	MenuExtensibilityManager = MakeShareable(new FExtensibilityManager);
