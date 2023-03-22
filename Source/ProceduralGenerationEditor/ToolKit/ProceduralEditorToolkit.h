@@ -27,7 +27,7 @@ public:
 	//Register Tab Spawner
 	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager) override;
 	// Get the default layout for the editor toolkit
-	FName GetToolkitFName() const override;
+	virtual FName GetToolkitFName() const override;
 	//get base toolkit name
 	virtual FText GetBaseToolkitName() const override;
 	// Get the default layout for the editor toolkit
@@ -47,5 +47,6 @@ private:
 	TSharedPtr<SCollapsibleBoxTab>EditorTab ;
 	// Create the procedural editor tab
 	void CreateProceduralEditorTab(const TSharedPtr<class SDockTab>& Tab);
+	FName EditorName =  FName("ProceduralEditor");
 	
 };

@@ -73,7 +73,7 @@ void FProceduralEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>
 
 FName FProceduralEditorToolkit::GetToolkitFName() const
 {
-	return FName("ProceduralEditor");
+	return EditorName;
 }
 
 FText FProceduralEditorToolkit::GetBaseToolkitName() const
