@@ -4,6 +4,9 @@
 #include "AssetToolsModule.h"
 #include "CustomAssetType/Actions/BaseAssetActions.h"
 #include "CustomAssetType/AssetFactory/BaseActorFactory.h"
+#include "ToolKit/BaseEditorToolkit.h"
+#include "Toolkits/AssetEditorToolkit.h"
+#include "Subsystems/AssetEditorSubsystem.h"
 
 void FMyEditorModule::StartupModule()
 {
@@ -34,8 +37,6 @@ void FMyEditorModule::RegisterAssetAction()
 
 void FMyEditorModule::UnRegisterAssetAction()
 {
-	//IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	//AssetTools.UnregisterAssetTypeActions(CustomAssetActions.ToSharedRef());
 
 	FAssetToolsModule* AssetToolsModule = FModuleManager::GetModulePtr<FAssetToolsModule>("AssetTools");
 	if (AssetToolsModule != nullptr)
@@ -57,17 +58,6 @@ void FMyEditorModule::UnRegisterAssetAction()
 		}*/
 }
 
-void FMyEditorModule::RegisterToolkit()
-{
-	// Register the editor toolkit
-	FAssetEditorToolkitModule& AssetEditorModule = FModuleManager::LoadModuleChecked<IAssetEditorToolkitModule>("AssetEditorToolkit");
-	AssetEditorModule.RegisterAssetEditorToolkit(MakeShareable(new FMyCustomTextureEditorToolkit()));
-	
-}
-
-void FMyEditorModule::UnRegisterToolkit()
-{
-}
 
 void FMyEditorModule::RegisterMenuExtensions()
 {

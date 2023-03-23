@@ -16,10 +16,6 @@ public:
 	void RegisterAssetAction () ;
 	void UnRegisterAssetAction ();
 
-	void RegisterToolkit();
-	void UnRegisterToolkit();
-	
-
 	void RegisterMenuExtensions();
 	void UnregisterMenuExtensions();
 
