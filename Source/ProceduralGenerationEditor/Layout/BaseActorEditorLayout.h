@@ -13,5 +13,9 @@ public:
 	FBaseActorEditorLayout();
 	~FBaseActorEditorLayout();
 
-	TSharedRef<FTabManager::FLayout> EditorLayout ();
+	static TSharedRef<FTabManager::FLayout> EditorLayout ();
+
+	static  TSharedPtr<FTabManager>MyTabManager ;
+
+	static void CreateBlueprintGraph ();
 };
