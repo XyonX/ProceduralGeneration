@@ -16,12 +16,14 @@ public:
 	virtual UClass* GetSupportedClass() const override {return UBaseActor::StaticClass();};
 	virtual bool HasActions(const TArray<UObject*>& InObjects) const override {return true;};
 	virtual void GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) override;
-	virtual void OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor) override{};
+	// this function is for the old users who used to program the in the toolkit 
+	virtual void OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor) override;
 	virtual bool CanFilter() override{return  true;};
 	virtual FColor GetTypeColor() const override{return FColor::Yellow;};
 	virtual TSharedPtr<SWidget> GetThumbnailOverlay(const FAssetData& AssetData) const override;
-
+	
 	static FTestDelegate TestDelegate;
+	
 	
 	static void TestFunction ();
 

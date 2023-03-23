@@ -5,6 +5,7 @@
 
 #include "EditorStyleSet.h"
 #include "Brushes/SlateImageBrush.h"
+#include "ProceduralGenerationEditor/ToolKit/BaseEditorToolkit.h"
 #include "Styling/SlateStyleRegistry.h"
 //#include "AssetThumbnail.h"
 
@@ -36,6 +37,25 @@ void FBaseActorActions::GetActions(const TArray<UObject*>& InObjects, FMenuBuild
 		));
 		
 
+}
+
+void FBaseActorActions::OpenAssetEditor(const TArray<UObject*>& InObjects,
+	TSharedPtr<IToolkitHost> EditWithinLevelEditor)
+{
+	// Create a new instance of our custom editor toolkit class
+	TSharedRef<FBaseEditorToolkit> EditorToolkit = MakeShareable(new FBaseEditorToolkit());
+
+	// Initialize the editor toolkit with the selected assets and the editor host
+	EditorToolkit->InitCustomEditor(Mode, EditWithinLevelEditor, InObjects);
+
+	// Open the editor
+	TSharedPtr<SDockTab> Tab = FGlobalTabmanager::Get()->InvokeTab(FMyCustomEditorToolkit::TabName);
+	EditorToolkit->AddMenuExtension(Tab, EditWithinLevelEditor.ToSharedRef());
+
+	// Set the focus to the editor
+	EditorToolkit->FocusWindow(EditWithinLevelEditor);
+	
+	//FAssetTypeActions_Base::OpenAssetEditor(InObjects, EditWithinLevelEditor);
 }
 
 TSharedPtr<SWidget> FBaseActorActions::GetThumbnailOverlay(const FAssetData& AssetData) const
