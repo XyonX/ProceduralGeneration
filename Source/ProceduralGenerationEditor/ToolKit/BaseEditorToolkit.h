@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProceduralGeneration/Actors/CustomAssetClass/BaseActor.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
 
@@ -27,9 +28,9 @@ class FBaseEditorToolkit : public FAssetEditorToolkit
 	virtual void SaveAsset_Execute() override;
 	virtual void SaveAssetAs_Execute() override;
 	virtual bool OnRequestClose() override;
-	
-	
-	void Init ();
+
+	//SETUP THE UI
+	void InitEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, UObject* ObjectToEdit);
 	
 	
 	private:
@@ -37,6 +38,7 @@ class FBaseEditorToolkit : public FAssetEditorToolkit
 	TSharedPtr<class FViewportClient> ViewportClient;
 	TSharedPtr<class IDetailsView> PropertyView;
 	TSharedPtr<class FUICommandList> ToolkitCommands;
+	UBaseActor*BaseActor;
 	//UMyCustomTexture* MyCustomTexture;
 	
 };

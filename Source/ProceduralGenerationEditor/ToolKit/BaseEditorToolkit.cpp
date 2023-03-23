@@ -3,6 +3,8 @@
 
 #include "BaseEditorToolkit.h"
 
+#include "ProceduralGenerationEditor/Layout/BaseActorEditorLayout.h"
+
 #define LOCTEXT_NAMESPACE "Editor Tab"
 
 void FBaseEditorToolkit::Init()
@@ -17,31 +19,7 @@ void FBaseEditorToolkit::Init()
 	ToolkitCommands = MakeShareable(new FUICommandList);
 
 	// Set up the UI
-	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout = FTabManager::NewLayout("Standalone_CustomTextureEditor_Layout_v1")
-		->AddArea
-		(
-			FTabManager::NewPrimaryArea()->SetOrientation(Orient_Horizontal)
-			->Split
-			(
-				FTabManager::NewStack()->SetSizeCoefficient(0.66f)
-				->AddTab("Viewport", ETabState::OpenedTab, FTabManager::FTab()
-					//.AddLabel(LOCTEXT("ViewportTabTitle", "Viewport"))
-					.SetContent
-					(
-						SNew(SViewport)
-							.ViewportInterface(ViewportClient.ToSharedRef())
-					)
-				)
-				->Split
-				(
-					FTabManager::NewStack()->SetSizeCoefficient(0.33f)
-					->AddTab("Details", ETabState::OpenedTab, FTabManager::FTab()
-						.SetLabel(LOCTEXT("DetailsTabTitle", "Details"))
-						.SetContent(PropertyView.ToSharedRef())
-					)
-				)
-			)
-		);
+	const TSharedRef<FTabManager::FLayout> StandaloneDefaultLayout =  FBaseActorEditorLayout::EditorLayout();
 
 	// Initialize the toolkit
 	InitAssetEditor(
@@ -52,4 +30,23 @@ void FBaseEditorToolkit::Init()
 		true,
 		true
 	);
+}
+
+void FBaseEditorToolkit::InitEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost,
+	UObject* ObjectToEdit)
+{
+	// Save a reference to the object that we're editing
+	BaseActor = Cast<UBaseActor>(ObjectToEdit);
+
+	// Create the main widget for the editor
+	SAssignNew(MainWidget, SMyCustomEditorWidget, MyAsset)
+		.OnSaveClicked(this, &FMyCustomEditorToolkit::OnSave)
+		.OnCancelClicked(this, &FMyCustomEditorToolkit::OnCancel);
+
+	// Initialize the toolkit
+	FAssetEditorToolkit::InitAssetEditor(Mode, InitToolkitHost, FName("MyCustomEditor"), GetDefaultLayout(), true, true, ObjectToEdit);
+
+	// Add the main widget to the editor window
+	AddWidget(MainWidget.ToSharedRef());
+}
 }
