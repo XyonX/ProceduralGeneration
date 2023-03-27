@@ -6,12 +6,10 @@
 #include "Toolkits/AssetEditorToolkit.h"
 
 
+struct FTabPayload;
 
 class FBaseEditorToolkit : public FAssetEditorToolkit
 {
-
-	// Initialize the asset editor
-	//void Initialize(UProceduralGenerationData* InProceduralAsset, const EToolkitMode::Type Mode, const TSharedPtr<class IToolkitHost>& InitToolkitHost);
 	
 	
 	//OVERRIDES
@@ -29,17 +27,23 @@ class FBaseEditorToolkit : public FAssetEditorToolkit
 	virtual void SaveAssetAs_Execute() override;
 	virtual bool OnRequestClose() override;
 
+public:
+	
 	//SETUP THE UI
-	void InitEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, UObject* ObjectToEdit);
+	void Init(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost);
+	void  OpenEditor(const TArray< UObject* >& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor);
+
 	
-	
-	private:
+private:
 	// Member variables
 	TSharedPtr<class FViewportClient> ViewportClient;
 	TSharedPtr<class IDetailsView> PropertyView;
 	TSharedPtr<class FUICommandList> ToolkitCommands;
 	UBaseActor*BaseActor;
 	//UMyCustomTexture* MyCustomTexture;
+
+
+	TSharedRef<SDockTab>  SpawnBlueprintEditorTab(const FSpawnTabArgs& Args);
 	
 };
 	
