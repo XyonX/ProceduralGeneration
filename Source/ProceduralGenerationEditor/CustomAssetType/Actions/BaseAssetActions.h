@@ -2,8 +2,9 @@
 
 #include "AssetTypeActions_Base.h"
 #include "ProceduralGeneration/Actors/CustomAssetClass/BaseActor.h"
+#include "ProceduralGenerationEditor/ToolKit/BaseEditorToolkit.h"
 
-DECLARE_DELEGATE_RetVal(bool , FTestDelegate)
+DECLARE_DELEGATE_RetVal(bool, FTestDelegate)
 
 class FBaseActorActions : public FAssetTypeActions_Base
 {
@@ -28,5 +29,9 @@ public:
 	static void TestFunction ();
 
 	bool AnotherFunction ();
+
+
+private :
+	TSharedPtr<FBaseEditorToolkit>CustomEditorToolkit ;
 	
 };
