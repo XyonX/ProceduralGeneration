@@ -6,39 +6,7 @@
 #include "K2Node_FunctionEntry.h"
 #include "Framework/Docking/TabManager.h"
 #include "Kismet2/KismetEditorUtilities.h"
-
-TSharedRef<FTabManager::FLayout> FBaseActorEditorLayout::EditorLayout()
-{
-
-
-
-
-	
-	return
-
-	FTabManager::NewLayout("ProceduralGenerationEditor_Layout_v1")
-			->AddArea(
-				FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
-				->Split
-				(
-				FTabManager::NewStack()
-					->AddTab("BlueprintEditor", ETabState::OpenedTab)
-					->SetHideTabWell(true)
-					->SetSizeCoefficient(0.7f)
-					->SetForegroundTab(MyTabManager->GetTabSharedRef("BlueprintEditor"))
-				)
-				->Split
-				(
-				FTabManager::NewStack()
-					->AddTab("Details", ETabState::OpenedTab)
-					->SetHideTabWell(true)
-					->SetSizeCoefficient(0.3f)
-				)
-			)
-	;
-	
-}
-
+/*
 void FBaseActorEditorLayout::CreateBlueprintGraph()
 {
 	// Create the blueprint asset
@@ -62,7 +30,40 @@ void FBaseActorEditorLayout::CreateBlueprintGraph()
 	TSharedPtr<SGraphEditor> GraphEditor = FBlueprintEditorUtils::CreateGraphEditorWidget(Graph);
 	BlueprintEditorTab->SetContent(GraphEditor.ToSharedRef());
 
+}*/
+
+
+const TSharedRef<FTabManager::FLayout> FBaseActorEditorLayout::EditorLayout()
+{
+	
+	
+
+	static const TSharedRef<FTabManager::FLayout> Layout =FTabManager::NewLayout("ProceduralGenerationEditor_Layout_v1")
+			->AddArea(
+				FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
+				->Split
+				(
+				FTabManager::NewStack()
+					->AddTab("BlueprintEditor", ETabState::OpenedTab)
+					->SetHideTabWell(true)
+					->SetSizeCoefficient(0.7f)
+					->SetForegroundTab(FName("Kismet2"))
+				)
+				->Split
+				(
+				FTabManager::NewStack()
+					->AddTab("Details", ETabState::OpenedTab)
+					->SetHideTabWell(true)
+					->SetSizeCoefficient(0.3f)
+				)
+			)
+	;
+
+	return Layout;
+	
 }
+
+
 
 /*
 FTabManager& FBaseActorEditorLayout::CreateEditorTabs()

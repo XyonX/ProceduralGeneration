@@ -6,16 +6,8 @@
 
 
 
-
 class PROCEDURALGENERATIONEDITOR_API FBaseActorEditorLayout
 {
 public:
-	FBaseActorEditorLayout();
-	~FBaseActorEditorLayout();
-
-	static TSharedRef<FTabManager::FLayout> EditorLayout ();
-
-	static  TSharedPtr<FTabManager>MyTabManager ;
-
-	static void CreateBlueprintGraph ();
+	static const TSharedRef<FTabManager::FLayout> EditorLayout ();
 };
