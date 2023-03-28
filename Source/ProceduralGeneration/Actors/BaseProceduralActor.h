@@ -3,6 +3,9 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
+#include "LevelEditor.h"
+#include "LevelEditorActions.h"
+#include "Editor/LevelEditor/Public/LevelEditorActions.h"
 #include "BaseProceduralActor.generated.h"
 
 
@@ -32,6 +35,7 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 
 public:
 	
@@ -96,9 +100,33 @@ public:
 
 	//Debugger	custom debug manager class
 	TDebugger Debugger ;
+
+	//INPUT
+	//Create a input Component and bind it with the fucntion
+	void SetupInput();
+	
+	// Context THAT CONTAINS INPUT ACTIONS CAN HAVE MORE THAN ONE 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input mapping Context")
+	class UInputMappingContext*ProceduralGenerationMapping;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
+	class UInputAction* OpenUIAction;
+	
+	
+
+	//UI
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
+	FName TabID ;
+	//The Actual Dock TaB
+	TSharedPtr<SDockTab> MyDockTab;
+
+	//UI FUNCTIONS
+	void ToggleTab();
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	
+
 	
     // Functions
-
 	//Setting up initial variables 
 	bool Init();
 

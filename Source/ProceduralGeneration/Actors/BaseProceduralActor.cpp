@@ -1,5 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "BaseProceduralActor.h"
+
+#include "../../../../../../../UE_5.1/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
@@ -7,7 +9,8 @@
 #include "ProceduralGeneration/Tiles/Tile.h"
 #include  "ProceduralGeneration/TileMesh/TileMesh.h"
 #include "UObject/ConstructorHelpers.h"
-
+#include "GameFramework/PlayerController.h"
+#include "ProceduralGeneration/UI/DockTab/GenerationControllerTab.h"
 
 #define LogSwitch 1
 
@@ -15,7 +18,6 @@
 // CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
 {
-	
 	// TURNING OFF TICK
 	PrimaryActorTick.bCanEverTick = false;
 	
@@ -121,6 +123,56 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		DefaultTileMesh = nullptr ;
 	}
 	
+}
+
+void ABaseProceduralActor::SetupInput()
+{
+	// Get the player controller
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		// Create an input component and attach it to the player controller
+		UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
+		if (EnhancedInputComp)
+		{
+			if(OpenUIAction)
+			{
+				EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
+			}
+		}
+	}
+}
+
+void ABaseProceduralActor::ToggleTab()
+{
+	TabID=SGenerationControllerTab::TabName;
+	TSharedPtr<SDockTab> Tab =  FGlobalTabmanager::Get()->FindExistingLiveTab(TabID);
+	if (Tab.IsValid())
+	{
+		FGlobalTabmanager::Get()->UnregisterTabSpawner(TabID);
+		return;
+	}
+	else
+	{
+		// Open the UI if it's not already open
+		TSharedRef<SGenerationControllerTab> Tabb = SNew(SGenerationControllerTab);
+		Tabb->RegisterTabSpawner();
+		FGlobalTabmanager::Get()->TryInvokeTab(Tabb->GetTabIdentifier());
+		
+	}
+}
+
+void ABaseProceduralActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	// Check if the dock tab has been created yet
+	if (MyDockTab.IsValid())
+	{
+		// Update the dock tab's label with the actor's name
+		FString ActorName = GetName();
+		MyDockTab->SetLabel(FText::FromString(ActorName));
+	}
 }
 
 bool ABaseProceduralActor::Init()
