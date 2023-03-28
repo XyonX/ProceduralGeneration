@@ -2,40 +2,61 @@
 
 
 #include "BaseEditorToolkit.h"
-
-#include <dbghelp.h>
-
-#include "AssetTypeCategories.h"
 #include "BlueprintEditor.h"
 #include "EditorStyleSet.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "ProceduralGenerationEditor/DockTab/DetailsPanelTab.h"
 #include "ProceduralGenerationEditor/Layout/BaseActorEditorLayout.h"
+#include "ProceduralGenerationEditor/BlueprintGraph/EventGraph/CustomEVGraph.h"
 
 #define LOCTEXT_NAMESPACE "Editor Window"
 
 void FBaseEditorToolkit::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
 	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
-	
+	/*
 	// Register the blueprint editor tab spawner
 	InTabManager->RegisterTabSpawner("Kismet2", FOnSpawnTab::CreateSP(this, &FBaseEditorToolkit::SpawnBlueprintEditorTab))
 		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Modes"))
 		.SetDisplayName(FText::FromString("Blueprint Editor"))
-		.SetGroup(WorkspaceMenu::GetMenuStructure().GetLevelEditorCategory();
-
+		.SetGroup(WorkspaceMenu::GetMenuStructure().GetLevelEditorCategory());*/
+	
 	// Register the details tab spawner
-	InTabManager->RegisterTabSpawner("Details", FOnSpawnTab::CreateSP(this, &FMyCustomEditorToolkit::SpawnDetailsTab))
+	InTabManager->RegisterTabSpawner("Details", FOnSpawnTab::CreateSP(this, &FBaseEditorToolkit::SpawnDetailsPanel))
 		.SetDisplayName(FText::FromString("Details"))
 		.SetGroup(WorkspaceMenu::GetMenuStructure().GetLevelEditorCategory())
 		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
-
 	
 }
 
-void FBaseEditorToolkit::Init(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost)
+// FBaseEditorToolkit::UnregisterTabSpawners(const TSharedRef<FTabManager>& TabManager)
+//{
+/*	// Unregister the tab spawner for the Blueprint Editor
+	//TabManager->UnregisterTabSpawner("Kismet2");
+
+	// Unregister the tab spawner for the Details panel
+	InTabManager->UnregisterTabSpawner("Details");
+
+	// Call the base class implementation to unregister any additional tab spawners
+	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);*/
+//}
+
+FBaseEditorToolkit::FBaseEditorToolkit()
 {
+}
+FBaseEditorToolkit::~FBaseEditorToolkit()
+{
+	//UnregisterTabSpawners(FGlobalTabmanager::Get());
+}
+
+void FBaseEditorToolkit::Init(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, const TArray<UObject*>& InObjects)
+{
+
+	// Register the tab spawners for the editor
+	RegisterTabSpawners(FGlobalTabmanager::Get());
+	
 	//create the layout
 	static const TSharedRef<FTabManager::FLayout> EditorLayout =FBaseActorEditorLayout::EditorLayout();
 	
@@ -47,71 +68,45 @@ void FBaseEditorToolkit::Init(const EToolkitMode::Type Mode, const TSharedPtr<IT
 	EditorLayout,
 	true,
 	true,
-	TArray<UObject*>(),
+	InObjects,
 	false,      
 	false
 	
-);
-
-	// Activate the initial layout
-	const bool bNewlyCreated = (GetEditingObjects().Num() == 1 && GetEditingObjects()[0] == GetEditingObject());
-	if (bNewlyCreated)
-	{
-		// If this is a newly created asset, activate the properties tab
-		TSharedPtr<FTabManager> TabManager = GetToolkitHost()->GetTabManager();
-		TabManager->TryInvokeTab(FName("BlueprintEditor"));
-		TabManager->TryInvokeTab(FName("Details"));
-
-	}
+	);
 
 }
-	
 
-
-void FBaseEditorToolkit::OpenEditor(const TArray<UObject*>& InObjects, TSharedPtr<IToolkitHost> EditWithinLevelEditor)
-{
-	RegisterTabSpawners(FGlobalTabmanager::Get());
-}
 
 
 TSharedRef<SDockTab> FBaseEditorToolkit::SpawnBlueprintEditorTab(const FSpawnTabArgs& Args)
 {
-	/*//FBlueprintEditorModule::CreateBlueprintEditor(this)
-	// Get the Kismet2 tab widget from the engine
-	TSharedPtr<SDockTab> Kismet2Tab = FGlobalTabmanager::Get()->FindExistingLiveTab(FName("Kismet2"));
-    
-	if (Kismet2Tab.IsValid())
-	{
-		// If the tab exists, return it
-		return Kismet2Tab.ToSharedRef();
-	}
-	// Get the blueprint graph editor module
-	FBlueprintEditorModule& BlueprintEditorModule = FModuleManager::GetModuleChecked<FBlueprintEditorModule>("Kismet");
+	// Create a new instance of our custom editor widget
+	TSharedRef<SCustomEVGraph> CustomEditorWidget = SNew(SCustomEVGraph);
 
-	// Create an instance of the blueprint graph editor
-	//UBlueprint* Blueprint = ...; // Get the blueprint you want to edit
-	TSharedRef<IBlueprintEditor> BlueprintEditor = BlueprintEditorModule.CreateBlueprintEditor(
-		EToolkitMode::Standalone, TSharedPtr<IToolkitHost>(), EAssetTypeCategories::Blueprint, false);
-
-	// Return the blueprint graph editor as a dock tab
-	return BlueprintEditor->GetGraphEditorTab();*/
-	// Get the blueprint object that you want to edit
-	UBlueprint* BlueprintObj = ...;
-
-	// Create an instance of the blueprint editor
-	TSharedPtr<SGraphEditor> GraphEditor = FKismetEditorUtilities::CreateBlueprintEditorInstance(BlueprintObj, GetTabId(), SpawnTabArgs.GetOwnerTab().ToSharedRef());
-
-	// Create a new tab with the graph editor as content
-	TSharedRef<SDockTab> NewTab = SNew(SDockTab)
-		.TabRole(ETabRole::NomadTab)
-		.Label(FText::FromString(TEXT("My Tab")))
-		.ContentPadding(2.0f)
+	// Wrap the widget in a dock tab and return it
+	return SNew(SDockTab)
+		.TabRole(ETabRole::MajorTab)
+		.ContentPadding(0)
+		.Label(LOCTEXT("MyCustomEditorTabTitle", "My Custom Editor"))
 		[
-			GraphEditor.ToSharedRef()
+			CustomEditorWidget
 		];
 
-	return NewTab;
+}
 
+TSharedRef<SDockTab> FBaseEditorToolkit::SpawnDetailsPanel(const FSpawnTabArgs& Args)
+{
+	// Create a new instance of our custom editor widget
+	TSharedRef<SDetailsPanelTab> CustomEditorWidget = SNew(SDetailsPanelTab);
+
+	// Wrap the widget in a dock tab and return it
+	return SNew(SDockTab)
+		.TabRole(ETabRole::MajorTab)
+		.ContentPadding(0)
+		.Label(LOCTEXT("MyCustomEditorTabTitle", "My Custom Editor"))
+		[
+			CustomEditorWidget
+		];
 }
 
 #undef LOCTEXT_NAMESPACE
