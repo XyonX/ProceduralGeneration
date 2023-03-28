@@ -29,7 +29,8 @@ public class ProceduralGeneration : ModuleRules
 				"UMG", 
 				"Slate", 
 				"SlateCore",
-				"UnrealEd"
+				"UnrealEd",
+				"ProceduralGenerationEditor"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -42,7 +43,7 @@ public class ProceduralGeneration : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"GameplayTags", "Serialization", "EditorStyle",
+				"GameplayTags", "Serialization", "EditorStyle","EnhancedInput",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
