@@ -22,6 +22,14 @@ void FMyEditorModule::ShutdownModule()
 	IModuleInterface::ShutdownModule();
 	UnRegisterAssetAction();
 
+	// Get a list of all open asset editor toolkits
+	//TArray<UObject*> OpenToolkits = FAssetEditorToolkit::GetMod
+	
+	//FGlobalTabmanager::Get()->UnregisterTabSpawner()
+
+	// Get a reference to the asset editor module
+	//FAssetEditorModule& AssetEditorModule = FModuleManager::GetModuleChecked<FAssetEditorModule>("AssetEditor");
+
 }
 
 void FMyEditorModule::RegisterAssetAction()

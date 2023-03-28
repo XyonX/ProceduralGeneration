@@ -41,14 +41,14 @@ const TSharedRef<FTabManager::FLayout> FBaseActorEditorLayout::EditorLayout()
 	static const TSharedRef<FTabManager::FLayout> Layout =FTabManager::NewLayout("ProceduralGenerationEditor_Layout_v1")
 			->AddArea(
 				FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
-				->Split
+				/*->Split
 				(
 				FTabManager::NewStack()
 					->AddTab("BlueprintEditor", ETabState::OpenedTab)
 					->SetHideTabWell(true)
 					->SetSizeCoefficient(0.7f)
 					->SetForegroundTab(FName("Kismet2"))
-				)
+				)*/
 				->Split
 				(
 				FTabManager::NewStack()

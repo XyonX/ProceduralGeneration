@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "DetailsPanelTab.generated.h"
 
 class SDetailsPanelTab : public SDockTab
 {
