@@ -47,9 +47,9 @@ void FBaseActorActions::OpenAssetEditor(const TArray<UObject*>& InObjects,
 	{
 		// Create a new instance of our custom editor toolkit class
 		CustomEditorToolkit = MakeShareable(new FBaseEditorToolkit());
-		CustomEditorToolkit->Init(EToolkitMode::Standalone,EditWithinLevelEditor);
+		CustomEditorToolkit->Init(EToolkitMode::Standalone,EditWithinLevelEditor,InObjects);
 	}
-	CustomEditorToolkit->OpenEditor(InObjects,EditWithinLevelEditor);
+	//CustomEditorToolkit->OpenEditor(InObjects,EditWithinLevelEditor);
 
 }
 

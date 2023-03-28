@@ -22,12 +22,8 @@ public:
 	virtual bool CanFilter() override{return  true;};
 	virtual FColor GetTypeColor() const override{return FColor::Yellow;};
 	virtual TSharedPtr<SWidget> GetThumbnailOverlay(const FAssetData& AssetData) const override;
-	
 	static FTestDelegate TestDelegate;
-	
-	
 	static void TestFunction ();
-
 	bool AnotherFunction ();
 
 
