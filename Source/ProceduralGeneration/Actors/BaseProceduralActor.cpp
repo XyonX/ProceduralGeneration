@@ -11,6 +11,9 @@
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerController.h"
 #include "ProceduralGeneration/UI/DockTab/GenerationControllerTab.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputModule.h"
+#include "Engine/LocalPlayer.h"
 
 #define LogSwitch 1
 
@@ -60,6 +63,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
+	SetupInput();
 
 	//init the class
 	Init();
@@ -127,20 +131,48 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ABaseProceduralActor::SetupInput()
 {
+	
 	// Get the player controller
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (PlayerController)
+	if (!PlayerController)
 	{
-		// Create an input component and attach it to the player controller
-		UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
-		if (EnhancedInputComp)
-		{
-			if(OpenUIAction)
-			{
-				EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
-			}
-		}
+		UE_LOG(LogTemp,Warning,TEXT("Player  Controller not found "))
+		return;
 	}
+
+	// Get the enhanced input subsystem for the local player
+	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+	if (!LocalPlayer)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Local Player not found "))
+		return;
+	}
+
+	UEnhancedInputLocalPlayerSubsystem* EnhancedInputModule = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+
+	// Create an input mapping context and add it to the input component
+	UInputMappingContext* InputContext = NewObject<UInputMappingContext>(this);
+	if(ProceduralGenerationMapping == nullptr)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Mapping Context not found "))
+		return;
+	}
+	EnhancedInputModule->AddMappingContext(ProceduralGenerationMapping,-1);
+	
+	// Create an input component and attach it to the player controller
+	UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
+	if (!EnhancedInputComp )
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Enhanced Input not found "))
+		return;
+	}
+	
+	if(OpenUIAction)
+	{
+		EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
+	}
+	
+	
 }
 
 void ABaseProceduralActor::ToggleTab()

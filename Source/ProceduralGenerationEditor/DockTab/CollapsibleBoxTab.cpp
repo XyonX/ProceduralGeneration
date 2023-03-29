@@ -37,7 +37,7 @@ void SCollapsibleBoxTab::Construct(const FArguments& InArgs)
 void SCollapsibleBoxTab::RegisterTabSpawner()
 {
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
-		"Collapsible Box Tab ",
+		TabName,
 		FOnSpawnTab::CreateStatic(&SCollapsibleBoxTab::SpawnTab))
 		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Details"))
 		.SetTooltipText(LOCTEXT("MyTabTooltip", "Open MyTab"))
