@@ -119,6 +119,8 @@ public:
 	FName TabID ;
 	//The Actual Dock TaB
 	TSharedPtr<SDockTab> MyDockTab;
+	
+	static TSharedPtr<SWindow>ControllerWindow ;
 
 	//UI FUNCTIONS
 	void ToggleTab();

@@ -17,6 +17,7 @@
 
 #define LogSwitch 1
 
+TSharedPtr<SWindow> ABaseProceduralActor::ControllerWindow;
 
 // CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
@@ -64,7 +65,7 @@ void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
 	SetupInput();
-
+	//ToggleTab();
 	//init the class
 	Init();
 
@@ -136,7 +137,7 @@ void ABaseProceduralActor::SetupInput()
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!PlayerController)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Player  Controller not found "))
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Controller Not found "));}
 		return;
 	}
 
@@ -144,17 +145,20 @@ void ABaseProceduralActor::SetupInput()
 	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
 	if (!LocalPlayer)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Local Player not found "))
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Local player Not found "));}
 		return;
 	}
 
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputModule = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-
-	// Create an input mapping context and add it to the input component
-	UInputMappingContext* InputContext = NewObject<UInputMappingContext>(this);
-	if(ProceduralGenerationMapping == nullptr)
+	if(!EnhancedInputModule)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Mapping Context not found "))
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Enhancce input subsystem not fofund "));}
+		return;
+	}
+	
+	if(!ProceduralGenerationMapping )
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Maping  context  not fofund "));}
 		return;
 	}
 	EnhancedInputModule->AddMappingContext(ProceduralGenerationMapping,-1);
@@ -163,36 +167,61 @@ void ABaseProceduralActor::SetupInput()
 	UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
 	if (!EnhancedInputComp )
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Enhanced Input not found "))
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" EnhancedInputComp  ccast failded "));}
 		return;
 	}
 	
 	if(OpenUIAction)
 	{
 		EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" BindAcction done "));}
 	}
+		
 	
 	
 }
 
 void ABaseProceduralActor::ToggleTab()
 {
-	TabID=SGenerationControllerTab::TabName;
-	TSharedPtr<SDockTab> Tab =  FGlobalTabmanager::Get()->FindExistingLiveTab(TabID);
-	if (Tab.IsValid())
+
+
+	if (ControllerWindow.IsValid())
 	{
-		FGlobalTabmanager::Get()->UnregisterTabSpawner(TabID);
-		return;
+		if (!ControllerWindow->IsVisible())
+		{
+			ControllerWindow->ShowWindow();
+		
+		}
+		else
+		{
+			ControllerWindow->HideWindow();
+		}
 	}
 	else
 	{
-		// Open the UI if it's not already open
-		TSharedRef<SGenerationControllerTab> Tabb = SNew(SGenerationControllerTab);
-		Tabb->RegisterTabSpawner();
-		FGlobalTabmanager::Get()->TryInvokeTab(Tabb->GetTabIdentifier());
-		
+		TSharedRef<SGenerationControllerTab> MyWidget = SNew(SGenerationControllerTab);
+		//FGlobalTabmanager::Get()->TryInvokeTab(FName("ControllerTab"));
+
+		ControllerWindow = SNew(SWindow)
+			.Title(FText::FromString("Controller"))
+			.SizingRule(ESizingRule::UserSized)
+			.AutoCenter(EAutoCenter::None)
+			.ClientSize(FVector2D(800, 600))
+			.IsTopmostWindow(true)
+			.CreateTitleBar(true)
+			.SupportsMaximize(false)
+			.SupportsMinimize(true)
+		.HasCloseButton(true)
+		.Content()
+		[
+			MyWidget
+		];
+
+		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
+    
 	}
 }
+
 
 void ABaseProceduralActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
