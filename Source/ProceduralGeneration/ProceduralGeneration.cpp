@@ -2,6 +2,13 @@
 
 #include "ProceduralGeneration.h"
 
+#include "EditorStyleSet.h"
+#include "Internationalization//Internationalization.h"
+#include "WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
+#include "WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
+#include "ProceduralGenerationEditor/DockTab/ProceduralEditorTab.h"
+#include "UI/DockTab/GenerationControllerTab.h"
+#include "UI/DockTab/SControllerTab.h"
 
 
 #define LOCTEXT_NAMESPACE "FProceduralGenerationModule"
@@ -35,6 +42,9 @@ void FProceduralGenerationModule::StartupModule()
 	AssetTools.GetAssetTypeActionsRegistry().RegisterAssetTypeActions(MyCustomAssetTypeActions.ToSharedRef(), MyCustomAssetCategoryName, FAssetTypeActions::CreateGetActionsMenuDelegate(FOnGetAssetActionsMenu::CreateSP(MyCustomAssetTypeActions.Get(), &FAssetTypeActions_MyCustomAsset::GetActionsMenu)));
 
 */
+
+   SGenerationControllerTab::RegisterTabSpawner();
+	
 
 }
 
