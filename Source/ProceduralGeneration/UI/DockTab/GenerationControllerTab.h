@@ -9,7 +9,7 @@ class SGenerationControllerTab : public SDockTab
 public:
 	SLATE_BEGIN_ARGS(SGenerationControllerTab) {}
 	SLATE_END_ARGS()
-
+	SGenerationControllerTab();
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs);
 	// Register the dockable tab
@@ -20,7 +20,8 @@ public:
 
 
 	//THIS NAME IS FOR  IDENTIFY THIS ACTS   AS A  IDENTIFIER
-	static const FName TabName;
+	static  FName TabName  ;
+	//const FName TabName  =FName("ControllerTab");
 	// Get the tab identifier
 	FName GetTabIdentifier() const;
 private:
