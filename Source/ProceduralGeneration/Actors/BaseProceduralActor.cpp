@@ -13,6 +13,7 @@
 //#include "ProceduralGenerationEditor/DockTab/GenerationControllerTab.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputModule.h"
+#include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Engine/LocalPlayer.h"
 
 #define LogSwitch 1
@@ -64,6 +65,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
+	SGenerationControllerTab::GenerateDelegate.BindStatic(OnReGenerate);
 	SetupInput();
 	//ToggleTab();
 	//init the class
@@ -182,7 +184,7 @@ void ABaseProceduralActor::SetupInput()
 }
 
 void ABaseProceduralActor::ToggleTab()
-{/*
+{
 	if (ControllerWindow.IsValid())
 	{
 		if (!ControllerWindow->IsVisible())
@@ -217,7 +219,7 @@ void ABaseProceduralActor::ToggleTab()
 
 		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
     
-	}*/
+	}
 }
 
 
@@ -232,6 +234,15 @@ void ABaseProceduralActor::PostEditChangeProperty(FPropertyChangedEvent& Propert
 		FString ActorName = GetName();
 		MyDockTab->SetLabel(FText::FromString(ActorName));
 	}
+}
+
+bool ABaseProceduralActor::OnReGenerate()
+{
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT(" Generating Actor  "));
+	}
+
+	return true;
 }
 
 bool ABaseProceduralActor::Init()

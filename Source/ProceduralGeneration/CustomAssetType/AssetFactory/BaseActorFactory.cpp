@@ -2,7 +2,7 @@
 
 
 #include "BaseActorFactory.h"
-#include "ProceduralGeneration/Actors/CustomAssetClass/BaseActor.h"
+#include "ProceduralGeneration/CustomAssetClass/BaseActor.h"
 
 UBaseActorFactory::UBaseActorFactory()
 {

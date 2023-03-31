@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "AssetTypeActions_Base.h"
-#include "ProceduralGeneration/Actors/CustomAssetClass/BaseActor.h"
+#include "ProceduralGeneration/CustomAssetClass/BaseActor.h"
 #include "ProceduralGeneration/CustomAssetType/ToolKit/BaseEditorToolkit.h"
 
 DECLARE_DELEGATE_RetVal(bool, FTestDelegate)

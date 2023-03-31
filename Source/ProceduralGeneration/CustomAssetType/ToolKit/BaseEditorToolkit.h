@@ -2,7 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProceduralGeneration/Actors/CustomAssetClass/BaseActor.h"
+#include "ProceduralGeneration/CustomAssetClass/BaseActor.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
 

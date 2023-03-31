@@ -125,10 +125,9 @@ public:
 	//UI FUNCTIONS
 	void ToggleTab();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-	
+	static bool OnReGenerate();
 
 	
-    // Functions
 	//Setting up initial variables 
 	bool Init();
 
