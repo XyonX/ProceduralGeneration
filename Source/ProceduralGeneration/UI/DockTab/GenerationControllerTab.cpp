@@ -7,6 +7,9 @@
 #include "Internationalization//Internationalization.h"
 #include "WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
+#include "SlateOptMacros.h"
+#include "Widgets/Layout/SExpandableArea.h"
+#include "Widgets/Input/SSpinBox.h"
 
 
 #define LOCTEXT_NAMESPACE "ControllerText"
@@ -47,16 +50,90 @@ void SGenerationControllerTab::Construct(const FArguments& InArgs)
 
 
 	ChildSlot
-	
+[
+	SNew(SBox)
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Center)
+	[
+		
+	SNew(SVerticalBox)
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.AutoHeight()
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString("My Tab"))
+			SNew(SExpandableArea)
+			.HeaderContent()
+			[    SNew(STextBlock)
+				  .Text(FText::FromString("Duration"))
 			]
-		];
+			.BodyContent()
+			[
+				SNew(SVerticalBox)
+						
+				//SLOT 1 
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					  SNew(SHorizontalBox)
+					  + SHorizontalBox::Slot()
+					  .AutoWidth()
+						  [
+							SNew(STextBlock)
+							.Text(FText::FromString("Emitter Duration:"))
+						  ]
+					  + SHorizontalBox::Slot()
+					  .AutoWidth()
+						  [
+							SNew(SSpinBox<float>)
+							.Value(1.0f)
+							.MinValue(0.0f)
+							.MaxValue(100.0f)
+							//.OnValueChanged(this, &MyClass::OnSpinBoxValueChanged)
+						  ]
+				]
+
+				//SLOT   2
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+							
+				  SNew(SHorizontalBox)
+				  + SHorizontalBox::Slot()
+				  .AutoWidth()
+					  [
+						SNew(STextBlock)
+						.Text(FText::FromString("Emitter Loop:"))
+					  ]
+				  + SHorizontalBox::Slot()
+				  .AutoWidth()
+					  [
+						SNew(SCheckBox)
+						.IsChecked(false)
+					  ]
+				]
+			]
+		]
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.AutoHeight()
+		[
+			SNew(SExpandableArea)
+			.HeaderContent()
+			[    SNew(STextBlock)
+				  .Text(FText::FromString("Duration"))
+			]
+			.BodyContent()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Generate"))
+			]
+		]
+		
+	]
+
+];
 }
 
 void SGenerationControllerTab::RegisterTabSpawner()
