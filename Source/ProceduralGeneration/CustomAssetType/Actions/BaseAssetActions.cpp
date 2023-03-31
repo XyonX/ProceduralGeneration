@@ -5,7 +5,7 @@
 
 #include "EditorStyleSet.h"
 #include "Brushes/SlateImageBrush.h"
-#include "ProceduralGenerationEditor/ToolKit/BaseEditorToolkit.h"
+#include "ProceduralGeneration/CustomAssetType/ToolKit/BaseEditorToolkit.h"
 #include "Styling/SlateStyleRegistry.h"
 //#include "AssetThumbnail.h"
 

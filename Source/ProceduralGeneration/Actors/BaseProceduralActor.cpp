@@ -10,7 +10,7 @@
 #include  "ProceduralGeneration/TileMesh/TileMesh.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerController.h"
-#include "ProceduralGeneration/UI/DockTab/GenerationControllerTab.h"
+//#include "ProceduralGenerationEditor/DockTab/GenerationControllerTab.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputModule.h"
 #include "Engine/LocalPlayer.h"
@@ -182,9 +182,7 @@ void ABaseProceduralActor::SetupInput()
 }
 
 void ABaseProceduralActor::ToggleTab()
-{
-
-
+{/*
 	if (ControllerWindow.IsValid())
 	{
 		if (!ControllerWindow->IsVisible())
@@ -219,7 +217,7 @@ void ABaseProceduralActor::ToggleTab()
 
 		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
     
-	}
+	}*/
 }
 
 

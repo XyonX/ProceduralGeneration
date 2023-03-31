@@ -1,10 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ProceduralEditorToolkit.h"
+
+#include "CoreUI/DockTab/CollapsibleBoxTab.h"
 #include  "Toolkits/AssetEditorToolkit.h"
 #include "Framework/Docking/TabManager.h"
 #include "ProceduralGeneration/Data/ProceduralGenerationData.h"
-#include "ProceduralGenerationEditor/DockTab/CollapsibleBoxTab.h"
 
 
 FProceduralEditorToolkit::FProceduralEditorToolkit()

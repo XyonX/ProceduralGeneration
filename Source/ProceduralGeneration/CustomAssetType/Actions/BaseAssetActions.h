@@ -2,11 +2,11 @@
 
 #include "AssetTypeActions_Base.h"
 #include "ProceduralGeneration/Actors/CustomAssetClass/BaseActor.h"
-#include "ProceduralGenerationEditor/ToolKit/BaseEditorToolkit.h"
+#include "ProceduralGeneration/CustomAssetType/ToolKit/BaseEditorToolkit.h"
 
 DECLARE_DELEGATE_RetVal(bool, FTestDelegate)
 
-class FBaseActorActions : public FAssetTypeActions_Base
+class PROCEDURALGENERATION_API FBaseActorActions : public FAssetTypeActions_Base
 {
 	
 public:

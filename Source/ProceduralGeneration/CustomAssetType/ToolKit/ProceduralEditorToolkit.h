@@ -2,14 +2,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProceduralGenerationEditor/DockTab/CollapsibleBoxTab.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
 class UProceduralGenerationData;
 class SCollapsibleBoxTab;
 
 
-class FProceduralEditorToolkit : public FAssetEditorToolkit
+class PROCEDURALGENERATION_API FProceduralEditorToolkit : public FAssetEditorToolkit
 {
 	
 public:

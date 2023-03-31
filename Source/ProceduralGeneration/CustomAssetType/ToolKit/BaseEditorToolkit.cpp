@@ -6,10 +6,10 @@
 #include "EditorStyleSet.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
+#include "CoreUI/BlueprintGraph/EventGraph/CustomEVGraph.h"
+#include "CoreUI/DockTab/DetailsPanelTab.h"
+#include "CoreUI/Layout/BaseActorEditorLayout.h"
 #include "Kismet2/KismetEditorUtilities.h"
-#include "ProceduralGenerationEditor/DockTab/DetailsPanelTab.h"
-#include "ProceduralGenerationEditor/Layout/BaseActorEditorLayout.h"
-#include "ProceduralGenerationEditor/BlueprintGraph/EventGraph/CustomEVGraph.h"
 
 #define LOCTEXT_NAMESPACE "Editor Window"
 
@@ -59,7 +59,6 @@ void FBaseEditorToolkit::Init(const EToolkitMode::Type Mode, const TSharedPtr<IT
 	
 	//create the layout
 	static const TSharedRef<FTabManager::FLayout> EditorLayout =FBaseActorEditorLayout::EditorLayout();
-	
 	// Initialize the toolkit
 	InitAssetEditor(
 	Mode,

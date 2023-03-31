@@ -2,15 +2,16 @@
 #include "ProceduralGenerationEditor.h"
 
 #include "AssetToolsModule.h"
-#include "CustomAssetType/Actions/BaseAssetActions.h"
-#include "CustomAssetType/AssetFactory/BaseActorFactory.h"
-#include "ToolKit/BaseEditorToolkit.h"
+#include "CoreUI/DockTab/GenerationControllerTab.h"
+#include "ProceduralGeneration/CustomAssetType/Actions/BaseAssetActions.h"
 #include "Toolkits/AssetEditorToolkit.h"
-#include "Subsystems/AssetEditorSubsystem.h"
+
 
 void FMyEditorModule::StartupModule()
 {
 	IModuleInterface::StartupModule();
+
+	SGenerationControllerTab::RegisterTabSpawner();
 
 	RegisterAssetAction();
 

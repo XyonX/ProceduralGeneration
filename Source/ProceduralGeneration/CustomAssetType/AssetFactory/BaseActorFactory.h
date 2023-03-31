@@ -6,7 +6,7 @@
 #include "BaseActorFactory.generated.h"
 
 UCLASS()
-class UBaseActorFactory : public UFactory
+class PROCEDURALGENERATION_API UBaseActorFactory : public UFactory
 {
 	GENERATED_BODY()
 

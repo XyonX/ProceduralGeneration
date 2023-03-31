@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "UI/DockTab/SControllerTab.h"
 
 class FProceduralGenerationModule : public IModuleInterface
 {

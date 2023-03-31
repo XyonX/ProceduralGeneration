@@ -8,7 +8,7 @@
 
 struct FTabPayload;
 
-class FBaseEditorToolkit : public FAssetEditorToolkit
+class PROCEDURALGENERATION_API FBaseEditorToolkit : public FAssetEditorToolkit
 {
 	
 	
