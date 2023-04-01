@@ -5,6 +5,7 @@
 #include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
 #include "LevelEditor.h"
 #include "LevelEditorActions.h"
+#include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Editor/LevelEditor/Public/LevelEditorActions.h"
 #include "BaseProceduralActor.generated.h"
 
@@ -65,6 +66,7 @@ public:
     UStaticMesh* FloorMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantBaseFloor;
+	bool bIsFirstGenDone ;
 
     // THE MAIN TILES CONTAINER			//TODO DELETE THEM LATER
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
@@ -125,7 +127,8 @@ public:
 	//UI FUNCTIONS
 	void ToggleTab();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-	static bool OnReGenerate();
+	bool OnReGenerate();
+	static FOnGenerateButtonClick GenerateClickDelegate_Actor ;
 
 	
 	//Setting up initial variables 

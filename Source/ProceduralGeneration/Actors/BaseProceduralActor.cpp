@@ -19,7 +19,7 @@
 #define LogSwitch 1
 
 TSharedPtr<SWindow> ABaseProceduralActor::ControllerWindow;
-
+FOnGenerateButtonClick ABaseProceduralActor::GenerateClickDelegate_Actor;
 // CONSTRUCTOR
 ABaseProceduralActor::ABaseProceduralActor()
 {
@@ -65,9 +65,9 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
-	SGenerationControllerTab::GenerateDelegate.BindStatic(OnReGenerate);
+
 	SetupInput();
-	//ToggleTab();
+
 	//init the class
 	Init();
 
@@ -85,6 +85,7 @@ void ABaseProceduralActor::BeginPlay()
 
 		// STARTING THE MAIN ALGORITHM
 		WaveFunctionCollapse();
+		bIsFirstGenDone=true;
 	}
 	else
 	{
@@ -118,6 +119,8 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	RemainingTiles.Empty();
 	CollapsedTiles.Empty();
 	TotalTileMesh.Empty();
+
+	
 
 	if(DefaultTile != nullptr)
 	{
@@ -200,6 +203,7 @@ void ABaseProceduralActor::ToggleTab()
 	else
 	{
 		TSharedRef<SGenerationControllerTab> MyWidget = SNew(SGenerationControllerTab);
+		SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
 		//FGlobalTabmanager::Get()->TryInvokeTab(FName("ControllerTab"));
 
 		ControllerWindow = SNew(SWindow)
@@ -239,8 +243,63 @@ void ABaseProceduralActor::PostEditChangeProperty(FPropertyChangedEvent& Propert
 bool ABaseProceduralActor::OnReGenerate()
 {
 	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT(" Generating Actor  "));
+		GEngine->AddOnScreenDebugMessage(-2, 2.0f, FColor::Blue, TEXT(" Generating Actor  "));
 	}
+
+
+	for(int32 j = TotalTileMesh.Num()-1 ; j>= 0 ; j--)
+	{
+		UTileMesh* TileMesh =TotalTileMesh[j];
+		TileMesh->OwnerTileList.Empty();
+		TileMesh->InstancedMesh->ClearInstances();
+	}
+
+	//
+	for (int32 i = AllTilesPTR.Num() - 1; i >= 0; i--)
+	{
+		UTile* Tile = AllTilesPTR[i];
+		Tile->ConditionalBeginDestroy();
+		AllTilesPTR.RemoveAt(i);
+		RemainingTiles.Remove(Tile);
+		CollapsedTiles.Remove(Tile);
+		
+	}
+	AllTilesPTR.Empty();
+	RemainingTiles.Empty();
+	CollapsedTiles.Empty();
+
+	
+	
+	//init the class
+	//Init();
+
+	//GENERATING TILE
+	CalculateMeshLength();
+	GenerateTile();
+	SetTileLength(Actor_Length_X,Actor_Length_Y);
+	GenerateBaseFloor(AllTilesPTR);
+
+	
+	
+	if (!AllTilesPTR.IsEmpty() && !TotalTileMesh.IsEmpty())
+	{
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT(" BOTH TILE AND TOTAL MESH AVAILABLE WAVE FUNCTION CALLING  "));
+		}
+
+		// STARTING THE MAIN ALGORITHM
+		WaveFunctionCollapse();
+	}
+	else
+	{
+		// error occurred, display an error message
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Could not generate tile or total mesh. Aborting."));
+		}
+	}
+	
+	
+	
 
 	return true;
 }
