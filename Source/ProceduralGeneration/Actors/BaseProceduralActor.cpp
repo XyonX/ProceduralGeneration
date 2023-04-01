@@ -132,6 +132,14 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		DefaultTileMesh->ConditionalBeginDestroy();
 		DefaultTileMesh = nullptr ;
 	}
+
+	if (ControllerWindow.IsValid() && ControllerWindow->IsVisible())
+	{
+		// The window is already visible, so just hide it
+		ControllerWindow->HideWindow();
+		FSlateApplication::Get().DestroyWindowImmediately(ControllerWindow.ToSharedRef());
+		ControllerWindow.Reset();
+	}
 	
 }
 
@@ -188,23 +196,59 @@ void ABaseProceduralActor::SetupInput()
 
 void ABaseProceduralActor::ToggleTab()
 {
+	if (!IsInGameThread())
+	{
+		// The game is not running, return or handle the error
+		return;
+	}
+	
+	if (ControllerWindow.IsValid() && ControllerWindow->IsVisible())
+	{
+		// The window is already visible, so just hide it
+		ControllerWindow->HideWindow();
+		FSlateApplication::Get().DestroyWindowImmediately(ControllerWindow.ToSharedRef());
+		ControllerWindow.Reset();
+	}
+	else
+	{
+		// Create a new window and keep a reference to it
+		if (!ControllerWidget.IsValid())
+		{
+			ControllerWidget = SNew(SGenerationControllerTab);
+			SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
+		}
+
+		ControllerWindow = SNew(SWindow)
+			.Title(FText::FromString("Controller"))
+			.SizingRule(ESizingRule::UserSized)
+			.AutoCenter(EAutoCenter::None)
+			.ClientSize(FVector2D(200, 800))
+			.IsTopmostWindow(true)
+			.CreateTitleBar(true)
+			.SupportsMaximize(false)
+			.SupportsMinimize(true)
+			.HasCloseButton(true)
+			.Content()
+			[                ControllerWidget.ToSharedRef()            ];
+
+		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
+	}
+/*
 	if (ControllerWindow.IsValid())
 	{
-		if (!ControllerWindow->IsVisible())
+		if (ControllerWindow->IsVisible())
 		{
-			ControllerWindow->ShowWindow();
-		
+			ControllerWindow->HideWindow();
 		}
 		else
 		{
-			ControllerWindow->HideWindow();
+			ControllerWindow->ShowWindow();
 		}
 	}
 	else
 	{
-		TSharedRef<SGenerationControllerTab> MyWidget = SNew(SGenerationControllerTab);
+		ControllerWidget = SNew(SGenerationControllerTab);
 		SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
-		//FGlobalTabmanager::Get()->TryInvokeTab(FName("ControllerTab"));
 
 		ControllerWindow = SNew(SWindow)
 			.Title(FText::FromString("Controller"))
@@ -215,15 +259,14 @@ void ABaseProceduralActor::ToggleTab()
 			.CreateTitleBar(true)
 			.SupportsMaximize(false)
 			.SupportsMinimize(true)
-		.HasCloseButton(true)
-		.Content()
-		[
-			MyWidget
-		];
+			.HasCloseButton(true)
+			.Content()
+			[            ControllerWidget.ToSharedRef()        ];
 
 		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
-    
-	}
+	}*/
+
+	
 }
 
 
@@ -489,6 +532,11 @@ void ABaseProceduralActor::CalculateMeshLength()
 //THIS FUNCTION GENERATES TILES 
 bool ABaseProceduralActor::GenerateTile()
 {
+	if (!IsInGameThread())
+	{
+		// The game is not running, return or handle the error
+		return false;
+	}
 	if(TotalTileMesh.IsEmpty())
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Total Tile Not set properly Tile Generation Aborted!!!  "));}

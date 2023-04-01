@@ -121,6 +121,7 @@ public:
 	FName TabID ;
 	//The Actual Dock TaB
 	TSharedPtr<SDockTab> MyDockTab;
+	TSharedPtr<SGenerationControllerTab> ControllerWidget;
 	
 	static TSharedPtr<SWindow>ControllerWindow ;
 
