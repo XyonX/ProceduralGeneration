@@ -31,6 +31,7 @@ public class ProceduralGeneration : ModuleRules
 				"SlateCore",
 				"UnrealEd",
 				"InputCore",
+				"EnhancedInput"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -43,7 +44,7 @@ public class ProceduralGeneration : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"GameplayTags", "Serialization", "EditorStyle","EnhancedInput", "WorkspaceMenuStructure", "WorkspaceMenuStructure", "CoreUI",
+				"GameplayTags", "Serialization", "EditorStyle", "WorkspaceMenuStructure", "WorkspaceMenuStructure", "CoreUI",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

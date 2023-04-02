@@ -7,6 +7,7 @@
 #include "LevelEditorActions.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Editor/LevelEditor/Public/LevelEditorActions.h"
+#include "ProceduralGeneration/Generator/CoreGenerator.h"
 #include "BaseProceduralActor.generated.h"
 
 
@@ -130,6 +131,17 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	bool OnReGenerate();
 	static FOnGenerateButtonClick GenerateClickDelegate_Actor ;
+
+
+	// Default  Generator  if   custom   generator  is  not  available
+	UPROPERTY()
+	UCoreGenerator*DefaultGenerator;
+
+	//user can select the    custom generator ifd    they  want to  use  custom  algorithm
+	UPROPERTY()
+	UCoreGenerator*Generator;
+	
+	
 
 	
 	//Setting up initial variables 

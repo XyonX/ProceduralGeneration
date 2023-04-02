@@ -34,6 +34,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 
 	//Settign default tile Length
 	Actor_Length_X = 200;
+	
 	Actor_Length_Y = 200;
 	Actor_Length_Z = 200 ;
 
@@ -448,7 +449,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
 		
 		//Pick A Random Tile	//For the first time choose from stream
-		UTile* FirstRandomTile = RemainingTiles[6];
+		UTile* FirstRandomTile = RemainingTiles[FirstIndices];
 		
 		// ADDING INSTANCE OF THE SELECTED MESH
 		AddInstanceMesh(FirstRandomTile);
