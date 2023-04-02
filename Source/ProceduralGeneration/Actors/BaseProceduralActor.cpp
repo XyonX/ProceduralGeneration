@@ -221,13 +221,29 @@ void ABaseProceduralActor::ToggleTab()
 		ControllerWindow = SNew(SWindow)
 			.Title(FText::FromString("Controller"))
 			.SizingRule(ESizingRule::UserSized)
-			.AutoCenter(EAutoCenter::None)
-			.ClientSize(FVector2D(200, 800))
+			.AutoCenter(EAutoCenter::PreferredWorkArea)
+			.ClientSize(FVector2D(300, 800))
+			[
+				SNew(SBorder)
+					.Padding(10.0f)
+					.BorderImage(FCoreStyle::Get().GetBrush("ToolPanel.GroupBorder"))
+					.BorderBackgroundColor(FLinearColor(0.5f, 0.5f, 0.5f, 1.0f))
+					[
+						SNew(SBox)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString("Hello World!"))
+							.ColorAndOpacity(FLinearColor::White)
+							.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 16))
+						]
+					]
+			]
 			.IsTopmostWindow(true)
 			.CreateTitleBar(true)
-			.SupportsMaximize(false)
-			.SupportsMinimize(true)
+			.SupportsMaximize(true)
+			.SupportsMinimize(false)
 			.HasCloseButton(true)
+			.CreateTitleBar(true)
 			.Content()
 			[                ControllerWidget.ToSharedRef()            ];
 
