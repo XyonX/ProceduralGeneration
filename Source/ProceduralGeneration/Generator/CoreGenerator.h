@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "UObject/Object.h"
 #include "CoreGenerator.generated.h"
 
@@ -24,7 +25,13 @@ public:
 	FORCEINLINE  TArray<UTile*> GetCollapsedTiles   () {return  CollapsedTiles;}
 
 	FORCEINLINE int GetHeight () {return Map_Height;}
-	FORCEINLINE int GetWidth () {return Map_Width;}                                                                  
+	FORCEINLINE int GetWidth () {return Map_Width;}
+
+	void AddUIEntry ();
+
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
+	UDataAsset* GeneratorDataAsset ;
 
 
 private:
@@ -43,6 +50,8 @@ private:
 	TArray<UTile*> RemainingTiles;
 	UPROPERTY(EditAnywhere,  Category = "Tile")
 	TArray<UTile*> CollapsedTiles;
+
+	TSharedPtr<SGenerationControllerTab> ControllerTab ;
 
 	
 
