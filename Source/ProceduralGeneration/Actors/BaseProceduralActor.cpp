@@ -217,6 +217,8 @@ void ABaseProceduralActor::ToggleTab()
 		{
 			ControllerWidget = SNew(SGenerationControllerTab);
 			SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
+			//UCoreGenerator*Gen = NewObject<UCoreGenerator>();
+			//Gen->AddUIEntry();
 		}
 
 		ControllerWindow = SNew(SWindow)
@@ -250,38 +252,8 @@ void ABaseProceduralActor::ToggleTab()
 
 		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
 	}
-/*
-	if (ControllerWindow.IsValid())
-	{
-		if (ControllerWindow->IsVisible())
-		{
-			ControllerWindow->HideWindow();
-		}
-		else
-		{
-			ControllerWindow->ShowWindow();
-		}
-	}
-	else
-	{
-		ControllerWidget = SNew(SGenerationControllerTab);
-		SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
 
-		ControllerWindow = SNew(SWindow)
-			.Title(FText::FromString("Controller"))
-			.SizingRule(ESizingRule::UserSized)
-			.AutoCenter(EAutoCenter::None)
-			.ClientSize(FVector2D(800, 600))
-			.IsTopmostWindow(true)
-			.CreateTitleBar(true)
-			.SupportsMaximize(false)
-			.SupportsMinimize(true)
-			.HasCloseButton(true)
-			.Content()
-			[            ControllerWidget.ToSharedRef()        ];
-
-		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
-	}*/
+	
 
 	
 }
