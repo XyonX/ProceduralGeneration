@@ -338,6 +338,12 @@ bool ABaseProceduralActor::OnReGenerate()
 	return true;
 }
 
+void ABaseProceduralActor::RunGenerator()
+{
+	// Create a new instance of UCoreGenerator class
+	UCoreGenerator* Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
+}
+
 bool ABaseProceduralActor::Init()
 {
 	if (GetTileMeshData())

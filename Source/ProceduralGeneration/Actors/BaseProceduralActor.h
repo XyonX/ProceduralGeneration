@@ -134,12 +134,14 @@ public:
 
 
 	// Default  Generator  if   custom   generator  is  not  available
-	//UPROPERTY()
-	//UCoreGenerator*DefaultGenerator;
+	UPROPERTY()
+	TSubclassOf<UCoreGenerator>DefaultGenerator;
 
 	//user can select the    custom generator ifd    they  want to  use  custom  algorithm
-	//UPROPERTY()
-	//UCoreGenerator*Generator;
+	UPROPERTY()
+	TSubclassOf<UCoreGenerator> CustomGenerator;
+
+	void RunGenerator ();
 	
 	
 
