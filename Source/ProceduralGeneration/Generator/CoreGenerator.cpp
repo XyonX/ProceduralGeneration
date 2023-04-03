@@ -18,6 +18,16 @@ TArray<UTile*> UCoreGenerator::Run()
 
 }*/
 
+UCoreGenerator::UCoreGenerator()
+{
+	
+}
+
+void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab)
+{
+	ControllerTab=InTab;
+}
+
 void UCoreGenerator::AddUIEntry()
 {
 	if(ControllerTab ==nullptr)
@@ -25,15 +35,15 @@ void UCoreGenerator::AddUIEntry()
 		return;
 	}
 	// Get the vertical box widget
-	//TSharedPtr<SVerticalBox> VerticalBoxWidget = StaticCastSharedRef<SVerticalBox>(ControllerTab->GetWidget().ToSharedRef());
-	TSharedPtr<SVerticalBox> VerticalBoxWidget = ControllerTab->GetWidget();
+	TSharedPtr<SVerticalBox> VerticalBoxWidget = StaticCastSharedRef<SVerticalBox>(ControllerTab->GetWidget().ToSharedRef());
 
 	if(VerticalBoxWidget==nullptr)
 		return;
-/*
+
 	// Add a new slot to the vertical box and create a collapsible box widget inside the slot
 	VerticalBoxWidget->AddSlot()
-					.AutoHeight()
+					.VAlign(VAlign_Top)
+					.HAlign(HAlign_Fill)
 	
 				[
 					SNew(SExpandableArea)
@@ -45,7 +55,7 @@ void UCoreGenerator::AddUIEntry()
 							.BorderBackgroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
 								[
 								  SNew(STextBlock)
-								  .Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 16))
+								  .Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 								  .ColorAndOpacity(FLinearColor::White)
 								  .Text(FText::FromString("Generator"))
 								]
@@ -57,18 +67,20 @@ void UCoreGenerator::AddUIEntry()
 							.Padding(5.0f)
 							
 								[
-									SNew(SComboButton)
+									SNew(STextBlock)
+									.Text(FText::FromString("New Area"))
+									/*SNew(SComboButton)
 									.OnGetMenuContent(this, &UCoreGenerator::HandleMenuContent)
 									.ContentPadding(FMargin(2.0f, 2.0f))
 									.ButtonContent()
 									[
 										SNew(STextBlock)
 										.Text(LOCTEXT("CustomDataAsset", "Choose Custom Data Asset"))
-									]
+									]*/
 								]
 							
 					]
-			];*/
+			];
 }
 
 FString UCoreGenerator::GetDataAssetPath() const
@@ -76,16 +88,6 @@ FString UCoreGenerator::GetDataAssetPath() const
 	return SelectedDataAssetPath;
 }
 
-void UCoreGenerator::OnDataAssetChanged(const FAssetData& AssetData)
-{/*
-	if (AssetData.IsValid() && AssetData.GetClass()->IsChildOf(UDataAsset::StaticClass()))
-	{
-		SelectedDataAssetPath = AssetData.ObjectPath.ToString();
-
-		// Load the selected data asset and do something with it
-	}*/
-}
-/*
 TSharedRef<SWidget> UCoreGenerator::HandleMenuContent()
 {
 	ScanDataAssets();
@@ -131,8 +133,8 @@ TSharedRef<ITableRow> UCoreGenerator::HandleCustomDataAssetListRow(UObject* Item
 void UCoreGenerator::ScanDataAssets()
 {
 
-// Get a reference to the asset registry module
-FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	// Get a reference to the asset registry module
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
 	// Create a filter that includes only custom data assets
 	FARFilter Filter;
@@ -151,6 +153,6 @@ FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FA
 			CustomDataAssetList.Add(Object);
 		}
 	}
-}*/
+}
 
 #undef  LOCTEXT

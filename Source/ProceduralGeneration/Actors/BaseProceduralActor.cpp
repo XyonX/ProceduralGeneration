@@ -217,8 +217,10 @@ void ABaseProceduralActor::ToggleTab()
 		{
 			ControllerWidget = SNew(SGenerationControllerTab);
 			SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
-			//UCoreGenerator*Gen = NewObject<UCoreGenerator>();
-			//Gen->AddUIEntry();
+			// Create a new instance of UCoreGenerator and pass your TSharedPtr to the constructor
+			UCoreGenerator* Gen = NewObject<UCoreGenerator>(this, UCoreGenerator::StaticClass());
+			Gen->Init(ControllerWidget);
+			Gen->AddUIEntry();
 		}
 
 		ControllerWindow = SNew(SWindow)
