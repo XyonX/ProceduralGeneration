@@ -3,37 +3,45 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "UObject/Object.h"
+#include "ProceduralGeneration/Tiles/Tile.h"
 #include "CoreGenerator.generated.h"
 
-class UTile;
 
+class SGenerationControllerTab;
 
 UCLASS()
 class PROCEDURALGENERATION_API UCoreGenerator : public UObject
 {
 	GENERATED_BODY()
 public:
-	UCoreGenerator();
+	//UCoreGenerator();
 
 
-	virtual TArray<UTile*> Run ();
-
+	//virtual TArray<UTile*> Run ();
 	FORCEINLINE  TArray<UTile*> GetAllTiles   () {return  AllTiles;}
 	FORCEINLINE  TArray<UTile*> GetRemainingTiles   () {return  RemainingTiles;}
 	FORCEINLINE  TArray<UTile*> GetCollapsedTiles   () {return  CollapsedTiles;}
 
-	FORCEINLINE int GetHeight () {return Map_Height;}
-	FORCEINLINE int GetWidth () {return Map_Width;}
+	int GetHeight () {return Map_Height;}
+	int GetWidth () {return Map_Width;}
 
 	void AddUIEntry ();
+
+	FString GetDataAssetPath()const;
+	void OnDataAssetChanged(const FAssetData& AssetData);
+
+	FString SelectedDataAssetPath ;
 
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
 	UDataAsset* GeneratorDataAsset ;
 
+	//TSharedRef<SWidget> HandleMenuContent()  ;
+	//TSharedRef<ITableRow> HandleCustomDataAssetListRow (UObject* Item, const TSharedRef<STableViewBase>& OwnerTable);
 
+	//void ScanDataAssets ();
+	TArray<UObject*>CustomDataAssetList;
 private:
 
 	//Map Dimention
@@ -52,8 +60,6 @@ private:
 	TArray<UTile*> CollapsedTiles;
 
 	TSharedPtr<SGenerationControllerTab> ControllerTab ;
-
-	
 
 	bool  bIsFirstGen ;
 };

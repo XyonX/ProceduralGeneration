@@ -2,19 +2,21 @@
 
 
 #include "CoreGenerator.h"
-
 #include "EditorStyleSet.h"
 #include "Widgets/Layout/SExpandableArea.h"
+#include "PropertyEditorModule.h"
 #include "PropertyCustomizationHelpers.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "CoreUI/DockTab/GenerationControllerTab.h"
+#include "Widgets/Layout/SScrollBox.h"
 
-UCoreGenerator::UCoreGenerator()
-{
-	
-}
+#define LOCTEXT_NAMESPACE "Editor Window"
 
+/*
 TArray<UTile*> UCoreGenerator::Run()
 {
-}
+
+}*/
 
 void UCoreGenerator::AddUIEntry()
 {
@@ -22,27 +24,13 @@ void UCoreGenerator::AddUIEntry()
 	{
 		return;
 	}
-
-	FDetailsViewArgs DetailsViewArgs;
-	DetailsViewArgs.bAllowSearch = true;
-	DetailsViewArgs.bHideSelectionTip = false;
-	DetailsViewArgs.bLockable = true;
-	DetailsViewArgs.bSearchInitialKeyFocus = true;
-	DetailsViewArgs.bUpdatesFromSelection = true;
-	//DetailsViewArgs.NotifyHook = this;
-	//DetailsViewArgs.SelectionMode = ESelectionMode::Multi;
-	//DetailsViewArgs.ViewIdentifier = ViewIdentifier;
-
-
-	//TSharedPtr<IDetailsView> DetailsView = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor").CreateDetailView(DetailsViewArgs);
-	//DetailsView->SetObject(MyObject);
-
-	
-	
-
 	// Get the vertical box widget
-	TSharedPtr<SVerticalBox> VerticalBoxWidget = StaticCastSharedRef<SVerticalBox>(ControllerTab->GetWidget().ToSharedRef());
+	//TSharedPtr<SVerticalBox> VerticalBoxWidget = StaticCastSharedRef<SVerticalBox>(ControllerTab->GetWidget().ToSharedRef());
+	TSharedPtr<SVerticalBox> VerticalBoxWidget = ControllerTab->GetWidget();
 
+	if(VerticalBoxWidget==nullptr)
+		return;
+/*
 	// Add a new slot to the vertical box and create a collapsible box widget inside the slot
 	VerticalBoxWidget->AddSlot()
 					.AutoHeight()
@@ -67,38 +55,102 @@ void UCoreGenerator::AddUIEntry()
 						SNew(SVerticalBox)
 							+ SVerticalBox::Slot()
 							.Padding(5.0f)
-							[
-								SNew(SObjectPropertyEntryBox)
-								.PropertyHandle(PropertyHandle->GetChildHandle(GET_MEMBER_NAME_CHECKED(UDataAsset, GeneratorDataAsset)))
-								.AllowClear(true)
-								.DisplayUseSelected(true)
-								.ObjectPath(this, &UYourWidgetClass::OnGetDataAssetPath)
-								.OnObjectChanged(this, &UYourWidgetClass::OnGeneratorDataAssetChanged)
-								.ThumbnailPool(ThumbnailPool)
-								.ThumbnailScale(0.125f)
-								.Metadata()
+							
 								[
-									SNew(SHorizontalBox)
-									+ SHorizontalBox::Slot()
-									.AutoWidth()
-									[
-										SNew(SImage)
-										.Image(FEditorStyle::GetBrush("ClassIcon"))
-									]
-									+ SHorizontalBox::Slot()
-									.FillWidth(1.0f)
+									SNew(SComboButton)
+									.OnGetMenuContent(this, &UCoreGenerator::HandleMenuContent)
+									.ContentPadding(FMargin(2.0f, 2.0f))
+									.ButtonContent()
 									[
 										SNew(STextBlock)
-										.Text(FText::FromString("Select Generator Data Asset"))
-										.Font(FEditorStyle::GetFontStyle(TEXT("ContentBrowser.SourceTreeTitleFont")))
+										.Text(LOCTEXT("CustomDataAsset", "Choose Custom Data Asset"))
 									]
 								]
-							]
+							
 					]
-			];
-
-
-
-
-	
+			];*/
 }
+
+FString UCoreGenerator::GetDataAssetPath() const
+{
+	return SelectedDataAssetPath;
+}
+
+void UCoreGenerator::OnDataAssetChanged(const FAssetData& AssetData)
+{/*
+	if (AssetData.IsValid() && AssetData.GetClass()->IsChildOf(UDataAsset::StaticClass()))
+	{
+		SelectedDataAssetPath = AssetData.ObjectPath.ToString();
+
+		// Load the selected data asset and do something with it
+	}*/
+}
+/*
+TSharedRef<SWidget> UCoreGenerator::HandleMenuContent()
+{
+	ScanDataAssets();
+	// Create a list view widget to display the available custom data assets
+	TSharedPtr<SListView<UObject*>> ListView;
+	SAssignNew(ListView, SListView<UObject*>)
+		.ListItemsSource(&CustomDataAssetList)
+		.OnGenerateRow(this, &UCoreGenerator::HandleCustomDataAssetListRow);
+
+	// Create a scroll box widget to contain the list view
+	TSharedPtr<SScrollBox> ScrollBox;
+	SAssignNew(ScrollBox, SScrollBox)
+		.Orientation(Orient_Vertical)
+		.ScrollBarAlwaysVisible(true)
+		+ SScrollBox::Slot()
+		[
+			ListView.ToSharedRef()
+		];
+
+	// Create a border widget to contain the scroll box
+	TSharedPtr<SBorder> Border;
+	SAssignNew(Border, SBorder)
+		.Padding(FMargin(5.0f))
+		.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+		[
+			ScrollBox.ToSharedRef()
+		];
+
+	// Return the border widget as the menu content of the combo button
+	return Border.ToSharedRef();
+}
+
+TSharedRef<ITableRow> UCoreGenerator::HandleCustomDataAssetListRow(UObject* Item, const TSharedRef<STableViewBase>& OwnerTable)
+{
+	return SNew(STableRow<UObject*>, OwnerTable)
+		.Padding(FMargin(3.0f))
+		[
+			SNew(STextBlock)
+			.Text(FText::FromName(Item->GetFName()))
+		];
+}
+
+void UCoreGenerator::ScanDataAssets()
+{
+
+// Get a reference to the asset registry module
+FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+
+	// Create a filter that includes only custom data assets
+	FARFilter Filter;
+	Filter.ClassNames.Add(UDataAsset::StaticClass()->GetFName());
+
+	// Search for all the custom data assets in the project directory
+	TArray<FAssetData> AssetData;
+	AssetRegistryModule.Get().GetAssets(Filter, AssetData);
+
+	// Add the custom data assets to the CustomDataAssetList array
+	for (const FAssetData& Asset : AssetData)
+	{
+		UObject* Object = Asset.GetAsset();
+		if (Object != nullptr)
+		{
+			CustomDataAssetList.Add(Object);
+		}
+	}
+}*/
+
+#undef  LOCTEXT
