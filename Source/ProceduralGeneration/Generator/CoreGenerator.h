@@ -8,7 +8,7 @@
 #include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "CoreGenerator.generated.h"
 
-
+// The Base class of All tile  generation algorithm 
 UCLASS()
 class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedFromThis<UCoreGenerator>
 {
@@ -16,20 +16,25 @@ class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedF
 public:
 	UCoreGenerator();
 
-	void Init (TSharedPtr<SGenerationControllerTab> InTab);
-	//virtual TArray<UTile*> Run ();
+	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab);
+	virtual TArray<UTile*> Run ();
 	inline TArray<UTile*> GetAllTiles   () {return  AllTiles;}
 	inline TArray<UTile*> GetRemainingTiles   () {return  RemainingTiles;}
 	inline TArray<UTile*> GetCollapsedTiles   () {return  CollapsedTiles;}
 
-	int GetHeight () {return Map_Height;}
-	int GetWidth () {return Map_Width;}
 
-	void AddUIEntry ();
 
+	// Getters
+	virtual int GetHeight () {return Map_Height;}
+	virtual int GetWidth () {return Map_Width;}
 	FString GetDataAssetPath()const;
 
-	FString SelectedDataAssetPath ;
+	//UI
+	void AddUIEntry ();
+
+	
+
+	
 
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
@@ -42,7 +47,7 @@ public:
 	TArray<UObject*>CustomDataAssetList;
 private:
 
-	//Map Dimention
+	//Map Dimension
 
 	UPROPERTY(EditAnywhere,Category = "Generation")
 	int Map_Height;
@@ -58,6 +63,8 @@ private:
 	TArray<UTile*> CollapsedTiles;
 
 	TSharedPtr<SGenerationControllerTab> ControllerTab ;
+
+	FString SelectedDataAssetPath ;
 
 	bool  bIsFirstGen ;
 };
