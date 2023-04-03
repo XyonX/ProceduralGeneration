@@ -1,7 +1,12 @@
 
 # Procedural Generation
+
+
+### This Plugin is part of PorjecctCore V2 [PorjecctCore V2](https://github.com/XyonX/ProjectCoreV2) 
+
+### UI  Is separated to this  plugin :  [CoreUI](https://github.com/XyonX/CoreUI)  
  
- Procedural level generation in unreal engine 
+# Procedural level generation in unreal engine 
  !!!! still in experimental phase
 
  Algoritm to generate procedural Level using premdade Meshes '
