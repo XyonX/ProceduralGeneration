@@ -72,10 +72,18 @@ void ABaseProceduralActor::BeginPlay()
 	//init the class
 	Init();
 
+	if(RunGenerator() == false)
+	{
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Generator failed !!!  "));
+		}
+		return;
+	}
+
 	//GENERATING TILE
-	CalculateMeshLength();
-	GenerateTile();
-	SetTileLength(Actor_Length_X,Actor_Length_Y);
+	//CalculateMeshLength();
+	//GenerateTile();
+	//SetTileLength(Actor_Length_X,Actor_Length_Y);
 	GenerateBaseFloor(AllTilesPTR);
 	
 	if (!AllTilesPTR.IsEmpty() && !TotalTileMesh.IsEmpty())
@@ -217,10 +225,7 @@ void ABaseProceduralActor::ToggleTab()
 		{
 			ControllerWidget = SNew(SGenerationControllerTab);
 			SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
-			// Create a new instance of UCoreGenerator and pass your TSharedPtr to the constructor
-			UCoreGenerator* Gen = NewObject<UCoreGenerator>(this, UCoreGenerator::StaticClass());
-			Gen->Init(ControllerWidget);
-			Gen->AddUIEntry();
+			Generator->AddUIEntry();
 		}
 
 		ControllerWindow = SNew(SWindow)
@@ -338,10 +343,13 @@ bool ABaseProceduralActor::OnReGenerate()
 	return true;
 }
 
-void ABaseProceduralActor::RunGenerator()
+bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
-	UCoreGenerator* Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
+	UCoreGenerator* Generatorobj = NewObject<UCoreGenerator>(this, DefaultGenerator);
+	Generator = MakeShareable(Generatorobj);
+	Generator->Init(ControllerWidget,FloorMesh);
+	return  Generator->Run(AllTilesPTR,TotalTileMesh);
 }
 
 bool ABaseProceduralActor::Init()

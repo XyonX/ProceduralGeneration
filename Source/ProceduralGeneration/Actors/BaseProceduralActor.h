@@ -140,8 +140,10 @@ public:
 	//user can select the    custom generator ifd    they  want to  use  custom  algorithm
 	UPROPERTY()
 	TSubclassOf<UCoreGenerator> CustomGenerator;
+	
+	TSharedPtr<UCoreGenerator>Generator;
 
-	void RunGenerator ();
+	bool RunGenerator ();
 	
 	
 

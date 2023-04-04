@@ -16,23 +16,23 @@ class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedF
 public:
 	UCoreGenerator();
 
-	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab);
-	virtual TArray<UTile*> Run ();
-	inline TArray<UTile*> GetAllTiles   () {return  AllTiles;}
-	inline TArray<UTile*> GetRemainingTiles   () {return  RemainingTiles;}
-	inline TArray<UTile*> GetCollapsedTiles   () {return  CollapsedTiles;}
-
-
-
 	// Getters
 	virtual int GetHeight () {return Map_Height;}
 	virtual int GetWidth () {return Map_Width;}
 	FString GetDataAssetPath()const;
+	inline TArray<UTile*>* GetAllTiles   () {return  TileContainer;}
+	inline TArray<UTile*>* GetRemainingTiles   () {return  TileContainer_Remaining;}
+	inline TArray<UTile*>* GetCollapsedTiles   () {return  TileContainer_Collapsed;}
 
 	//UI
 	void AddUIEntry ();
 
-	
+	//Generation
+	virtual bool Run (TArray<UTile*>& in_TileContainer ,TArray<UTileMesh*>& in_TileMeshContainer ) ;
+	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh);
+	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
+	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
+	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
 
 	
 
@@ -45,6 +45,20 @@ public:
 
 	void ScanDataAssets ();
 	TArray<UObject*>CustomDataAssetList;
+
+
+protected:
+
+	TArray<UTile*>* TileContainer;
+    TArray<UTile*>* TileContainer_Remaining;
+    TArray<UTile*>* TileContainer_Collapsed;
+
+	
+
+	int TileCount ;
+	UPROPERTY( EditAnywhere, BlueprintReadWrite,Category="Generation")
+	UStaticMesh*UnitMesh;
+	
 private:
 
 	//Map Dimension
@@ -54,13 +68,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Generation")
 	int Map_Width;
 
-	// Tile Data
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TArray<UTile*> AllTiles;
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TArray<UTile*> RemainingTiles;
-	UPROPERTY(EditAnywhere,  Category = "Tile")
-	TArray<UTile*> CollapsedTiles;
+
+	//Mesh Dimension
+	int  Actor_Length_X = 1.0f;
+	int  Actor_Length_Y = 1.0f;
+	int  Actor_Length_Z = 1.0f;
 
 	TSharedPtr<SGenerationControllerTab> ControllerTab ;
 

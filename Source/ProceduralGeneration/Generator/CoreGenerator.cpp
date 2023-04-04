@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
+﻿// Do Whatever you  want with this code
 #include "CoreGenerator.h"
 #include "EditorStyleSet.h"
 #include "Widgets/Layout/SExpandableArea.h"
@@ -12,20 +10,35 @@
 
 #define LOCTEXT_NAMESPACE "Editor Window"
 
-/*
-TArray<UTile*> UCoreGenerator::Run()
-{
-
-}*/
 
 UCoreGenerator::UCoreGenerator()
 {
-	
+	TileCount=0;
 }
 
-void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab)
+void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMesh*in_UnitMesh )
 {
 	ControllerTab=InTab;
+	if(UnitMesh==nullptr)
+	UnitMesh=in_UnitMesh;
+}
+
+bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer  ,TArray<UTileMesh*>& in_TileMeshContainer )
+{
+
+	GenerateTile(in_TileContainer, in_TileMeshContainer, TileCount,Map_Height,Map_Width);
+
+	CalculateMeshDimension(UnitMesh ,Actor_Length_X,Actor_Length_Y,Actor_Length_Z);
+
+	SetTilesWorldLocation(in_TileContainer,Actor_Length_X,Actor_Length_Y);
+
+	TileContainer =  &in_TileContainer;
+
+	if(in_TileContainer.Num() ==0)
+	{
+		return false;
+	}
+	return true;
 }
 
 void UCoreGenerator::AddUIEntry()
@@ -81,6 +94,66 @@ void UCoreGenerator::AddUIEntry()
 							
 					]
 			];
+}
+
+void UCoreGenerator::CalculateMeshDimension(const UStaticMesh* StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ )
+{
+	
+	if(StaticMesh!=nullptr)
+	{
+		FVector Center ;
+		FVector Extent;
+		StaticMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
+		out_LenX = (Extent.X-Center.X)*2;
+		out_LenY = (Extent.Y-Center.Y)*2;
+		out_LenZ = (Extent.Z-Center.Z)*2;
+	}
+}
+
+bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount, int in_Height, int in_Width)
+{
+	
+	int id=0;
+	in_TileCount =  0;
+	for (int Y = 0 ; Y<  in_Width ; Y++)
+	{
+		for (int X = 0 ; X< in_Height ; X++)
+		{
+			
+			id++;
+			in_TileCount ++ ;
+			int Ypos=Y+1;
+			int Xpos=X+1;
+			FMatrixPosition POS(Xpos,Ypos);
+			FVector2D UnscaledLoc = FVector2d(X,Y);
+			
+			// create a new instance of UTile with NewObject
+			UTile* Tile = NewObject<UTile>();
+
+			// create a shared pointer to Tile
+			UTile* TilePtr(Tile);
+
+			// Call the Init function to initialize the object
+			TilePtr->Init(id, POS,UnscaledLoc, in_TileMeshCContainer);
+
+			// Add the shared pointer to the array
+			in_TileContainer.Add(TilePtr);
+			
+		}
+	}
+	return true;
+}
+
+void UCoreGenerator::SetTilesWorldLocation(TArray<UTile*>& in_TileContainer, int Length_X, int Length_Y)
+{
+	if(in_TileContainer.IsEmpty())
+	{
+		return;
+	}
+	for (UTile * Tile : in_TileContainer)
+	{
+		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
+	}
 }
 
 FString UCoreGenerator::GetDataAssetPath() const
