@@ -28,11 +28,13 @@
 
 # Generations
 
-## Random  -01
+## Random  Generation
 - Totally Random
 - Has some mesh overlap issue
 - Custom probability Not Applied
+- 4096 Tiles , 64x64 Grid
 
+## Random  -01
 
 ![](Generations/Random_02.png)
 
