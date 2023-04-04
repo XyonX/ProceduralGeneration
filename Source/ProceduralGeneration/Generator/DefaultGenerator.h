@@ -14,6 +14,6 @@ class PROCEDURALGENERATION_API UDefaultGenerator : public UCoreGenerator
 
 public:
 	
-	virtual TArray<UTile*> Run() override;
+	//virtual TArray<UTile*> Run() override;
 	
 };
