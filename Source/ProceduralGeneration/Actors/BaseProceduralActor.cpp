@@ -58,6 +58,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 	{
 		TileMeshDataAsset = TileMeshDataAssetObject.Object;
 	}
+
 	
 }
 
@@ -66,6 +67,8 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DefaultGenerator = UCoreGenerator::StaticClass();
 
 	SetupInput();
 
@@ -124,6 +127,7 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		TileMesh->ConditionalBeginDestroy();
 		TotalTileMesh.RemoveAt(j);
 	}
+	
 	AllTilesPTR.Empty();
 	RemainingTiles.Empty();
 	CollapsedTiles.Empty();
@@ -346,8 +350,10 @@ bool ABaseProceduralActor::OnReGenerate()
 bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
-	UCoreGenerator* Generatorobj = NewObject<UCoreGenerator>(this, DefaultGenerator);
-	Generator = MakeShareable(Generatorobj);
+	Generator = NewObject<UCoreGenerator>(this, DefaultGenerator);
+	//Generator = MakeShareable(Generatorobj);
+	Map_Height=Generator->GetHeight();
+	Map_Width=Generator->GetWidth();
 	Generator->Init(ControllerWidget,FloorMesh);
 	return  Generator->Run(AllTilesPTR,TotalTileMesh);
 }

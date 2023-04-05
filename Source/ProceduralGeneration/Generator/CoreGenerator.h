@@ -15,6 +15,7 @@ class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedF
 	GENERATED_BODY()
 public:
 	UCoreGenerator();
+	~UCoreGenerator();
 
 	// Getters
 	virtual int GetHeight () {return Map_Height;}
@@ -64,9 +65,9 @@ private:
 	//Map Dimension
 
 	UPROPERTY(EditAnywhere,Category = "Generation")
-	int Map_Height;
+	int Map_Height  = 10;
 	UPROPERTY(EditAnywhere, Category = "Generation")
-	int Map_Width;
+	int Map_Width =  10;
 
 
 	//Mesh Dimension

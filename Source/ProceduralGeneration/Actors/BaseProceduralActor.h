@@ -141,7 +141,9 @@ public:
 	UPROPERTY()
 	TSubclassOf<UCoreGenerator> CustomGenerator;
 	
-	TSharedPtr<UCoreGenerator>Generator;
+	//TSharedPtr<UCoreGenerator>Generator;
+	UPROPERTY()
+	 UCoreGenerator* Generator;
 
 	bool RunGenerator ();
 	

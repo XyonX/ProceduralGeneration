@@ -16,6 +16,13 @@ UCoreGenerator::UCoreGenerator()
 	TileCount=0;
 }
 
+UCoreGenerator::~UCoreGenerator()
+{
+	TileContainer =nullptr;
+	TileContainer_Remaining =  nullptr;
+	TileContainer_Collapsed = nullptr;
+}
+
 void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMesh*in_UnitMesh )
 {
 	ControllerTab=InTab;
