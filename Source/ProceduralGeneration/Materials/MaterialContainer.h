@@ -14,14 +14,21 @@ class PROCEDURALGENERATION_API UMaterialContainer : public UObject
 public:
 	UMaterialContainer();
 
+	//static UMaterialInterface* GridMaterialInterface;
+	static  UMaterialInstanceDynamic* MI_Grid  ;
+	static UMaterial* M_Grid ;
+
+	//Grid Functions
+
+	void Setup_Material_Grid (UMaterial*in_Material);
+
+
+	//Generic functions
 	static void SetBaseColor ( FLinearColor BaseColor , UMaterialInstanceDynamic* in_Material ) ;
-	static void SetBaseColor ( FLinearColor BaseColor , UMaterial* in_Material ) ;
+	static void SetRoughness ( float Roughness , UMaterialInstanceDynamic* in_Material ) ;
 
 	
-	static UMaterialInterface* GridMaterialInterface;
-	static  UMaterialInstanceDynamic* GridDynamic  ;
-	static UMaterial* GirdMaterial ;
-
+	
 
 	//variables
 
