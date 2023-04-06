@@ -1,0 +1,50 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/Object.h"
+#include "MaterialContainer.generated.h"
+
+
+UCLASS()
+class PROCEDURALGENERATION_API UMaterialContainer : public UObject
+{
+	GENERATED_BODY()
+public:
+	UMaterialContainer();
+
+	static void SetBaseColor ( FLinearColor BaseColor , UMaterialInstanceDynamic* in_Material ) ;
+	static void SetBaseColor ( FLinearColor BaseColor , UMaterial* in_Material ) ;
+
+	
+	static UMaterialInterface* GridMaterialInterface;
+	static  UMaterialInstanceDynamic* GridDynamic  ;
+	static UMaterial* GirdMaterial ;
+
+
+	//variables
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyMaterial")
+	UTexture2D* BaseColor_01;
+
+
+	void GenerateGrid();
+
+
+	//Grid Parameters
+	
+	// The size of each square
+	float SquareSize = 50.0;
+
+	// The number of squares in each dimension
+	int GridSize = 10;
+
+	// The color of each square
+	FLinearColor SquareColor = FLinearColor::Green;
+
+	// The color to use for squares that are turned off
+	FLinearColor OffColor = FLinearColor::Black;
+
+
+};
