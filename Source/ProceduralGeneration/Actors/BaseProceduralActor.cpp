@@ -67,7 +67,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnDelegate);
 	DefaultGenerator = UCoreGenerator::StaticClass();
 
 	SetupInput();
@@ -347,6 +347,16 @@ bool ABaseProceduralActor::OnReGenerate()
 	return true;
 }
 
+bool ABaseProceduralActor::OnDelegate()
+{
+	if(Generator)
+	{
+		Generator->OnDebug();
+		return true;
+	}
+	return false;
+}
+
 bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
@@ -429,38 +439,38 @@ void ABaseProceduralActor::InitTileMesh(TArray<UTileMesh*>& totaltilemeshes, TAr
 void ABaseProceduralActor::WaveFunctionCollapse()
 {
 
-		//Adding RemainingTile To All Tile
-		RemainingTiles.Reserve(AllTilesPTR.Num());
-		for(UTile* Tile : AllTilesPTR)
-			
-			{
-				RemainingTiles.Add(Tile)  ;
-			}
+	//Adding RemainingTile To All Tile
+	RemainingTiles.Reserve(AllTilesPTR.Num());
+	for(UTile* Tile : AllTilesPTR)
 		
-	
-		// FIRST RANDOM ID FROM STREAM
-		Stream.GenerateNewSeed();
-		int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
-		
-		//Pick A Random Tile	//For the first time choose from stream
-		UTile* FirstRandomTile = RemainingTiles[FirstIndices];
-		
-		// ADDING INSTANCE OF THE SELECTED MESH
-		AddInstanceMesh(FirstRandomTile);
-		//Update  Collapsed Tile Data
-		UpdateCollapsedTileData(FirstRandomTile,AllTilesPTR,RemainingTiles,CollapsedTiles);
-
-		//UPDATE THE SURROUNDING TILES AVAILABLE MESH
-		UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
-	
-		while (!RemainingTiles.IsEmpty())
 		{
-			// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
-			UTile* Tile = ReturnTileWithLowestEntropy(RemainingTiles);
-			AddInstanceMesh(Tile);
-			UpdateCollapsedTileData(Tile,AllTilesPTR,RemainingTiles,CollapsedTiles);
-			UpdateSurroundingMesh(Tile,RemainingTiles);
+			RemainingTiles.Add(Tile)  ;
 		}
+	
+
+	// FIRST RANDOM ID FROM STREAM
+	Stream.GenerateNewSeed();
+	int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
+	
+	//Pick A Random Tile	//For the first time choose from stream
+	UTile* FirstRandomTile = RemainingTiles[FirstIndices];
+	
+	// ADDING INSTANCE OF THE SELECTED MESH
+	AddInstanceMesh(FirstRandomTile);
+	//Update  Collapsed Tile Data
+	UpdateCollapsedTileData(FirstRandomTile,AllTilesPTR,RemainingTiles,CollapsedTiles);
+
+	//UPDATE THE SURROUNDING TILES AVAILABLE MESH
+	UpdateSurroundingMesh(FirstRandomTile,AllTilesPTR);
+
+	while (!RemainingTiles.IsEmpty())
+	{
+		// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
+		UTile* Tile = ReturnTileWithLowestEntropy(RemainingTiles);
+		AddInstanceMesh(Tile);
+		UpdateCollapsedTileData(Tile,AllTilesPTR,RemainingTiles,CollapsedTiles);
+		UpdateSurroundingMesh(Tile,RemainingTiles);
+	}
 }
 
 void ABaseProceduralActor::UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& TotalTilee ,TArray<UTile*>& RemainingTile, TArray<UTile*>& TotalCollapsedTile)
@@ -483,6 +493,10 @@ UTile*  ABaseProceduralActor::ReturnTileWithLowestEntropy(TArray<UTile*>& TotalT
 	UTile* Tile = DefaultTile ;
 	for(UTile* tile : TotalTile )
 	{
+		if(tile->CollapseStatus ==EcollapseStatus::Collapsed)
+		{
+			continue;
+		}
 		if(tile->AllAvailableMeshToChooseFrom.Num()<LowestNumberOfTile )
 		{
 
@@ -818,6 +832,10 @@ void ABaseProceduralActor::AddInstanceMesh(UTile* SelectedTile )
 	if(SelectedTile->SelectedTiledMesh->TileMesh ==nullptr  )
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Instance Add Failedd Selected Tile Didint have any Selected  Mesh "));}
+		return;
+	}
+	if(SelectedTile->SelectedTiledMesh->TileMesh == nullptr)
+	{
 		return;
 	}
 	//SelectedTile->SelectedTiledMesh.OwnerTileList.Add(SelectedTile);

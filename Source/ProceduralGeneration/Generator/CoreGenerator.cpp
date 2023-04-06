@@ -7,8 +7,10 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Widgets/Layout/SScrollBox.h"
+#include "CoreUI/DockTab/GenerationControllerTab.h"
 
 #define LOCTEXT_NAMESPACE "Editor Window"
+
 
 
 UCoreGenerator::UCoreGenerator()
@@ -28,6 +30,7 @@ void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMes
 	ControllerTab=InTab;
 	if(UnitMesh==nullptr)
 	UnitMesh=in_UnitMesh;
+	
 }
 
 bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer  ,TArray<UTileMesh*>& in_TileMeshContainer )
@@ -161,6 +164,44 @@ void UCoreGenerator::SetTilesWorldLocation(TArray<UTile*>& in_TileContainer, int
 	{
 		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
 	}
+}
+
+void UCoreGenerator::DrawPositionIndicator(TArray<UTile*>* in_TileContainer)
+{
+
+	UWorld* World = GetWorld();  // Get a reference to the current world
+
+	for (UTile* Tile : *in_TileContainer)
+	{
+		FVector Location = Tile->World_Location;
+		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
+		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
+		bDrawn =true;
+	}
+	
+}
+
+void UCoreGenerator::RemoveIndicator(TArray<UTile*>* in_TileContainer)
+{
+	UWorld* World = GetWorld();  // Get a reference to the current world
+
+		for (UTile* Tile : *in_TileContainer)
+		{
+			FVector Location = Tile->World_Location;
+			//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
+			DrawDebugPoint(World,Location,20,FColor::Green,false,0,0);//depth priority of 0 means always visible
+			bDrawn =false;
+		}
+}
+
+bool UCoreGenerator::OnDebug()
+{
+	if(bDrawn)
+	{
+		RemoveIndicator(TileContainer);
+	}
+	DrawPositionIndicator(TileContainer);
+	return true;
 }
 
 FString UCoreGenerator::GetDataAssetPath() const

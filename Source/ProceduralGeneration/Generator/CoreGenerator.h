@@ -16,6 +16,7 @@ class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedF
 public:
 	UCoreGenerator();
 	~UCoreGenerator();
+	
 
 	// Getters
 	virtual int GetHeight () {return Map_Height;}
@@ -35,7 +36,12 @@ public:
 	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
 	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
 
-	
+    //Debug Visualization
+	bool bDrawn = false; // Keep track of whether the point has been drawn or not
+	int32 PointId = 0; // The debug draw ID of the point
+    void DrawPositionIndicator (TArray<UTile*>* in_TileContainer);
+	void RemoveIndicator (TArray<UTile*>* in_TileContainer);
+	bool OnDebug ();
 
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")

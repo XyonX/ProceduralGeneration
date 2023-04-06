@@ -130,6 +130,7 @@ public:
 	void ToggleTab();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	bool OnReGenerate();
+	bool OnDelegate ();
 	static FOnGenerateButtonClick GenerateClickDelegate_Actor ;
 
 
