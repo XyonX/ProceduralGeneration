@@ -6,12 +6,13 @@
 #include "MF_Grid.generated.h"
 
 UCLASS()
-class PROCEDURALGENERATION_API UMF_Grid :  public UMaterialFunctionInterface 
+class PROCEDURALGENERATION_API UMF_Grid :  public UObject
 {
 	GENERATED_BODY()
 public:
 
-	
+public:
+	//virtual void PostInitProperties() override;
 
 	
 	
