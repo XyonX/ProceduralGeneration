@@ -52,6 +52,7 @@ public:
 
 	void ScanDataAssets ();
 	TArray<UObject*>CustomDataAssetList;
+	void SetControllerTab (TSharedPtr<SGenerationControllerTab> in_ControllerTab){ControllerTab =in_ControllerTab;}
 
 
 protected:

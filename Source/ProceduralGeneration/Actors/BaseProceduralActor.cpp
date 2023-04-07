@@ -50,6 +50,9 @@ ABaseProceduralActor::ABaseProceduralActor()
 	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
 	DefaultTile->Position_2D=FMatrixPosition(0,0);
 	DefaultTile->SelectedTiledMesh = DefaultTileMesh ;
+	DefaultTile->AllAvailableMeshToChooseFrom.Empty();
+	DefaultTileMesh->TileMesh = FloorMesh;
+	
 	
 	//static ConstructorHelpers::FObjectFinder<UDataTable> TileMeshDataAssetObject(TEXT("DataTable'/ProceduralGeneration/Data/DT_TileMesh.DT_TileMesh'"));
 	static ConstructorHelpers::FObjectFinder<UDataTable> TileMeshDataAssetObject(TEXT("DataTable'/ProceduralGeneration/Data/DT_TileMesh.DT_TileMesh'"));
@@ -66,9 +69,16 @@ ABaseProceduralActor::ABaseProceduralActor()
 //BEGIN PLAY
 void ABaseProceduralActor::BeginPlay()
 {
+	
+	
 	Super::BeginPlay();
-	SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnDelegate);
+
+	DefaultTileMesh->InstancedMesh =  NewObject<UInstancedStaticMeshComponent>(this);
+	DefaultTileMesh->InstancedMesh->RegisterComponent();
+	
+
 	DefaultGenerator = UCoreGenerator::StaticClass();
+
 
 	SetupInput();
 
@@ -229,6 +239,8 @@ void ABaseProceduralActor::ToggleTab()
 		{
 			ControllerWidget = SNew(SGenerationControllerTab);
 			SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
+			SGenerationControllerTab::DebugDelegate.BindUObject(this,&ABaseProceduralActor::OnDelegate);
+			Generator->SetControllerTab(ControllerWidget);
 			Generator->AddUIEntry();
 		}
 
@@ -263,9 +275,7 @@ void ABaseProceduralActor::ToggleTab()
 
 		FSlateApplication::Get().AddWindow(ControllerWindow.ToSharedRef(), true);
 	}
-
 	
-
 	
 }
 
@@ -354,7 +364,10 @@ bool ABaseProceduralActor::OnDelegate()
 		Generator->OnDebug();
 		return true;
 	}
-	return false;
+
+	if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("  Debug Called   !!"));}
+	return true;
+	
 }
 
 bool ABaseProceduralActor::RunGenerator()
@@ -365,6 +378,7 @@ bool ABaseProceduralActor::RunGenerator()
 	Map_Height=Generator->GetHeight();
 	Map_Width=Generator->GetWidth();
 	Generator->Init(ControllerWidget,FloorMesh);
+	Generator->AddUIEntry();
 	return  Generator->Run(AllTilesPTR,TotalTileMesh);
 }
 
@@ -467,9 +481,19 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 	{
 		// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
 		UTile* Tile = ReturnTileWithLowestEntropy(RemainingTiles);
+		if(bIsGenSaturated)
+			break;
 		AddInstanceMesh(Tile);
 		UpdateCollapsedTileData(Tile,AllTilesPTR,RemainingTiles,CollapsedTiles);
 		UpdateSurroundingMesh(Tile,RemainingTiles);
+	}
+	for (UTile*tile :RemainingTiles)
+	{
+		tile->SelectedTiledMesh=DefaultTileMesh;
+		FTransform Transform;
+		Transform.SetLocation(tile->World_Location);
+		tile->SelectedTiledMesh->InstancedMesh->AddInstance(Transform);
+		
 	}
 }
 
@@ -489,23 +513,35 @@ void ABaseProceduralActor::UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& 
 
 UTile*  ABaseProceduralActor::ReturnTileWithLowestEntropy(TArray<UTile*>& TotalTile)
 {
-	int LowestNumberOfTile =999;
-	UTile* Tile = DefaultTile ;
+	UTile*LowestEntropyTile =DefaultTile;
+	bool bfirst = true ;
+	bIsGenSaturated =true;
 	for(UTile* tile : TotalTile )
 	{
 		if(tile->CollapseStatus ==EcollapseStatus::Collapsed)
 		{
 			continue;
 		}
-		if(tile->AllAvailableMeshToChooseFrom.Num()<LowestNumberOfTile )
+		if( tile->AllAvailableMeshToChooseFrom.Num() <=0 )
 		{
-
-			LowestNumberOfTile=tile->AllAvailableMeshToChooseFrom.Num();
-			Tile = tile;
-			
+			continue;
+		}
+		
+		if(bfirst)
+		{
+			LowestEntropyTile = tile;
+			bfirst=false;
+			bIsGenSaturated =false;
+			continue;
+		}
+		if(tile->AllAvailableMeshToChooseFrom.Num()<LowestEntropyTile->AllAvailableMeshToChooseFrom.Num())
+		{
+			LowestEntropyTile = tile;
+			bIsGenSaturated=false;
 		}
 	}
-	return Tile;
+	
+	return LowestEntropyTile;
 }
 
 UTile* ABaseProceduralActor::GetTileByID(int ID, TArray<UTile*>& TotalTile)

@@ -68,6 +68,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     bool bWantBaseFloor;
 	bool bIsFirstGenDone ;
+	bool bIsGenSaturated;
 
     // THE MAIN TILES CONTAINER			//TODO DELETE THEM LATER
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
