@@ -31,7 +31,7 @@ public:
 
 	//Generation
 	virtual bool Run (TArray<UTile*>& in_TileContainer ,TArray<UTileMesh*>& in_TileMeshContainer ) ;
-	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh);
+	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh, int in_height , int in_width );
 	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
 	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
 	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );

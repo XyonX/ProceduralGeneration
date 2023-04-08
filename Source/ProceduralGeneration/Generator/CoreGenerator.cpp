@@ -25,8 +25,10 @@ UCoreGenerator::~UCoreGenerator()
 	TileContainer_Collapsed = nullptr;
 }
 
-void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMesh*in_UnitMesh )
+void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMesh*in_UnitMesh , int in_height , int in_width )
 {
+	Map_Height=in_height;
+	Map_Width=in_width;
 	ControllerTab=InTab;
 	if(UnitMesh==nullptr)
 	UnitMesh=in_UnitMesh;
@@ -114,9 +116,11 @@ void UCoreGenerator::CalculateMeshDimension(const UStaticMesh* StaticMesh , int&
 		FVector Center ;
 		FVector Extent;
 		StaticMesh->GetBoundingBox().GetCenterAndExtents(Center,Extent);
-		out_LenX = (Extent.X-Center.X)*2;
-		out_LenY = (Extent.Y-Center.Y)*2;
-		out_LenZ = (Extent.Z-Center.Z)*2;
+		//out_LenX = (Extent.X-Center.X)*2;
+		//out_LenY = (Extent.Y-Center.Y)*2;
+		out_LenX =(Extent.X * 2);
+		out_LenY = (Extent.Y * 2);
+		out_LenZ = 0;//(Extent.Z-Center.Z)*2;
 	}
 }
 
@@ -127,12 +131,13 @@ bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TArray<UTile
 	in_TileCount =  0;
 	for (int Y = 0 ; Y<  in_Width ; Y++)
 	{
+		int Ypos=Y+1;
 		for (int X = 0 ; X< in_Height ; X++)
 		{
 			
 			id++;
 			in_TileCount ++ ;
-			int Ypos=Y+1;
+			
 			int Xpos=X+1;
 			FMatrixPosition POS(Xpos,Ypos);
 			FVector2D UnscaledLoc = FVector2d(X,Y);
@@ -176,6 +181,7 @@ void UCoreGenerator::DrawPositionIndicator(TArray<UTile*>* in_TileContainer)
 		FVector Location = Tile->World_Location;
 		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
 		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
+		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %d,%d"),Tile->Position_2D.Y, Tile->Position_2D.X), nullptr, FColor::Red, -1.0F, false);
 		bDrawn =true;
 	}
 	
