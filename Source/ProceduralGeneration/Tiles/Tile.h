@@ -65,6 +65,8 @@ public:
 	EcollapseStatus CollapseStatus ;
 	
 	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
+	
+	bool bIsSaturated ;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite , Category= "Tile")
 	TArray<UTileMesh*> AllAvailableMeshToChooseFrom;

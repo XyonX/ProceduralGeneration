@@ -44,9 +44,9 @@ public:
     // Variables
     // these are numbers like 100x100 procedural tile
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
-    int Map_Height;
+    int Map_Height =4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
-    int Map_Width;
+    int Map_Width =4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
     FRandomStream Stream;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
@@ -77,6 +77,8 @@ public:
     TArray<UTile*> RemainingTiles;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     TArray<UTile*> CollapsedTiles;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	TArray<UTile*> SaturatedTiles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	TArray<UTileMesh*> TotalTileMesh;
 

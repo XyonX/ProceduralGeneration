@@ -36,12 +36,12 @@ ABaseProceduralActor::ABaseProceduralActor()
 	Actor_Length_X = 200;
 	
 	Actor_Length_Y = 200;
-	Actor_Length_Z = 200 ;
+	Actor_Length_Z = 0 ;
 
 	bWantCustomTileSize =false;
 	
 	//Setting up Default tile mesh
-	//DefaultInstanceMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("DEFAULT MESH INSTANCE CONTAINER"));
+	DefaultTileMesh->InstancedMesh = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Default Instance Mesh"));
 	
 	
 	//SETTING UP DEFAULT TILE
@@ -73,8 +73,8 @@ void ABaseProceduralActor::BeginPlay()
 	
 	Super::BeginPlay();
 
-	DefaultTileMesh->InstancedMesh =  NewObject<UInstancedStaticMeshComponent>(this);
-	DefaultTileMesh->InstancedMesh->RegisterComponent();
+	//DefaultTileMesh->InstancedMesh =  NewObject<UInstancedStaticMeshComponent>(this);
+	//DefaultTileMesh->InstancedMesh->RegisterComponent();
 	
 
 	DefaultGenerator = UCoreGenerator::StaticClass();
@@ -375,9 +375,9 @@ bool ABaseProceduralActor::RunGenerator()
 	// Create a new instance of UCoreGenerator class
 	Generator = NewObject<UCoreGenerator>(this, DefaultGenerator);
 	//Generator = MakeShareable(Generatorobj);
-	Map_Height=Generator->GetHeight();
-	Map_Width=Generator->GetWidth();
-	Generator->Init(ControllerWidget,FloorMesh);
+	//Map_Height=Generator->GetHeight();
+	//Map_Width=Generator->GetWidth();
+	Generator->Init(ControllerWidget,FloorMesh,Map_Height,Map_Width);
 	Generator->AddUIEntry();
 	return  Generator->Run(AllTilesPTR,TotalTileMesh);
 }
@@ -467,7 +467,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 	int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
 	
 	//Pick A Random Tile	//For the first time choose from stream
-	UTile* FirstRandomTile = RemainingTiles[FirstIndices];
+	UTile* FirstRandomTile = RemainingTiles[1];
 	
 	// ADDING INSTANCE OF THE SELECTED MESH
 	AddInstanceMesh(FirstRandomTile);
@@ -481,18 +481,20 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 	{
 		// CHOOSE A TILE DEPENDING ENTROPY OF THE TILE
 		UTile* Tile = ReturnTileWithLowestEntropy(RemainingTiles);
-		if(bIsGenSaturated)
-			break;
+		//if(bIsGenSaturated)
+			//break;
 		AddInstanceMesh(Tile);
 		UpdateCollapsedTileData(Tile,AllTilesPTR,RemainingTiles,CollapsedTiles);
 		UpdateSurroundingMesh(Tile,RemainingTiles);
 	}
-	for (UTile*tile :RemainingTiles)
+	for (UTile*tile :SaturatedTiles)
 	{
 		tile->SelectedTiledMesh=DefaultTileMesh;
+		tile->CollapseStatus =EcollapseStatus::Collapsed;
 		FTransform Transform;
 		Transform.SetLocation(tile->World_Location);
-		tile->SelectedTiledMesh->InstancedMesh->AddInstance(Transform);
+		tile->SelectedTiledMesh =DefaultTileMesh;
+		DefaultTileMesh->InstancedMesh->AddInstance(Transform);
 		
 	}
 }
@@ -516,14 +518,18 @@ UTile*  ABaseProceduralActor::ReturnTileWithLowestEntropy(TArray<UTile*>& TotalT
 	UTile*LowestEntropyTile =DefaultTile;
 	bool bfirst = true ;
 	bIsGenSaturated =true;
-	for(UTile* tile : TotalTile )
+	for(int i = TotalTile.Num() ; i > 0 ; i-- )
 	{
+		UTile* tile = TotalTile[i];
 		if(tile->CollapseStatus ==EcollapseStatus::Collapsed)
 		{
 			continue;
 		}
 		if( tile->AllAvailableMeshToChooseFrom.Num() <=0 )
 		{
+			tile->bIsSaturated  =true;
+			RemainingTiles.Remove(tile);
+			SaturatedTiles.Add(tile);
 			continue;
 		}
 		
@@ -557,7 +563,7 @@ UTile* ABaseProceduralActor::GetTileByID(int ID, TArray<UTile*>& TotalTile)
 
 UTile* ABaseProceduralActor::GetTileByPosition2D(FMatrixPosition Pos, TArray<UTile*>& TotalTile)
 {
-	int32 index = ((Pos.Y - 1) * Map_Width) + (Pos.X - 1);
+	int32 index = ((Pos.Y - 1) * Map_Height) + (Pos.X - 1);
 	return TotalTile[index];
 /*	for (UTile* Tile :TotalTile)
 	{
@@ -714,6 +720,8 @@ void ABaseProceduralActor::GenerateBaseFloor( TArray<UTile*>& TotalTies)
 		for(UTile* Tile : TotalTies)
 		{
 			FTransform Transform ;
+			Transform.SetRotation(FQuat::Identity);
+			Transform.SetScale3D(FVector(1.0f, 1.0f, 1.0f));
 			Transform.SetLocation(Tile->World_Location);
 			FlorInstanceMeshComponent->AddInstance(Transform);
 		}
@@ -730,14 +738,14 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		UTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Left(SelectedTile,LeftNeighbour);
 	}
-	if(Position2D.Y+1 <Map_Width )
+	if(Position2D.Y+1 <=Map_Width )
 	{
 		
 		FMatrixPosition Pos (Position2D.X,Position2D.Y+1);
 		UTile* RightNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Right(SelectedTile,RightNeighbour);
 	}
-	if(Position2D.X+1 <Map_Height )
+	if(Position2D.X+1 <=Map_Height )
 	{
 		
 		FMatrixPosition Pos (Position2D.X+1,Position2D.Y);
