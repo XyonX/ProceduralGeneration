@@ -194,7 +194,11 @@ public:
 
 	// Updating Surrounding Mesh
 	void UpdateAvailableMesh_Left(UTile* SelectedTile,UTile* LeftNeighbour);
+	void UpdateAvailableMesh_LeftUp(UTile* SelectedTile,UTile* LeftUpNeighbour);
+	void UpdateAvailableMesh_LeftDown(UTile* SelectedTile,UTile* LeftDownNeighbour);
 	void UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNeighbour);
+	void UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* RightUpNeighbour);
+	void UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* RightDownNeighbour);
 	void UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbour);
 	void UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeighbour);
 

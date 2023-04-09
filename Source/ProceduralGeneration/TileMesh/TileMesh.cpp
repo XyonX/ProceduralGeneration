@@ -42,11 +42,12 @@ void UTileMesh::Init(AActor* owneractor, FTileMeshData* TileMeshData)
 
 	InstancedMesh =  NewObject<UInstancedStaticMeshComponent>(owneractor);
 	InstancedMesh->RegisterComponent();
-	InstancedMesh->AttachToComponent(owneractor->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	InstancedMesh->AttachToComponent(owneractor->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 	InstancedMesh->SetStaticMesh(TileMesh);
 	InstancedMesh->SetVisibility(true);
 	
 }
+
 
 void UTileMesh::SetMeshPivot(UStaticMesh* In_Mesh)
 {
