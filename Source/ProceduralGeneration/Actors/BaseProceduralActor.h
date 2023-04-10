@@ -8,6 +8,8 @@
 #include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Editor/LevelEditor/Public/LevelEditorActions.h"
 #include "ProceduralGeneration/Generator/CoreGenerator.h"
+#include <unordered_map>
+#include "ProceduralGeneration/ADT/TileMap.h"
 #include "BaseProceduralActor.generated.h"
 
 
@@ -40,7 +42,7 @@ protected:
 
 
 public:
-	
+	UTileMap  TileContainer;
     // Variables
     // these are numbers like 100x100 procedural tile
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
@@ -86,6 +88,8 @@ public:
 	UTileMesh* DefaultTileMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UTile* DefaultTile;
+
+	//std::unordered_map<FMatrixPosition , UTile* ,>
 	
 	
 	
