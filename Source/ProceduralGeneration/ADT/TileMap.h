@@ -18,18 +18,25 @@ class PROCEDURALGENERATION_API UTileMap : public UObject
 public:
 	// Constructor to initialize the unordered_map
 	//UTileMap() : AllTilesPTR() {}
+
+	//Setup
 	UTileMap();
-	
+
+	//Delete AllThe Elements
+	~UTileMap();
+
+	//This Overrides The  [ ] Operator
+	// Can Do Both Operation READ or WRITE
 	UTile*& operator[](const FMatrixPosition& key)
 	{
 		return AllTilesPTR[key];
 	}
 
+	//Function To Addd
 	void Add (UTile* Tile) ;
 		
 private:
-
-
+	//Main HashMap
 	std::unordered_map<FMatrixPosition, UTile*> AllTilesPTR;
 	
 };
