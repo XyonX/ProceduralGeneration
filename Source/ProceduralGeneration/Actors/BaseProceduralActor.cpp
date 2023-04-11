@@ -77,13 +77,13 @@ void ABaseProceduralActor::BeginPlay()
 	//DefaultTileMesh->InstancedMesh->RegisterComponent();
 	
 
-	DefaultGenerator = UCoreGenerator::StaticClass();
-
-
-	SetupInput();
-
+	
 	//init the class
 	Init();
+
+	DefaultGenerator = UCoreGenerator::StaticClass();
+	SetupInput();
+
 
 	if(RunGenerator() == false)
 	{
@@ -131,6 +131,7 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		CollapsedTiles.Remove(Tile);
 		
 	}
+	//delete [] TileContainer ;
 	for(int32 j = TotalTileMesh.Num()-1 ; j>= 0 ; j--)
 	{
 		UTileMesh* TileMesh =TotalTileMesh[j];
@@ -384,6 +385,10 @@ bool ABaseProceduralActor::RunGenerator()
 
 bool ABaseProceduralActor::Init()
 {
+	if(TileContainer ==nullptr)
+	{
+		TileContainer = NewObject<UTileMap>();
+	}
 	if (GetTileMeshData())
 	{
 		if (SetTileMeshData())

@@ -42,7 +42,8 @@ protected:
 
 
 public:
-	UTileMap  TileContainer;
+	UPROPERTY(BlueprintReadOnly,Category = "Tile")
+	UTileMap*  TileContainer;
     // Variables
     // these are numbers like 100x100 procedural tile
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
@@ -68,6 +69,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     UStaticMesh* FloorMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    
+    //bool
     bool bWantBaseFloor;
 	bool bIsFirstGenDone ;
 	bool bIsGenSaturated;

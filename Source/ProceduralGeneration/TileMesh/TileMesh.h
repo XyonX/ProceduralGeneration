@@ -18,6 +18,18 @@ enum class ETilingType : uint8
 	
 };
 
+// This Struct is to determine which  tile to Update First Among the surrounded Tiles
+USTRUCT()
+struct FTileTypePriority
+{
+	GENERATED_BODY()
+	//the Tag of the Tile Type  We  Want to Prioritize 
+	FGameplayTag TileType_Tag ;
+	//The Priority
+	int Priority ;
+	
+};
+
 class UTile ;
 class UTileMeshData;
 
