@@ -3,7 +3,7 @@
 
 #include "TileMap.h"
 
-UTileMap::UTileMap()
+UTileMap::UTileMap() : AllTilesPTR()
 {
 }
 
@@ -18,15 +18,15 @@ UTileMap::~UTileMap()
 	UTile* Tile = AllTilesPTR[i];
 	Tile->ConditionalBeginDestroy();
 	AllTilesPTR.RemoveAt(i);*/
-	for (auto it = AllTilesPTR.begin(); it != AllTilesPTR.end(); )
+	/*for (auto it = AllTilesPTR.begin(); it != AllTilesPTR.end(); )
 	{
 		UTile* Tile = it->second;
 		it = AllTilesPTR.erase(it);
 		Tile->ConditionalBeginDestroy();
-	}
+	}*/
 }
 
 void UTileMap::Add(UTile* Tile)
 {
-	AllTilesPTR [Tile->Position_2D]=Tile ;
+	//AllTilesPTR.emplace(Tile->Position_2D,Tile );
 }

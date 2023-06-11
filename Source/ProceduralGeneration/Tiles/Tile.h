@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "ProceduralGeneration/TileMesh/TileMesh.h"
+#include "functional"
 #include "Tile.generated.h"
 
 
@@ -29,8 +30,13 @@ struct FMatrixPosition
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Position")
 	int Y ;
 	FORCEINLINE FMatrixPosition GetPosition () { FMatrixPosition pos(X,Y); return pos;}
-};
+	// Constructors and other members...
 
+	bool operator==(const FMatrixPosition& other) const
+	{
+		return X == other.X && Y == other.Y;
+	}
+};
 
 
 UCLASS(BlueprintType)
@@ -74,3 +80,21 @@ public:
 	
 	
 };
+
+
+namespace std
+{
+	template <>
+	struct hash<FMatrixPosition>
+	{
+		std::size_t operator()(const FMatrixPosition& position) const
+		{
+			std::size_t hashValue = 0;
+			// Compute the hash value based on the members of FMatrixPosition
+			// You can use the `std::hash` function for the individual members
+			hashValue ^= std::hash<int>()(position.X);
+			hashValue ^= std::hash<int>()(position.Y);
+			return hashValue;
+		}
+	};
+}
