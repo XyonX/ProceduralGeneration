@@ -42,8 +42,8 @@ protected:
 
 
 public:
-	UPROPERTY(BlueprintReadOnly,Category = "Tile")
-	UTileMap*  TileContainer;
+	//UPROPERTY(BlueprintReadOnly,Category = "Tile")
+	//UTileMap*  TileContainer;
     // Variables
     // these are numbers like 100x100 procedural tile
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")

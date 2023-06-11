@@ -385,10 +385,10 @@ bool ABaseProceduralActor::RunGenerator()
 
 bool ABaseProceduralActor::Init()
 {
-	if(TileContainer ==nullptr)
+/*	if(TileContainer ==nullptr)
 	{
 		TileContainer = NewObject<UTileMap>();
-	}
+	}*/
 	if (GetTileMeshData())
 	{
 		if (SetTileMeshData())
