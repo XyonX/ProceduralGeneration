@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "ProceduralGeneration/Tiles/Tile.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
+#include "ProceduralGeneration/ADT/TileMap.h"
 #include "CoreGenerator.generated.h"
 
 // The Base class of All tile  generation algorithm 
@@ -28,13 +29,16 @@ public:
 
 	//UI
 	void AddUIEntry ();
-
+	
 	//Generation
 	virtual bool Run (TArray<UTile*>& in_TileContainer ,TArray<UTileMesh*>& in_TileMeshContainer ) ;
+	virtual bool Run (UTileMap*in_TileContainer ,TArray<UTileMesh*>& in_TileMeshContainer ) ;
 	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh, int in_height , int in_width );
 	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
 	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
+	virtual bool GenerateTile( UTileMap* in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
 	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
+	virtual void SetTilesWorldLocation (UTileMap* in_TileContainer, int Length_X ,int Length_Y );
 
     //Debug Visualization
 	bool bDrawn = false; // Keep track of whether the point has been drawn or not

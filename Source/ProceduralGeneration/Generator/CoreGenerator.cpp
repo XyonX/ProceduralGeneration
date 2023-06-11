@@ -53,6 +53,12 @@ bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer  ,TArray<UTileMesh*>& 
 	return true;
 }
 
+bool UCoreGenerator::Run(UTileMap* in_TileContainer, TArray<UTileMesh*>& in_TileMeshContainer)
+{
+	return  GenerateTile(in_TileContainer, in_TileMeshContainer, TileCount,Map_Height,Map_Width);
+	
+}
+
 void UCoreGenerator::AddUIEntry()
 {
 	if(ControllerTab ==nullptr)
@@ -158,6 +164,40 @@ bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TArray<UTile
 	}
 	return true;
 }
+bool UCoreGenerator::GenerateTile(UTileMap* in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width)
+{
+	
+	int id=0;
+	in_TileCount =  0;
+	for (int Y = 0 ; Y<  in_Width ; Y++)
+	{
+		int Ypos=Y+1;
+		for (int X = 0 ; X< in_Height ; X++)
+		{
+			
+			id++;
+			in_TileCount ++ ;
+			
+			int Xpos=X+1;
+			FMatrixPosition POS(Xpos,Ypos);
+			FVector2D UnscaledLoc = FVector2d(X,Y);
+			
+			// create a new instance of UTile with NewObject
+			UTile* Tile = NewObject<UTile>();
+
+			// create a shared pointer to Tile
+			UTile* TilePtr(Tile);
+
+			// Call the Init function to initialize the object
+			TilePtr->Init(id, POS,UnscaledLoc, in_TileMeshCContainer);
+
+			// Add the shared pointer to the array
+			//in_TileContainer->Add(TilePtr);
+			
+		}
+	}
+	return true;
+}
 
 void UCoreGenerator::SetTilesWorldLocation(TArray<UTile*>& in_TileContainer, int Length_X, int Length_Y)
 {
@@ -169,6 +209,14 @@ void UCoreGenerator::SetTilesWorldLocation(TArray<UTile*>& in_TileContainer, int
 	{
 		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
 	}
+}
+void UCoreGenerator::SetTilesWorldLocation(UTileMap* in_TileContainer, int Length_X ,int Length_Y)
+{
+/*	for (auto& Pair : in_TileContainer)
+	{
+		UTile* Tile = Pair.second;
+		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
+	}*/
 }
 
 void UCoreGenerator::DrawPositionIndicator(TArray<UTile*>* in_TileContainer)
