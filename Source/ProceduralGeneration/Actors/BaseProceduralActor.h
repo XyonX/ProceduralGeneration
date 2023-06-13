@@ -215,7 +215,7 @@ public:
 	// Returns mesh with lowest entropy from given array of tiles
 	UTile* ReturnTileWithLowestEntropy(TArray<UTile*>&  TotalTile);
 	UTile* GetTileByID(int ID,TArray<UTile*>& TotalTile);
-	UTile* GetTileByPosition2D(FMatrixPosition Pos, TArray<UTile*>& TotalTile);
+	UTile* GetTileByPosition2D(FVector2D Pos, TArray<UTile*>& TotalTile);
 	
 	
 };

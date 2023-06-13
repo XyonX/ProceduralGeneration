@@ -48,7 +48,7 @@ ABaseProceduralActor::ABaseProceduralActor()
 	DefaultTile = CreateDefaultSubobject<UTile>("DefaultTile");
 	DefaultTileMesh=CreateDefaultSubobject<UTileMesh>("DefaultTileMesh");
 	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
-	DefaultTile->Position_2D=FMatrixPosition(0,0);
+	DefaultTile->Position_2D=FVector2D(0,0);
 	DefaultTile->SelectedTiledMesh = DefaultTileMesh ;
 	DefaultTile->AllAvailableMeshToChooseFrom.Empty();
 	//DefaultTileMesh->TileMesh = FloorMesh;
@@ -566,7 +566,7 @@ UTile* ABaseProceduralActor::GetTileByID(int ID, TArray<UTile*>& TotalTile)
 	return nullptr;
 }
 
-UTile* ABaseProceduralActor::GetTileByPosition2D(FMatrixPosition Pos, TArray<UTile*>& TotalTile)
+UTile* ABaseProceduralActor::GetTileByPosition2D(FVector2D Pos, TArray<UTile*>& TotalTile)
 {
 	int32 index = ((Pos.Y - 1) * Map_Height) + (Pos.X - 1);
 	return TotalTile[index];
@@ -624,7 +624,7 @@ bool ABaseProceduralActor::GenerateTile()
 			AllTiles_Float ++ ;
 			int Ypos=Y+1;
 			int Xpos=X+1;
-			FMatrixPosition POS(Xpos,Ypos);
+			FVector2D POS(Xpos,Ypos);
 			FVector2D UnscaledLoc = FVector2d(X,Y);
 			
 
@@ -736,25 +736,25 @@ void ABaseProceduralActor::GenerateBaseFloor( TArray<UTile*>& TotalTies)
 // THIS FUNCTION UPDATE SURROUNDING MAINLY CALL THOSE 4 FUNCTION
 void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>& TotalTile)
 {
-	FMatrixPosition Position2D = SelectedTile->Position_2D;
+	FVector2D Position2D = SelectedTile->Position_2D;
 	//Left
 	if(Position2D.Y-1 >=1 )
 	{
-		FMatrixPosition Pos (Position2D.X,Position2D.Y-1);
+		FVector2D Pos (Position2D.X,Position2D.Y-1);
 		UTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Left(SelectedTile,LeftNeighbour);
 	}
 	//Left UP
 	if(Position2D.Y-1 >=1 &&  Position2D.X+1 <=Map_Height)
 	{
-		FMatrixPosition Pos (Position2D.X+1,Position2D.Y-1);
+		FVector2D Pos (Position2D.X+1,Position2D.Y-1);
 		UTile* LeftUpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_LeftUp(SelectedTile,LeftUpNeighbour);
 	}
 	//Left Down
 	if(Position2D.Y-1 >=1  && Position2D.X-1 >=1)
 	{
-		FMatrixPosition Pos (Position2D.X-1,Position2D.Y-1);
+		FVector2D Pos (Position2D.X-1,Position2D.Y-1);
 		UTile* LeftDownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_LeftDown(SelectedTile,LeftDownNeighbour);
 	}
@@ -763,7 +763,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 	if(Position2D.Y+1 <=Map_Width )
 	{
 		
-		FMatrixPosition Pos (Position2D.X,Position2D.Y+1);
+		FVector2D Pos (Position2D.X,Position2D.Y+1);
 		UTile* RightNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Right(SelectedTile,RightNeighbour);
 	}
@@ -771,7 +771,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 	if(Position2D.Y+1 <=Map_Width  &&  Position2D.X+1 <=Map_Height)
 	{
 		
-		FMatrixPosition Pos (Position2D.X+1,Position2D.Y+1);
+		FVector2D Pos (Position2D.X+1,Position2D.Y+1);
 		UTile* RightUpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_RightUp(SelectedTile,RightUpNeighbour);
 	}
@@ -779,7 +779,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 	if(Position2D.Y+1 <=Map_Width  && Position2D.X-1 >=1 )
 	{
 		
-		FMatrixPosition Pos (Position2D.X-1,Position2D.Y+1);
+		FVector2D Pos (Position2D.X-1,Position2D.Y+1);
 		UTile* RightDownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_RightDown(SelectedTile,RightDownNeighbour);
 	}
@@ -787,7 +787,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 	if(Position2D.X+1 <=Map_Height )
 	{
 		
-		FMatrixPosition Pos (Position2D.X+1,Position2D.Y);
+		FVector2D Pos (Position2D.X+1,Position2D.Y);
 		UTile* UpNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Up(SelectedTile,UpNeighbour);
 	}
@@ -795,7 +795,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 	if(Position2D.X-1 >=1 )
 	{
 		
-		FMatrixPosition Pos (Position2D.X-1,Position2D.Y);
+		FVector2D Pos (Position2D.X-1,Position2D.Y);
 		UTile* DownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Down(SelectedTile,DownNeighbour);
 	}

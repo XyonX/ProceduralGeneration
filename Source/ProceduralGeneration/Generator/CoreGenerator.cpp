@@ -145,7 +145,7 @@ bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TArray<UTile
 			in_TileCount ++ ;
 			
 			int Xpos=X+1;
-			FMatrixPosition POS(Xpos,Ypos);
+			FVector2D POS(Xpos,Ypos);
 			FVector2D UnscaledLoc = FVector2d(X,Y);
 			
 			// create a new instance of UTile with NewObject
@@ -179,7 +179,7 @@ bool UCoreGenerator::GenerateTile(UTileMap* in_TileContainer, TArray<UTileMesh*>
 			in_TileCount ++ ;
 			
 			int Xpos=X+1;
-			FMatrixPosition POS(Xpos,Ypos);
+			FVector2D POS(Xpos,Ypos);
 			FVector2D UnscaledLoc = FVector2d(X,Y);
 			
 			// create a new instance of UTile with NewObject

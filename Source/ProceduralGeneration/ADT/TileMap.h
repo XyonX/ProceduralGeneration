@@ -27,7 +27,7 @@ public:
 
 	//This Overrides The  [ ] Operator
 	// Can Do Both Operation READ or WRITE
-	UTile*& operator[](const FMatrixPosition& key)
+	UTile*& operator[](const FVector2D& key)
 	{
 		return AllTilesPTR[key];
 	}
@@ -37,6 +37,9 @@ public:
 		
 private:
 	//Main HashMap
-	std::unordered_map<FMatrixPosition, UTile*> AllTilesPTR;
+	//std::unordered_map<FMatrixPosition, UTile*> AllTilesPTR;
 	// wwrite a new ccode
+
+	UPROPERTY(BlueprintReadOnly,meta=(AllowPrivateAccess=true))
+	TMap<FVector2D , UTile*>AllTilesPTR;
 };

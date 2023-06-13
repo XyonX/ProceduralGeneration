@@ -56,5 +56,5 @@ private:
 public:
 	// Generate the grid mesh
 	bool GenerateGridMesh();
-	
+	void DrawPositionIndicator();
 };

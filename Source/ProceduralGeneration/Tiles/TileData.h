@@ -17,6 +17,6 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int ID ;
-	//UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	//FVector2d Pos ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector2D Pos ;
 };

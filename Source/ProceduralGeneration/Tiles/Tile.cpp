@@ -7,14 +7,14 @@
 UTile::UTile()
 {
 	ID = 6969;
-	FMatrixPosition pos(0,0);
+	FVector2D pos(0,0);
 	//SelectedTiledMesh=nullptr;
 	CollapseStatus=EcollapseStatus::NotCollapsed;
 	Position_2D = pos;
 	World_Location = FVector(0,0,0);
 }
 
-void UTile::Init(int id, FMatrixPosition pos2d,FVector2D Unscaledloc, TArray<UTileMesh*>& totaltilemesh)
+void UTile::Init(int id, FVector2D pos2d,FVector2D Unscaledloc, TArray<UTileMesh*>& totaltilemesh)
 {
 	ID=id;
 	Position_2D=pos2d;

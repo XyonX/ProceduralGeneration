@@ -17,7 +17,7 @@ ABaseGridActor::ABaseGridActor()
 	GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Preocedural Mesh");
 	NumColumns=16;
 	NumRows=16;
-	CellSize=4;
+	CellSize=10;
 }
 
 // Called when the game starts or when spawned
@@ -25,6 +25,7 @@ void ABaseGridActor::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateGridMesh();
+	DrawPositionIndicator();
 	
 }
 
@@ -93,7 +94,7 @@ bool ABaseGridActor::GenerateGridMesh()
 	GridMesh->SetMaterial(0, DynMaterial);*/
 
 	int Count =0;
-	for(int k = 0 ; k< (NumColumns*NumRows)-NumColumns;k++)
+	for(int k = 0 ; k< Index.Num()-(NumColumns+1);k++)
 	{
 	
 		TArray<int32>CTriangles;
@@ -125,5 +126,21 @@ bool ABaseGridActor::GenerateGridMesh()
 	}
 	
 	return true;
+}
+
+void ABaseGridActor::DrawPositionIndicator()
+{
+
+	UWorld* World = GetWorld();  // Get a reference to the current world
+
+	for (FVector Ver : Vertices)
+	{
+		FVector Location = Ver;
+		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
+		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
+		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %d,%d"),Ver.Y, Ver.X), nullptr, FColor::Red, -1.0F, false);
+		//bDrawn =true;
+	}
+	
 }
 
