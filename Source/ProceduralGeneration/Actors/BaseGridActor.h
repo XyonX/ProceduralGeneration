@@ -41,9 +41,9 @@ private:
 	TArray<UProceduralMeshComponent*>AllTiles ;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
-	int32 NumRows;
+	int32 Length_X;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
-	int32 NumColumns;
+	int32 Length_Y;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
 	float CellSize;
 
@@ -52,6 +52,7 @@ private:
 	TArray<int32>Triangles;
 	TArray<FVector>Normals;
 	TArray<FVector2D>UVs;
+	TMap<FVector2D ,FVector> MainContainer ;
 
 public:
 	// Generate the grid mesh
