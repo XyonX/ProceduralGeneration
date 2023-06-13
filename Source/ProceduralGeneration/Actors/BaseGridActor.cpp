@@ -79,7 +79,8 @@ bool ABaseGridActor::GenerateGridMesh()
 	{
 		Normals.Add(FVector(0.0f, 0.0f, -1.0f));
 	}
-
+	
+	/*
 	// Update the grid mesh
 	GridMesh->CreateMeshSection(0, Vertices, Triangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 
@@ -89,10 +90,40 @@ bool ABaseGridActor::GenerateGridMesh()
 	FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
 	DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
 
-	GridMesh->SetMaterial(0, DynMaterial);
+	GridMesh->SetMaterial(0, DynMaterial);*/
 
+	int Count =0;
+	for(int k = 0 ; k< (NumColumns*NumRows)-NumColumns;k++)
+	{
+	
+		TArray<int32>CTriangles;
+			// Create triangles
+			CTriangles.Add(Count);
+			CTriangles.Add(Count + 1);
+			CTriangles.Add(Count + NumColumns + 1);
 
+			CTriangles.Add(Count + NumColumns + 1);
+			CTriangles.Add(Count + 1);
+			CTriangles.Add(Count + NumColumns + 2);
+		
+		UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
+		PMesh->CreateMeshSection(0, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+		PMesh->RegisterComponent();
+		AllTiles.Add(PMesh);
+		Count++ ;
+	}
+	for	( int i = 0 ; i < AllTiles.Num(); i++)
+	{
+		// Create a dynamic material instance for each tile
+		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
+		// Set the desired color for the tile
+		FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
+		DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
 
+		AllTiles[i]->SetMaterial(0, DynMaterial);
+		
+	}
+	
 	return true;
 }
 

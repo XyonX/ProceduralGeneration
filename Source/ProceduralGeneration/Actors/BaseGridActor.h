@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseGridActor.generated.h"
 
+class UTileData;
 class UProceduralMeshComponent;
 UCLASS(BlueprintType)
 class PROCEDURALGENERATION_API ABaseGridActor : public AActor
@@ -30,10 +31,14 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Test")
 	UStaticMesh*TestCube ;
 
+	
+	TArray<UTileData*>Tiles;
+
 private:
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
 	UProceduralMeshComponent* GridMesh;
+	TArray<UProceduralMeshComponent*>AllTiles ;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
 	int32 NumRows;
