@@ -39,6 +39,8 @@ bool ABaseGridActor::GenerateGridMesh()
 	// Calculate the grid size
 	const float HalfWidth = NumColumns * CellSize * 0.5f;
 	const float HalfHeight = NumRows * CellSize * 0.5f;
+	
+	UWorld* World = GetWorld();
 
 	for (int32 Row = 0; Row <= NumRows; ++Row)
 	{
@@ -57,6 +59,7 @@ bool ABaseGridActor::GenerateGridMesh()
 			if (Row < NumRows && Col < NumColumns)
 			{
 				const int32 VertexIndex = Row * (NumColumns + 1) + Col;
+				Index.Add(VertexIndex);
 
 				// Create triangles
 				Triangles.Add(VertexIndex);
@@ -66,28 +69,7 @@ bool ABaseGridActor::GenerateGridMesh()
 				Triangles.Add(VertexIndex + NumColumns + 1);
 				Triangles.Add(VertexIndex + 1);
 				Triangles.Add(VertexIndex + NumColumns + 2);
-
-				// Add separate materials for each tile
-				//UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
-
-				// Set the desired color for the tile
-				//FLinearColor ColorParameter = GetTileColor(Row, Col); // Implement this function in your class to return the desired color for the tile
-
-				/*float RandomFloat = FMath::RandRange(0,1);
-				FLinearColor ColorParameter =FLinearColor(RandomFloat,1.0,1.0,1.0f);
-				DynMaterial->SetVectorParameterValue("BaseColor", ColorParameter);
-				GridMesh->SetMaterial(VertexIndex, DynMaterial);*/
-				// Update the material color
 				
-
-				// Create a dynamic material instance for each tile
-				UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
-
-				// Set the desired color for the tile
-				FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
-				DynMaterial->SetVectorParameterValue("BaseColor", ColorParameter);
-
-				GridMesh->SetMaterial(VertexIndex, DynMaterial);
 			}
 		}
 	}
@@ -100,13 +82,15 @@ bool ABaseGridActor::GenerateGridMesh()
 
 	// Update the grid mesh
 	GridMesh->CreateMeshSection(0, Vertices, Triangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
-	/*
-	// Update the grid mesh
-	GridMesh->CreateMeshSection(0, Vertices, Triangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+
+	// Create a dynamic material instance for each tile
 	UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
-	FLinearColor ColorParameter = FLinearColor::Black; // Set the desired color here
-	DynMaterial->SetVectorParameterValue("BaseColor", ColorParameter);
-	GridMesh->SetMaterial(0, DynMaterial);*/
+	// Set the desired color for the tile
+	FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
+	DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
+
+	GridMesh->SetMaterial(0, DynMaterial);
+
 
 
 	return true;
