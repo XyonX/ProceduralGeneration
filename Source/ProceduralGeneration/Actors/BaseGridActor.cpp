@@ -35,6 +35,11 @@ void ABaseGridActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABaseGridActor::OnMouseMove(const FVector2D& MousePosition)
+{
+	
+}
+
 bool ABaseGridActor::GenerateGridMesh()
 {
 	// Calculate the grid size
@@ -43,9 +48,9 @@ bool ABaseGridActor::GenerateGridMesh()
 	
 	UWorld* World = GetWorld();
 
-	for (int32 Y = 0; Y <= Length_Y; ++Y)
+	for (int32 Y = 0; Y <= Length_Y; Y++)
 	{
-		for (int32 X = 0; X <= Length_X; ++X)
+		for (int32 X = 0; X <= Length_X; X++)
 		{
 			const FVector VertexLocation = FVector(X * CellSize - HalfHeight, Y * CellSize - HalfWidth, 0.0f);
 
@@ -63,15 +68,6 @@ bool ABaseGridActor::GenerateGridMesh()
 			{
 				const int32 VertexIndex = Y * (Length_X + 1) + X;
 				Index.Add(VertexIndex);
-
-				// Create triangles
-				Triangles.Add(VertexIndex);
-				Triangles.Add(VertexIndex + 1);
-				Triangles.Add(VertexIndex + Length_X + 1);
-
-				Triangles.Add(VertexIndex + Length_X + 1);
-				Triangles.Add(VertexIndex + 1);
-				Triangles.Add(VertexIndex + Length_X + 2);
 				
 			}
 		}
@@ -83,34 +79,26 @@ bool ABaseGridActor::GenerateGridMesh()
 		Normals.Add(FVector(0.0f, 0.0f, -1.0f));
 	}
 
-	int Count =0;
-	for (const TPair<FVector2D, FVector>& Pair : MainContainer)
+	//int Count =1;
+for (int i =0 ; i<Index.Num() ; i++)
 	{
-		const FVector2D& Key = Pair.Key;
-		FVector Value = Pair.Value;
+		int Count = Index[i];
+		TArray<int32>CTriangles;
+		// Create triangles
+		CTriangles.Add(Count);
+		CTriangles.Add(Count + 1);
+		CTriangles.Add(Count + Length_X + 1);
 
-		if(Key.X < Length_X && Key.Y < Length_Y)
-		{
-			TArray<int32>CTriangles;
-			// Create triangles
-			CTriangles.Add(Count);
-			CTriangles.Add(Count + 1);
-			CTriangles.Add(Count + Length_X + 1);
-
-			CTriangles.Add(Count + Length_X + 1);
-			CTriangles.Add(Count + 1);
-			CTriangles.Add(Count + Length_X + 2);
+		CTriangles.Add(Count + Length_X + 1);
+		CTriangles.Add(Count + 1);
+		CTriangles.Add(Count + Length_X + 2);
 		
-			UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
-			PMesh->CreateMeshSection(0, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
-			PMesh->RegisterComponent();
-			AllTiles.Add(PMesh);
-			Count++ ;
-			
-		}
-	
-
+		UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
+		PMesh->CreateMeshSection(0, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+		PMesh->RegisterComponent();
+		AllTiles.Add(PMesh);
 	}
+
 
 	for	( int i = 0 ; i < AllTiles.Num(); i++)
 	{
@@ -149,7 +137,7 @@ void ABaseGridActor::DrawPositionIndicator()
 		FVector Location = Value;
 		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
 		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
-		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %d,%d"),Key.X, Key.Y), nullptr, FColor::Red, -1.0F, false);
+		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %f,%f"),Key.X, Key.Y), nullptr, FColor::Red, -1.0F, false);
 		//bDrawn =true;
 	}
 	

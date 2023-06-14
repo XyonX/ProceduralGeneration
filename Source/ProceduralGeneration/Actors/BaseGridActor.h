@@ -33,6 +33,9 @@ public:
 
 	
 	TArray<UTileData*>Tiles;
+	void OnMouseMove(const FVector2D& MousePosition);
+
+	
 
 private:
 
