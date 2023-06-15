@@ -34,6 +34,10 @@ public:
 	
 	TArray<UTileData*>Tiles;
 	void OnMouseMove(const FVector2D& MousePosition);
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector CursorWorldPosition ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector CursorWorldDirection ;
 
 	
 

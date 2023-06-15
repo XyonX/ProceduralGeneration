@@ -4,6 +4,9 @@
 #include "BaseGridActor.h"
 
 #include "ProceduralMeshComponent.h"
+#include "Engine/StaticMeshActor.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 
@@ -37,7 +40,29 @@ void ABaseGridActor::Tick(float DeltaTime)
 
 void ABaseGridActor::OnMouseMove(const FVector2D& MousePosition)
 {
-	
+	APlayerController*PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	// Convert mouse position to local coordinates relative to the grid
+        FVector WorldPosition;
+        FVector WorldDirection;
+        UGameplayStatics::DeprojectScreenToWorld(PlayerController, MousePosition, WorldPosition, WorldDirection);
+		CursorWorldPosition=WorldPosition;
+		CursorWorldDirection = WorldDirection;
+
+		UStaticMesh* StaticMesh = TestCube; // Assuming TestCube is a UStaticMesh reference or pointer
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding; // Set the collision handling method according to your needs
+
+		AStaticMeshActor* SpawnedActor = GetWorld()->SpawnActor<AStaticMeshActor>(WorldPosition + (WorldDirection * 100), WorldDirection.Rotation(), SpawnParams);
+	if (SpawnedActor)
+	{
+		UStaticMeshComponent* StaticMeshComponent = SpawnedActor->GetStaticMeshComponent();
+		if (StaticMeshComponent)
+		{
+			StaticMeshComponent->SetStaticMesh(StaticMesh);
+		}
+	}
+    
+        FVector LocalPosition = GetTransform().InverseTransformPosition(WorldPosition);
 }
 
 bool ABaseGridActor::GenerateGridMesh()
