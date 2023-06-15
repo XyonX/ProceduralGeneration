@@ -60,6 +60,7 @@ private:
 	TArray<FVector>Normals;
 	TArray<FVector2D>UVs;
 	TMap<FVector2D ,FVector> MainContainer ;
+	TArray<FVector*> GetVerticesByTilePos (FVector2D TilePos);
 
 public:
 	// Generate the grid mesh

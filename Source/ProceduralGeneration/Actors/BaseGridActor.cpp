@@ -65,6 +65,41 @@ void ABaseGridActor::OnMouseMove(const FVector2D& MousePosition)
         FVector LocalPosition = GetTransform().InverseTransformPosition(WorldPosition);
 }
 
+TArray<FVector*> ABaseGridActor::GetVerticesByTilePos(FVector2D TilePos)
+{
+	TArray<FVector*> Verts ;
+	FVector* VertLoc = MainContainer.Find(TilePos);
+	
+	if (VertLoc)
+	{
+		Verts.Add(VertLoc);
+	}
+	
+	FVector2D Pos =FVector2D(TilePos.X+1,TilePos.Y);
+	VertLoc = MainContainer.Find(Pos);
+	if (VertLoc)
+	{
+		Verts.Add(VertLoc);
+	}
+	
+	Pos =FVector2D(TilePos.X,TilePos.Y+1);
+	VertLoc = MainContainer.Find(Pos);
+	if (VertLoc)
+	{
+		Verts.Add(VertLoc);
+	}
+
+	Pos =FVector2D(TilePos.X+1,TilePos.Y+1);
+	VertLoc = MainContainer.Find(Pos);
+	if (VertLoc)
+	{
+		Verts.Add(VertLoc);
+	}
+	
+	return Verts;
+	
+}
+
 bool ABaseGridActor::GenerateGridMesh()
 {
 	// Calculate the grid size
