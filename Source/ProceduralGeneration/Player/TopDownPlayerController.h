@@ -44,6 +44,13 @@ public:
 	void OnMouseRMBReleased (const FInputActionValue& Value);
 	void PanHorizontal (float Axis);
 	void PanVertical (float Axis);
+
+
+	//Triangle Intersection Te
+	bool TirangleIntersectionTest (TArray<FVector>Triangle_1 ,TArray<FVector>Triangle_2);
+	bool BoxIntersectionTest ( FVector Direction , TArray<FVector>Verts);
+
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float HorizontalPanAcc ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")

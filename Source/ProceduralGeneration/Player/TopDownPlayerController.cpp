@@ -82,7 +82,7 @@ void ATopDownPlayerController::OnMouseRMBHold(const FInputActionValue& Value)
 	if(TopDownPawn)
 	{
 		bCanPan =true;
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Can Pan : True ");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Can Pan : True ");
 	}
 	
 }
@@ -90,7 +90,7 @@ void ATopDownPlayerController::OnMouseRMBHold(const FInputActionValue& Value)
 void ATopDownPlayerController::OnMouseRMBReleased(const FInputActionValue& Value)
 {
 	bCanPan =false;
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Can Pan : False");
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Can Pan : False");
 }
 
 void ATopDownPlayerController::PanHorizontal(float Axis)
@@ -109,6 +109,62 @@ void ATopDownPlayerController::PanVertical(float Axis)
 	TopDownPawn->AddActorWorldOffset(Offset);
 }
 
+bool ATopDownPlayerController::BoxIntersectionTest(FVector Direction, TArray<FVector> Verts)
+{
+	FVector A =Verts[0];
+	FVector B =Verts[1];
+	FVector C =Verts[2];
+	FVector D =Verts[3];
+	
+	FVector Normal = FVector::CrossProduct(B-A,C-B).GetSafeNormal();
+
+	float DotProduct = FVector::DotProduct(Normal,Direction);
+
+	if (FMath::IsNearlyZero(DotProduct))
+	{
+		// The cursor's forward vector is nearly perpendicular to the triangle's normal
+		// Consider this case as the cursor not being on the specific triangle
+		return false;
+	}
+
+	// Perform the ray-box intersection test
+
+	// Calculate the box's center
+	FVector BoxCenter = (A + B + C + D) / 4.0f;
+
+	// Calculate the box's extents (half width, half height, half depth)
+	FVector BoxExtents = (B - A) / 2.0f;
+	
+	// Calculate the minimum and maximum corners of the box
+	FVector BoxMin = BoxCenter - BoxExtents;
+	FVector BoxMax = BoxCenter + BoxExtents;
+
+	FBox Box (BoxMin,BoxMax);
+
+	// Calculate the line start and end points
+	FVector LineStart = GetPawn()->GetActorLocation();
+	FVector LineEnd = GetPawn()->GetActorLocation() + Direction * 1000.0f;
+
+	// Calculate the intersection point between the ray and the box
+	FVector IntersectionPoint;
+	FVector HitN;
+	float RTime ;
+	bool bIntersects = FMath::LineExtentBoxIntersection(Box, LineStart, LineEnd, BoxExtents, IntersectionPoint,HitN,RTime);
+
+	if (bIntersects)
+	{
+		// The ray intersects the box
+		// You can perform additional checks or actions here
+		// ...
+		return true;
+	}
+
+	return false;
+	
+	
+}
+
+
 
 void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 {
@@ -124,11 +180,11 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 	UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldPosition, WorldDirection);
 	CursorWorldPosition=WorldPosition;
 	CursorWorldDirection = WorldDirection;
-	if (GEngine)
+/*	if (GEngine)
 	{
 		FString DebugMessage = FString::Printf(TEXT("Mouse World Location: %f, %f"), WorldPosition.X, WorldPosition.Y);
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
-	}
+	}*/
 
 	
 
