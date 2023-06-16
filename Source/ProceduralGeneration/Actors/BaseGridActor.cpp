@@ -21,6 +21,7 @@ ABaseGridActor::ABaseGridActor()
 	Length_X=16;
 	Length_Y=16;
 	CellSize=10;
+	GridCenter = FVector(0.0f,0.0f,0.0f);
 }
 
 // Called when the game starts or when spawned
@@ -103,8 +104,10 @@ TArray<FVector*> ABaseGridActor::GetVerticesByTilePos(FVector2D TilePos)
 bool ABaseGridActor::GenerateGridMesh()
 {
 	// Calculate the grid size
-		const float HalfWidth = Length_Y * CellSize * 0.5f;
+	const float HalfWidth = Length_Y * CellSize * 0.5f;
 	const float HalfHeight = Length_X * CellSize * 0.5f;
+
+	FVector GridOffset = FVector(GridCenter.X-HalfHeight,GridCenter.Y-HalfWidth,GridCenter.Z);
 	
 	UWorld* World = GetWorld();
 
@@ -112,7 +115,7 @@ bool ABaseGridActor::GenerateGridMesh()
 	{
 		for (int32 X = 0; X <= Length_X; X++)
 		{
-			const FVector VertexLocation = FVector(X * CellSize - HalfHeight, Y * CellSize - HalfWidth, 0.0f);
+			const FVector VertexLocation = FVector(X * CellSize + GridOffset.X, Y * CellSize + GridOffset.Y, GridOffset.Z);
 
 			// Add vertex
 			Vertices.Add(VertexLocation);
@@ -166,6 +169,7 @@ for (int i =0 ; i<Index.Num() ; i++)
 		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
 		// Set the desired color for the tile
 		FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
+		ColorParameter= ColorParameter.CopyWithNewOpacity(0.5f);
 		DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
 
 		AllTiles[i]->SetMaterial(0, DynMaterial);
@@ -197,7 +201,7 @@ void ABaseGridActor::DrawPositionIndicator()
 		FVector Location = Value;
 		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
 		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
-		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %f,%f"),Key.X, Key.Y), nullptr, FColor::Red, -1.0F, false);
+		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %f,%f"),Value.X, Value.Y), nullptr, FColor::Red, -1.0F, false);
 		//bDrawn =true;
 	}
 	

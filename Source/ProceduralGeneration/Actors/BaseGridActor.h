@@ -39,13 +39,6 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FVector CursorWorldDirection ;
 
-	
-
-private:
-
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
-	UProceduralMeshComponent* GridMesh;
-	TArray<UProceduralMeshComponent*>AllTiles ;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
 	int32 Length_X;
@@ -53,7 +46,16 @@ private:
 	int32 Length_Y;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
 	float CellSize;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="ProcMesh")
+	FVector GridCenter ;
 
+	
+
+private:
+
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
+	UProceduralMeshComponent* GridMesh;
+	TArray<UProceduralMeshComponent*>AllTiles ;
 	TArray<FVector>Vertices;
 	TArray<int32>Index;
 	TArray<int32>Triangles;
