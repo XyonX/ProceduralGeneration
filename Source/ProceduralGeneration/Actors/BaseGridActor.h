@@ -41,11 +41,9 @@ public:
 
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
-	int32 Length_X;
+	FVector GridSize;
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
-	int32 Length_Y;
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
-	float CellSize;
+	FVector CellSize;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="ProcMesh")
 	FVector GridCenter ;
 
@@ -69,5 +67,4 @@ public:
 	// Generate the grid mesh
 	bool GenerateGridMesh();
 	void DrawPositionIndicator();
-	void DrawNormal();
 };

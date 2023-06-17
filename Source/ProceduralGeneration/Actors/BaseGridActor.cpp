@@ -18,10 +18,9 @@ ABaseGridActor::ABaseGridActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Preocedural Mesh");
-	Length_X=16;
-	Length_Y=16;
-	CellSize=10;
+	GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Procedural Mesh");
+	GridSize= FVector(4.0f,4.0f,0.0f);
+	CellSize =FVector (1000.0f,1000.0f,1000.0f);
 	GridCenter = FVector(0.0f,0.0f,0.0f);
 }
 
@@ -105,18 +104,18 @@ TArray<FVector*> ABaseGridActor::GetVerticesByTilePos(FVector2D TilePos)
 bool ABaseGridActor::GenerateGridMesh()
 {
 	// Calculate the grid size
-	const float HalfWidth = Length_Y * CellSize * 0.5f;
-	const float HalfHeight = Length_X * CellSize * 0.5f;
+	const float HalfWidth = GridSize.Y * CellSize.Y * 0.5f;
+	const float HalfHeight = GridSize.X * CellSize.X * 0.5f;
 
 	FVector GridOffset = FVector(GridCenter.X-HalfHeight,GridCenter.Y-HalfWidth,GridCenter.Z);
 	
 	UWorld* World = GetWorld();
 
-	for (int32 Y = 0; Y <= Length_Y; Y++)
+	for (int32 Y = 0; Y <= GridSize.Y; Y++)
 	{
-		for (int32 X = 0; X <= Length_X; X++)
+		for (int32 X = 0; X <= GridSize.X; X++)
 		{
-			const FVector VertexLocation = FVector(X * CellSize + GridOffset.X, Y * CellSize + GridOffset.Y, GridOffset.Z);
+			const FVector VertexLocation = FVector(X * CellSize.X + GridOffset.X, Y * CellSize.X + GridOffset.Y, GridOffset.Z);
 
 			// Add vertex
 			Vertices.Add(VertexLocation);
@@ -124,17 +123,18 @@ bool ABaseGridActor::GenerateGridMesh()
 			MainContainer.Add(Loc2d, VertexLocation);
 
 			// Add UVs
-			const FVector2D UV((float)X / Length_X, (float)Y / Length_Y);
+			const FVector2D UV((float)X / GridSize.X, (float)Y / GridSize.X);
 			UVs.Add(UV);
 
 			// Skip the last row and column as they won't form triangles
-			if (X < Length_X && Y < Length_Y)
+			if (X < GridSize.X && Y < GridSize.X)
 			{
-				const int32 VertexIndex = Y * (Length_X + 1) + X;
+				const int32 VertexIndex = Y * (GridSize.X + 1) + X;
 				Index.Add(VertexIndex);
 				UTileData* Tile = NewObject<UTileData>() ;
 				//Tile->Init(Loc2d,VertexLocation,VertexIndex,&Vertices,Length_X,Length_Y);
-				Tile->Const(Loc2d,VertexLocation,VertexIndex,Length_X,Length_Y);
+				
+				Tile->Const(Loc2d,VertexLocation,VertexIndex,GridSize,CellSize);
 				TileMap.Add(Loc2d, Tile);
 			}
 			
@@ -155,11 +155,11 @@ for (int i =0 ; i<Index.Num() ; i++)
 		// Create triangles
 		CTriangles.Add(Count);
 		CTriangles.Add(Count + 1);
-		CTriangles.Add(Count + Length_X + 1);
+		CTriangles.Add(Count + GridSize.X + 1);
 
-		CTriangles.Add(Count + Length_X + 1);
+		CTriangles.Add(Count + GridSize.X + 1);
 		CTriangles.Add(Count + 1);
-		CTriangles.Add(Count + Length_X + 2);
+		CTriangles.Add(Count + GridSize.X + 2);
 		
 		UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
 		PMesh->CreateMeshSection(0, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
@@ -195,7 +195,7 @@ for (int i =0 ; i<Index.Num() ; i++)
 		float LineLength = 100.0f;
 
 		// Calculate the endpoint of the normal line
-		FVector LineEndpoint = Center + Normal * LineLength;
+		FVector LineEndpoint = Center + (Normal * LineLength);
 
 		// Draw the debug line
 		DrawDebugLine(GetWorld(), Center, LineEndpoint, FColor::Green, true, -1, 0, 1.0f);
@@ -232,7 +232,4 @@ void ABaseGridActor::DrawPositionIndicator()
 	
 }
 
-void ABaseGridActor::DrawNormal()
-{
-}
 
