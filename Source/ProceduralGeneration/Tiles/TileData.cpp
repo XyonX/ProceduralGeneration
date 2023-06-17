@@ -7,24 +7,23 @@ UTileData::UTileData()
 {
 }
 
-UTileData::UTileData(FVector2D in_Loc2D, FVector in_LocWorld, int in_Index,TArray<FVector>* in_Vertices,
-                     int Len_X, int Len_Y)
+UTileData::UTileData(FVector2D in_Loc2D, FVector in_LocWorld, int in_Index,TArray<FVector>* in_Vertices,FVector in_GridSize,FVector in_TileSize)
 {
 	Index =in_Index;
 	Loc2D=in_Loc2D;
 	LocationWorld =in_LocWorld;
 	Vertices=in_Vertices;
-	Length_X=Len_X;
-	Length_Y=Len_Y;
+	GridSize=in_GridSize;
+	TileSize=in_TileSize;
 }
 
-void UTileData::Const(FVector2D in_Loc2D, FVector in_LocWorld, int in_Index, int Len_X, int Len_Y)
+void UTileData::Const(FVector2D in_Loc2D, FVector in_LocWorld, int in_Index, FVector in_GridSize , FVector in_TileSize)
 {
 	Index =in_Index;
 	Loc2D=in_Loc2D;
 	LocationWorld =in_LocWorld;
-	Length_X=Len_X;
-	Length_Y=Len_Y;
+	GridSize=in_GridSize;
+	TileSize =in_TileSize;
 
 }
 
@@ -33,8 +32,9 @@ void UTileData::Init(TArray<FVector>* in_Vertices )
 	Vertices=in_Vertices;
 	TArray<FVector>Verts = GetVertices(Index);
 	
-	Normal= CalculateNorMal(Verts);
 	CenterPoint= CalculateCenterPoint(Verts);
+	Normal= CalculateNorMal(Verts);
+	BoundingBox =CalculateBoundingBox();
 }
 
 
@@ -46,7 +46,7 @@ FVector UTileData::CalculateNorMal(TArray<FVector>&in_Verts)
 	FVector C =in_Verts[2];
 	FVector D =in_Verts[3];
 	
-	return FVector::CrossProduct(A-B,C-A).GetSafeNormal();
+	return FVector::CrossProduct(C-A,A-B).GetSafeNormal();
 	
 }
 
@@ -61,14 +61,23 @@ FVector UTileData::CalculateCenterPoint(TArray<FVector>& in_Verts)
 	
 }
 
+FBox UTileData::CalculateBoundingBox()
+{
+	FVector min = FVector(CenterPoint.X - (TileSize.X/2) ,CenterPoint.Y-(TileSize.Y/2),CenterPoint.Z-(TileSize.Z/2));
+	FVector max = FVector(CenterPoint.X + (TileSize.X/2) ,CenterPoint.Y+(TileSize.Y/2),CenterPoint.Z-(TileSize.Z/2));
+
+	return FBox (min,max);
+	
+}
+
 TArray<FVector> UTileData::GetVertices(int in_Index)
 {
 	TArray<FVector>Verts ;
 	TArray<FVector>VertC = *Vertices;
 	FVector X00 =VertC[in_Index] ;
 	FVector X10 =VertC[in_Index+1] ;
-	FVector X11 =VertC[in_Index+Length_X+1] ;
-	FVector X12 =VertC[in_Index+Length_X+2] ;
+	FVector X11 =VertC[in_Index+GridSize.X+1] ;
+	FVector X12 =VertC[in_Index+GridSize.X+2] ;
 
 	Verts.Add(X00);
 	Verts.Add(X10);
