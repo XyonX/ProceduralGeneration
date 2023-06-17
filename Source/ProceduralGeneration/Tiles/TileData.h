@@ -9,14 +9,34 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class PROCEDURALGENERATION_API UTileData : public UObject
 {
 	GENERATED_BODY()
 public:
+	UTileData();
+	UTileData(FVector2D in_Loc2D, FVector in_LocWorld, int in_Index,TArray<FVector>* in_Vertices, int Len_X,int Len_Y);
 
+	
+	void Init ( TArray<FVector>* in_Vertices );
+	void Const (FVector2D in_Loc2D, FVector in_LocWorld, int in_Index , int Len_X , int Len_Y);
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int ID ;
+	int Index ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FVector2D Pos ;
+	FVector2D Loc2D ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector LocationWorld ;
+	TArray<FVector>* Vertices ;
+	int Length_X;
+	int Length_Y;
+	
+	FBox* BoundingBox;
+	FVector Normal ;
+	FVector CenterPoint;
+	
+
+	FVector CalculateNorMal (TArray<FVector>&in_Verts);
+	FVector CalculateCenterPoint (TArray<FVector>&in_Verts);
+	TArray<FVector>  GetVertices (int in_Index);
+	
 };
