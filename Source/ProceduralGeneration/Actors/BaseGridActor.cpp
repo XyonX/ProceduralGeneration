@@ -199,6 +199,7 @@ for (int i =0 ; i<Index.Num() ; i++)
 
 		// Draw the debug line
 		DrawDebugLine(GetWorld(), Center, LineEndpoint, FColor::Green, true, -1, 0, 1.0f);
+		DrawDebugBox(GetWorld(), Tile->BoundingBox.GetCenter(),Tile->BoundingBox.GetExtent(),FColor::Green,true,-1.0f );
 	}
 	
 	return true;

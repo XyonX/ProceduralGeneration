@@ -61,7 +61,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnMouseMove(const FVector2D& MousePosition);
 	UFUNCTION(BlueprintCallable)
-	void SpawnActorAtCursor ();
+	void SpawnActorAtCursor ();\
+	void MouseTrace ();
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
 	class UInputAction* MouseX ;

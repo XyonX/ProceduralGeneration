@@ -220,6 +220,9 @@ void ATopDownPlayerController::SpawnActorAtCursor()
 	}*/
 }
 
+void ATopDownPlayerController::MouseTrace()
+{
+}
 
 
 void ATopDownPlayerController::SetupInputComponent()

@@ -64,7 +64,7 @@ FVector UTileData::CalculateCenterPoint(TArray<FVector>& in_Verts)
 FBox UTileData::CalculateBoundingBox()
 {
 	FVector min = FVector(CenterPoint.X - (TileSize.X/2) ,CenterPoint.Y-(TileSize.Y/2),CenterPoint.Z-(TileSize.Z/2));
-	FVector max = FVector(CenterPoint.X + (TileSize.X/2) ,CenterPoint.Y+(TileSize.Y/2),CenterPoint.Z-(TileSize.Z/2));
+	FVector max = FVector(CenterPoint.X + (TileSize.X/2) ,CenterPoint.Y+(TileSize.Y/2),CenterPoint.Z+(TileSize.Z/2));
 
 	return FBox (min,max);
 	
