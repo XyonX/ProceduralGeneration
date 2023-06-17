@@ -70,10 +70,15 @@ void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
 	FActorSpawnParameters SpawnParams ;
 	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+	/*
 	if (TesTActor)
 	{
 		GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
-	}
+	}*/
+
+
+	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
+	DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0F, false);
 	
 }
 

@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "ProceduralGeneration/Tiles/TileData.h"
 
 
 struct FProcMeshTangent;
@@ -131,8 +132,12 @@ bool ABaseGridActor::GenerateGridMesh()
 			{
 				const int32 VertexIndex = Y * (Length_X + 1) + X;
 				Index.Add(VertexIndex);
-				
+				UTileData* Tile = NewObject<UTileData>() ;
+				//Tile->Init(Loc2d,VertexLocation,VertexIndex,&Vertices,Length_X,Length_Y);
+				Tile->Const(Loc2d,VertexLocation,VertexIndex,Length_X,Length_Y);
+				TileMap.Add(Loc2d, Tile);
 			}
+			
 		}
 	}
 
@@ -176,6 +181,26 @@ for (int i =0 ; i<Index.Num() ; i++)
 		
 	}
 	
+	for(const TPair<FVector2D, UTileData*>& Pair : TileMap)
+	{
+		UTileData*Tile = Pair.Value;
+		Tile->Init(&Vertices);
+		// Calculate the center point of the square tile
+		FVector Center = Tile->CenterPoint;
+
+		// Calculate the normal vector using two sides of the square tile
+		FVector Normal = Tile->Normal;
+
+		// Set the length of the debug line for the normal vector
+		float LineLength = 100.0f;
+
+		// Calculate the endpoint of the normal line
+		FVector LineEndpoint = Center + Normal * LineLength;
+
+		// Draw the debug line
+		DrawDebugLine(GetWorld(), Center, LineEndpoint, FColor::Green, true, -1, 0, 1.0f);
+	}
+	
 	return true;
 }
 
@@ -205,5 +230,9 @@ void ABaseGridActor::DrawPositionIndicator()
 		//bDrawn =true;
 	}
 	
+}
+
+void ABaseGridActor::DrawNormal()
+{
 }
 
