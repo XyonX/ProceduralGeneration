@@ -120,8 +120,6 @@ bool ABaseGridActor::GenerateGridMesh()
 	const float HalfHeight = GridSize.X * CellSize.X * 0.5f;
 
 	FVector GridOffset = FVector(GridCenter.X-HalfHeight,GridCenter.Y-HalfWidth,GridCenter.Z);
-	
-	UWorld* World = GetWorld();
 
 	for (int32 Y = 0; Y <= GridSize.Y; Y++)
 	{
@@ -135,7 +133,7 @@ bool ABaseGridActor::GenerateGridMesh()
 			MainContainer.Add(Loc2d, VertexLocation);
 
 			// Add UVs
-			const FVector2D UV((float)X / GridSize.X, (float)Y / GridSize.Y);
+			const FVector2D UV((float)X / (GridSize.X+1), (float)Y / (GridSize.Y+1));
 			UVs.Add(UV);
 
 			// Skip the last row and column as they won't form triangles
@@ -174,7 +172,7 @@ for (int i =0 ; i<VertexIndex.Num() ; i++)
 		CTriangles.Add(Count + GridSize.X + 2);
 		
 		//UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
-		GridMesh->CreateMeshSection(i, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+		GridMesh->CreateMeshSection(VertexIndex[i], Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 		//PMesh->RegisterComponent();
 		//AllTiles.Add(PMesh);
 	}
