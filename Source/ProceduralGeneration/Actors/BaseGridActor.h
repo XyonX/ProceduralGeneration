@@ -53,9 +53,9 @@ private:
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="ProcMesh",meta=(AllowPrivateAccess=True))
 	UProceduralMeshComponent* GridMesh;
-	TArray<UProceduralMeshComponent*>AllTiles ;
+	//TArray<UProceduralMeshComponent*>AllTiles ;
 	TArray<FVector>Vertices;
-	TArray<int32>Index;
+	TArray<int32>VertexIndex;
 	TArray<int32>Triangles;
 	TArray<FVector>Normals;
 	TArray<FVector2D>UVs;

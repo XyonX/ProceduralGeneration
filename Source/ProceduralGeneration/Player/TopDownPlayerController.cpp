@@ -4,6 +4,7 @@
 #include "TopDownPlayerController.h"
 
 #include "EnhancedInputComponent.h"
+#include "Actions/AsyncAction_CreateWidgetAsync.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,6 +20,8 @@ ATopDownPlayerController::ATopDownPlayerController()
 	bCanPan =false;
 	HorizontalPanAcc=100;
 	VerticalPanAcc=100;
+	CursorRange=100000;
+	bShowCursor = true;
 }
 
 void ATopDownPlayerController::BeginPlay()
@@ -26,6 +29,36 @@ void ATopDownPlayerController::BeginPlay()
 
 	Super::BeginPlay();
 	GetTopDownPawn();
+	if (bShowCursor)
+	{
+		// Show the cursor
+		bShowMouseCursor = true;
+		bEnableClickEvents = true;
+		bEnableMouseOverEvents = true;
+
+		// Set the input mode to Game and UI
+		SetInputMode(FInputModeGameAndUI());
+
+		// Create your custom cursor widget
+		// UUserWidget* CursorWidget = CreateWidget<UUserWidget>(this, YourCursorWidgetClass);
+
+		// Set the cursor type to default and use the default cursor widget
+		SetMouseCursorWidget(EMouseCursor::Hand, nullptr);
+	}
+	else
+	{
+		// Hide the cursor
+		bShowMouseCursor = false;
+		bEnableClickEvents = false;
+		bEnableMouseOverEvents = false;
+
+		// Set the input mode back to game mode
+		SetInputMode(FInputModeGameOnly());
+
+		// Release the mouse capture
+		SetMouseCursorWidget(EMouseCursor::None, nullptr);
+	}
+
 }
 
 
@@ -49,8 +82,19 @@ void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 	if(bCanPan)
 	{
 		PanHorizontal(-1*Value[0]);
-		
 	}
+	MouseTrace();
+
+	
+	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value[0]);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+	// Check if mouse movement velocity is below a threshold value (e.g., 1.0)
+	/*if (FMath::IsNearlyZero(Value[0], 0.1f))
+	{
+		MouseTrace();
+	}*/
+		
+	
 }
 
 void ATopDownPlayerController::OnMouseMoveY(const FInputActionValue& Value)
@@ -61,16 +105,27 @@ void ATopDownPlayerController::OnMouseMoveY(const FInputActionValue& Value)
 	if(bCanPan)
 	{
 		PanVertical(-1*Value[0]);
+		// Check if mouse movement velocity is below a threshold value (e.g., 1.0)
+		
 	}
+	MouseTrace();
+
+	
+	/*(
+	if (FMath::IsNearlyZero(Value[0], 1.0f))
+	{
+		MouseTrace();
+	}*/
+	
 }
 
 void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
 {
 
-	FActorSpawnParameters SpawnParams ;
+	/*FActorSpawnParameters SpawnParams ;
 	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	/*
+	
 	if (TesTActor)
 	{
 		GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
@@ -79,7 +134,7 @@ void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
 
 	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
 	DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0F, false);
-	
+	MouseTrace();
 }
 
 void ATopDownPlayerController::OnMouseRMBHold(const FInputActionValue& Value)
@@ -169,8 +224,6 @@ bool ATopDownPlayerController::BoxIntersectionTest(FVector Direction, TArray<FVe
 	
 }
 
-
-
 void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 {
 	// Implement the logic for hovering over the grid and updating the mesh here
@@ -185,7 +238,7 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 	UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldPosition, WorldDirection);
 	CursorWorldPosition=WorldPosition;
 	CursorWorldDirection = WorldDirection;
-/*	if (GEngine)
+	/*if (GEngine)
 	{
 		FString DebugMessage = FString::Printf(TEXT("Mouse World Location: %f, %f"), WorldPosition.X, WorldPosition.Y);
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
@@ -222,14 +275,51 @@ void ATopDownPlayerController::SpawnActorAtCursor()
 
 void ATopDownPlayerController::MouseTrace()
 {
+	// Start and end points of the line trace
+	FVector TraceStart = CursorWorldPosition; // Set the starting point of the trace
+	FVector TraceEnd =CursorWorldPosition+(CursorWorldDirection*CursorRange); // Set the ending point of the trace
+
+	FHitResult HitResult;
+	FCollisionQueryParams TraceParams(FName(TEXT("LineTrace")), true, GetOwner());
+
+	// Perform the line trace
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
+	{
+		// A hit has occurred
+
+		// Process the hit result
+		AActor* HitActor = HitResult.GetActor();
+		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		FVector HitLocation = HitResult.Location;
+		FVector HitNormal = HitResult.Normal;
+
+		// Perform further actions based on the hit result
+		// ...
+
+		// Debug visualization of the line trace
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 20.0f);
+		DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
+	}
 }
+
+
+
 
 
 void ATopDownPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
+	// Bind mouse movement to functions
+	//InputComponent->BindAxis(TEXT("MouseX"), this, &ATopDownPlayerController::OnMouseMoveX);
+	//InputComponent->BindAxis(TEXT("MouseY"), this, &ATopDownPlayerController::OnMouseMoveY);
+	//InputComponent->BindAction(TEXT("MouseLMB"),IE_Pressed,this,&ATopDownPlayerController::OnMouseLC);
+
+
+
+	
 	UEnhancedInputComponent* EnhancedInputComp =Cast <UEnhancedInputComponent>(InputComponent);
 
+	
 	if(EnhancedInputComp)
 	{
 

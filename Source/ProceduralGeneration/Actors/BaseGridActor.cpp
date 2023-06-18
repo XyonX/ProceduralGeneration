@@ -18,7 +18,15 @@ ABaseGridActor::ABaseGridActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Procedural Mesh");
+	//GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Procedural Mesh");
+	//GridMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	//GridMesh->SetVisibility(true);
+	
+
+
+
+
+	
 	GridSize= FVector(4.0f,4.0f,0.0f);
 	CellSize =FVector (1000.0f,1000.0f,1000.0f);
 	GridCenter = FVector(0.0f,0.0f,0.0f);
@@ -28,6 +36,10 @@ ABaseGridActor::ABaseGridActor()
 void ABaseGridActor::BeginPlay()
 {
 	Super::BeginPlay();
+	GridMesh = NewObject<UProceduralMeshComponent>(this);
+	GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GridMesh->RegisterComponent();
 	GenerateGridMesh();
 	DrawPositionIndicator();
 	
@@ -115,7 +127,7 @@ bool ABaseGridActor::GenerateGridMesh()
 	{
 		for (int32 X = 0; X <= GridSize.X; X++)
 		{
-			const FVector VertexLocation = FVector(X * CellSize.X + GridOffset.X, Y * CellSize.X + GridOffset.Y, GridOffset.Z);
+			const FVector VertexLocation = FVector(X * CellSize.X + GridOffset.X, Y * CellSize.Y + GridOffset.Y, GridOffset.Z);
 
 			// Add vertex
 			Vertices.Add(VertexLocation);
@@ -123,18 +135,18 @@ bool ABaseGridActor::GenerateGridMesh()
 			MainContainer.Add(Loc2d, VertexLocation);
 
 			// Add UVs
-			const FVector2D UV((float)X / GridSize.X, (float)Y / GridSize.X);
+			const FVector2D UV((float)X / GridSize.X, (float)Y / GridSize.Y);
 			UVs.Add(UV);
 
 			// Skip the last row and column as they won't form triangles
-			if (X < GridSize.X && Y < GridSize.X)
+			if (X < GridSize.X && Y < GridSize.Y)
 			{
-				const int32 VertexIndex = Y * (GridSize.X + 1) + X;
-				Index.Add(VertexIndex);
+				const int32 VertIndex = Y * (GridSize.X + 1) + X;
+				VertexIndex.Add(VertIndex);
 				UTileData* Tile = NewObject<UTileData>() ;
 				//Tile->Init(Loc2d,VertexLocation,VertexIndex,&Vertices,Length_X,Length_Y);
 				
-				Tile->Const(Loc2d,VertexLocation,VertexIndex,GridSize,CellSize);
+				Tile->Const(Loc2d,VertexLocation,VertIndex,GridSize,CellSize);
 				TileMap.Add(Loc2d, Tile);
 			}
 			
@@ -148,9 +160,9 @@ bool ABaseGridActor::GenerateGridMesh()
 	}
 
 	//int Count =1;
-for (int i =0 ; i<Index.Num() ; i++)
+for (int i =0 ; i<VertexIndex.Num() ; i++)
 	{
-		int Count = Index[i];
+		int Count = VertexIndex[i];
 		TArray<int32>CTriangles;
 		// Create triangles
 		CTriangles.Add(Count);
@@ -161,30 +173,24 @@ for (int i =0 ; i<Index.Num() ; i++)
 		CTriangles.Add(Count + 1);
 		CTriangles.Add(Count + GridSize.X + 2);
 		
-		UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
-		PMesh->CreateMeshSection(0, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
-		PMesh->RegisterComponent();
-		AllTiles.Add(PMesh);
-	}
-
-
-	for	( int i = 0 ; i < AllTiles.Num(); i++)
-	{
-		// Create a dynamic material instance for each tile
-		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
-		// Set the desired color for the tile
-		FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
-		ColorParameter= ColorParameter.CopyWithNewOpacity(0.5f);
-		DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
-
-		AllTiles[i]->SetMaterial(0, DynMaterial);
-		
+		//UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
+		GridMesh->CreateMeshSection(i, Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+		//PMesh->RegisterComponent();
+		//AllTiles.Add(PMesh);
 	}
 	
 	for(const TPair<FVector2D, UTileData*>& Pair : TileMap)
 	{
 		UTileData*Tile = Pair.Value;
 		Tile->Init(&Vertices);
+
+		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
+		// Set the desired color for the tile
+		FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
+		ColorParameter= ColorParameter.CopyWithNewOpacity(0.5f);
+		DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
+		GridMesh->SetMaterial(Tile->Index,DynMaterial);
+		
 		// Calculate the center point of the square tile
 		FVector Center = Tile->CenterPoint;
 

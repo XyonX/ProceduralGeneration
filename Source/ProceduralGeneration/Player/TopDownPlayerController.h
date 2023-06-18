@@ -27,7 +27,8 @@ public:
 	FVector CursorWorldDirection;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	bool bCanPan ;
-
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
+	int CursorRange;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	UStaticMesh*CubeMesh ;
@@ -61,8 +62,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnMouseMove(const FVector2D& MousePosition);
 	UFUNCTION(BlueprintCallable)
-	void SpawnActorAtCursor ();\
+	void SpawnActorAtCursor ();
 	void MouseTrace ();
+
+	
+	bool bShowCursor ;
+	
+
+	UObject*SelectedObject;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
 	class UInputAction* MouseX ;

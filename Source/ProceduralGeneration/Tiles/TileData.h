@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "TileData.generated.h"
 
+struct FProcMeshSection;
 /**
  * 
  */
@@ -32,6 +33,7 @@ public:
 	FBox BoundingBox;
 	FVector Normal ;
 	FVector CenterPoint;
+	FProcMeshSection* MeshSections;
 	
 
 	FVector CalculateNorMal (TArray<FVector>&in_Verts);
