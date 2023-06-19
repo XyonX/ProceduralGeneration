@@ -12,7 +12,7 @@
 #include "ProceduralGeneration/Actors/BaseGridActor.h"
 
 
-FOnMouseMovementDelegate ATopDownPlayerController::OnMouseMovementDelegate;
+//FOnMouseMovementDelegate ATopDownPlayerController::OnMouseMovementDelegate;
 
 class ABaseGridActor;
 
@@ -43,6 +43,7 @@ void ATopDownPlayerController::BeginPlay()
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
+	OnMouseMovementDelegate.Broadcast(FVector::ZeroVector);
 
 	/*if (bShowCursor)
 	{
@@ -74,6 +75,13 @@ void ATopDownPlayerController::BeginPlay()
 		SetMouseCursorWidget(EMouseCursor::None, nullptr);
 	}*/
 
+}
+
+void ATopDownPlayerController::Tick(float DeltaSeconds)
+{
+
+	Super::Tick(DeltaSeconds);
+	
 }
 
 ATopDownPawn* ATopDownPlayerController::GetTopDownPawn()
@@ -366,7 +374,7 @@ FVector ATopDownPlayerController::MouseTrace()
 
 		// Debug visualization of the line trace
 		//DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
-		DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
+		//DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
 		return HitLocation;
 	}
 	return FVector::ZeroVector;
@@ -375,7 +383,7 @@ FVector ATopDownPlayerController::MouseTrace()
 void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
-	//DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
+	DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
 }
 
 void ATopDownPlayerController::SetupInputComponent()

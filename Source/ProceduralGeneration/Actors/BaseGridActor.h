@@ -57,7 +57,9 @@ public:
 
 	FOnMouseMovementDelegate MouseMovementDelegate;
 
+	void TileHoverEffect();
 	void PrintDotProduct (ATopDownPlayerController*TDController);
+	
 
 private:
 
@@ -72,6 +74,7 @@ private:
 	TArray<TArray<FVector>>AllCollisionShape;
 	TMap<FVector2D ,FVector> MainContainer ;
 	TMap<FVector2D , UTileData*>TileMap ;
+	TMap<FVector2D , UMaterialInstanceDynamic*>MaterialContainer ;
 	TArray<FVector*> GetVerticesByTilePos (FVector2D TilePos);
 
 public:

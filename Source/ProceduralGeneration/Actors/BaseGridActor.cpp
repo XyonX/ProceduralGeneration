@@ -34,8 +34,8 @@ ABaseGridActor::ABaseGridActor()
 	GridSize= FVector(4.0f,4.0f,0.0f);
 	CellSize =FVector (1000.0f,1000.0f,1000.0f);
 	GridCenter = FVector(0.0f,0.0f,0.0f);
-	MaterialEmission=FVector(0.1f,0.1f,0.1f);
-	MaterialOpacity=FVector(0.5f,0.f,0.0f);
+	MaterialEmission=FVector(0.f,0.f,0.f);
+	MaterialOpacity=FVector(0.5f,0.5f,0.5f);
 }
 
 // Called when the game starts or when spawned
@@ -73,6 +73,27 @@ void ABaseGridActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//if(TopDownController)
 	//PrintDotProduct(TopDownController);
+	FVector CursorHit= TopDownController->CursorWorldHitLocation;
+	for (const TPair<FVector2D, UTileData*>& Pair : TileMap)
+	{
+		const FVector2D& Key = Pair.Key;
+		UTileData* Tile = Pair.Value;
+		FBox BoxBounds = Tile->BoundingBox;
+		bool IsWithinBounds = BoxBounds.IsInside(CursorHit);
+
+		
+		UMaterialInstanceDynamic* DynMaterial = MaterialContainer[Key];
+		if(IsWithinBounds)
+		{
+			FVector OPCT =FVector (1.0f,1.0f,1.0f);
+			DynMaterial->SetVectorParameterValue("Opacity",OPCT);
+		}
+		else
+		{
+			DynMaterial->SetVectorParameterValue("Opacity",MaterialOpacity);
+		}
+			
+	}
 }
 
 void ABaseGridActor::OnMouseMove(const FVector2D& MousePosition)
@@ -112,6 +133,10 @@ void ABaseGridActor::PrintDotProduct(ATopDownPlayerController* TDController)
 		float DotP =FVector::DotProduct(Tile->Normal,TopDownController->CursorWorldDirection);
 		DrawDebugString(GetWorld(), Tile->CenterPoint, *FString::Printf(TEXT("Dot: %f"),DotP), nullptr, FColor::Red, -1.0F, false,1);
 	}
+}
+void ABaseGridActor::TileHoverEffect()
+{
+	
 }
 
 TArray<FVector*> ABaseGridActor::GetVerticesByTilePos(FVector2D TilePos)
@@ -229,6 +254,7 @@ for (int32 i =0 ; i<VertexIndex.Num() ; i++)
 	
 	for(const TPair<FVector2D, UTileData*>& Pair : TileMap)
 	{
+		FVector2D Key = Pair.Key;
 		UTileData*Tile = Pair.Value;
 		Tile->Init(&Vertices);
 
@@ -242,6 +268,7 @@ for (int32 i =0 ; i<VertexIndex.Num() ; i++)
 		DynMaterial->SetVectorParameterValue("Opacity", OPCT);
 		DynMaterial->SetVectorParameterValue("Emissive_Color", EMSV);
 		GridMesh->SetMaterial(Tile->Index,DynMaterial);
+		MaterialContainer.Add(Key,DynMaterial);
 		
 		// Calculate the center point of the square tile
 		FVector Center = Tile->CenterPoint;

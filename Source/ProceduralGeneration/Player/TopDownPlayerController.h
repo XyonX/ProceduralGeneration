@@ -21,6 +21,7 @@ public:
 	ATopDownPlayerController ();
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	FVector CursorWorldPosition ;
@@ -72,7 +73,8 @@ public:
 	void CursorMovementReceiver(FVector Value);
 	
 	bool bShowCursor ;
-	static FOnMouseMovementDelegate OnMouseMovementDelegate ;
+	//static FOnMouseMovementDelegate OnMouseMovementDelegate ;
+	FOnMouseMovementDelegate OnMouseMovementDelegate ;
 
 	UObject*SelectedObject;
 
