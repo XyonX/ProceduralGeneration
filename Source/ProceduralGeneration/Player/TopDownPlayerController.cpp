@@ -21,7 +21,7 @@ ATopDownPlayerController::ATopDownPlayerController()
 	HorizontalPanAcc=100;
 	VerticalPanAcc=100;
 	CursorRange=100000;
-	bShowCursor = true;
+	//bShowCursor = true;
 }
 
 void ATopDownPlayerController::BeginPlay()
@@ -29,7 +29,20 @@ void ATopDownPlayerController::BeginPlay()
 
 	Super::BeginPlay();
 	GetTopDownPawn();
-	if (bShowCursor)
+	// Set input mode to Game and UI
+	FInputModeGameAndUI InputMode;
+	//InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	//InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+	InputMode.SetWidgetToFocus(nullptr);
+	SetInputMode(InputMode);
+
+	// Show and enable the mouse cursor
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
+	bEnableMouseOverEvents = true;
+
+	/*if (bShowCursor)
 	{
 		// Show the cursor
 		bShowMouseCursor = true;
@@ -57,10 +70,9 @@ void ATopDownPlayerController::BeginPlay()
 
 		// Release the mouse capture
 		SetMouseCursorWidget(EMouseCursor::None, nullptr);
-	}
+	}*/
 
 }
-
 
 ATopDownPawn* ATopDownPlayerController::GetTopDownPawn()
 {
@@ -83,11 +95,11 @@ void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 	{
 		PanHorizontal(-1*Value[0]);
 	}
-	MouseTrace();
+	//MouseTrace();
 
 	
-	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value[0]);
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+	FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value[0]);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	// Check if mouse movement velocity is below a threshold value (e.g., 1.0)
 	/*if (FMath::IsNearlyZero(Value[0], 0.1f))
 	{
@@ -95,6 +107,20 @@ void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 	}*/
 		
 	
+}
+
+void ATopDownPlayerController::OnMouseMoveXAxis(float Value)
+{
+	FVector2D MousePosition;
+	GetMousePosition(MousePosition.X, MousePosition.Y);
+	OnMouseMove(MousePosition);
+	if(bCanPan)
+	{
+		PanHorizontal(-1*Value);
+	}
+	MouseTrace();
+	FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 }
 
 void ATopDownPlayerController::OnMouseMoveY(const FInputActionValue& Value)
@@ -108,7 +134,7 @@ void ATopDownPlayerController::OnMouseMoveY(const FInputActionValue& Value)
 		// Check if mouse movement velocity is below a threshold value (e.g., 1.0)
 		
 	}
-	MouseTrace();
+	//MouseTrace();
 
 	
 	/*(
@@ -117,6 +143,19 @@ void ATopDownPlayerController::OnMouseMoveY(const FInputActionValue& Value)
 		MouseTrace();
 	}*/
 	
+}
+
+void ATopDownPlayerController::OnMouseMoveYAxis(float Value)
+{
+	FVector2D MousePosition;
+	GetMousePosition(MousePosition.X, MousePosition.Y);
+	OnMouseMove(MousePosition);
+	if(bCanPan)
+	{
+		PanVertical(-1*Value);
+		
+	}
+	MouseTrace();
 }
 
 void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
@@ -133,7 +172,7 @@ void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
 
 
 	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
-	DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0F, false);
+	DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0f, false);
 	MouseTrace();
 }
 
@@ -283,10 +322,10 @@ void ATopDownPlayerController::MouseTrace()
 	FCollisionQueryParams TraceParams(FName(TEXT("LineTrace")), true, GetOwner());
 
 	// Perform the line trace
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
+	//if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, TraceParams))
 	{
 		// A hit has occurred
-
 		// Process the hit result
 		AActor* HitActor = HitResult.GetActor();
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
@@ -297,21 +336,17 @@ void ATopDownPlayerController::MouseTrace()
 		// ...
 
 		// Debug visualization of the line trace
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 20.0f);
+		DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
 		DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
 	}
 }
-
-
-
-
 
 void ATopDownPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	// Bind mouse movement to functions
-	//InputComponent->BindAxis(TEXT("MouseX"), this, &ATopDownPlayerController::OnMouseMoveX);
-	//InputComponent->BindAxis(TEXT("MouseY"), this, &ATopDownPlayerController::OnMouseMoveY);
+	InputComponent->BindAxis(TEXT("MouseX"), this, &ATopDownPlayerController::OnMouseMoveXAxis);
+	InputComponent->BindAxis(TEXT("MouseY"), this, &ATopDownPlayerController::OnMouseMoveYAxis);
 	//InputComponent->BindAction(TEXT("MouseLMB"),IE_Pressed,this,&ATopDownPlayerController::OnMouseLC);
 
 

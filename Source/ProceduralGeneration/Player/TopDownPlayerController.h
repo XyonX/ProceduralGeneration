@@ -39,7 +39,9 @@ public:
 
 	ATopDownPawn* GetTopDownPawn ();
 	void OnMouseMoveX (const FInputActionValue& Value);
+	void OnMouseMoveXAxis (float Value);
 	void OnMouseMoveY (const FInputActionValue& Value);
+	void OnMouseMoveYAxis (float Value);
 	void OnMouseLMB (const FInputActionValue& Value);
 	void OnMouseRMBHold (const FInputActionValue& Value);
 	void OnMouseRMBReleased (const FInputActionValue& Value);
@@ -64,7 +66,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnActorAtCursor ();
 	void MouseTrace ();
-
+	
 	
 	bool bShowCursor ;
 	
