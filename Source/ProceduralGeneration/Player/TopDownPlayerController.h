@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include"GameFramework/PlayerController.h"
 #include "ProceduralGeneration/Pawn/TopDownPawn.h"
+#include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "TopDownPlayerController.generated.h"
 
 
@@ -49,7 +50,7 @@ public:
 	void PanVertical (float Axis);
 
 
-	//Triangle Intersection Te
+	//Triangle Intersection Test
 	bool TirangleIntersectionTest (TArray<FVector>Triangle_1 ,TArray<FVector>Triangle_2);
 	bool BoxIntersectionTest ( FVector Direction , TArray<FVector>Verts);
 
@@ -58,6 +59,8 @@ public:
 	float HorizontalPanAcc ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float VerticalPanAcc ;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	FVector CursorWorldHitLocation;
 
 	
 
@@ -65,11 +68,11 @@ public:
 	void OnMouseMove(const FVector2D& MousePosition);
 	UFUNCTION(BlueprintCallable)
 	void SpawnActorAtCursor ();
-	void MouseTrace ();
-	
+	FVector MouseTrace ();
+	void CursorMovementReceiver(FVector Value);
 	
 	bool bShowCursor ;
-	
+	static FOnMouseMovementDelegate OnMouseMovementDelegate ;
 
 	UObject*SelectedObject;
 

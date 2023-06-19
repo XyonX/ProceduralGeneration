@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "ProceduralGeneration/Player/TopDownPlayerController.h"
 #include "ProceduralGeneration/Tiles/TileData.h"
 
 
@@ -18,7 +19,10 @@ ABaseGridActor::ABaseGridActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Procedural Mesh");
+	GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Procedural Mesh");
+	SetRootComponent(GridMesh);
+	GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	//GridMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	//GridMesh->SetVisibility(true);
 	
@@ -38,24 +42,25 @@ ABaseGridActor::ABaseGridActor()
 void ABaseGridActor::BeginPlay()
 {
 	Super::BeginPlay();
-	GridMesh = NewObject<UProceduralMeshComponent>(this);
+	TopDownController = Cast<ATopDownPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(),0));
+	//GridMesh = NewObject<UProceduralMeshComponent>(this);
 	//GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	//GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	//GridMesh->RegisterComponent();
 	
 	// Enable collision for the procedural mesh component
-    GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    //GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     
     // Set the collision response for different object types
-    GridMesh->SetCollisionObjectType(ECollisionChannel::ECC_Visibility);  // Customize the channel based on your needs
+    //GridMesh->SetCollisionObjectType(ECollisionChannel::ECC_Visibility);  // Customize the channel based on your needs
     
     // Set the collision response for other channels
-    GridMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);  // Set the default response to block
+    //GridMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);  // Set the default response to block
     
     // Set the specific collision response for the line trace channel
-    GridMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);  // Customize the channel based on your needs
+    //GridMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);  // Customize the channel based on your needs
 
-	GridMesh->RegisterComponent();
+	//GridMesh->RegisterComponent();
 	
 	GenerateGridMesh();
 	DrawPositionIndicator();
@@ -66,6 +71,8 @@ void ABaseGridActor::BeginPlay()
 void ABaseGridActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//if(TopDownController)
+	//PrintDotProduct(TopDownController);
 }
 
 void ABaseGridActor::OnMouseMove(const FVector2D& MousePosition)
@@ -93,6 +100,18 @@ void ABaseGridActor::OnMouseMove(const FVector2D& MousePosition)
 	}
     
         FVector LocalPosition = GetTransform().InverseTransformPosition(WorldPosition);
+}
+
+void ABaseGridActor::PrintDotProduct(ATopDownPlayerController* TDController)
+{
+	
+	for (const TPair<FVector2D, UTileData*>& Pair : TileMap)
+	{
+		const FVector2D& Key = Pair.Key;
+		UTileData* Tile = Pair.Value;
+		float DotP =FVector::DotProduct(Tile->Normal,TopDownController->CursorWorldDirection);
+		DrawDebugString(GetWorld(), Tile->CenterPoint, *FString::Printf(TEXT("Dot: %f"),DotP), nullptr, FColor::Red, -1.0F, false,1);
+	}
 }
 
 TArray<FVector*> ABaseGridActor::GetVerticesByTilePos(FVector2D TilePos)
@@ -198,9 +217,13 @@ for (int32 i =0 ; i<VertexIndex.Num() ; i++)
 		CollisionShape.Add(Vertices[C]);
 		CollisionShape.Add(Vertices[D]);
 	
-		GridMesh->CreateMeshSection(VertexIndex[i], Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+		GridMesh->CreateMeshSection(VertexIndex[i], Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+	
 		AllCollisionShape.Add(CollisionShape);
-		//GridMesh->SetCollisionConvexMeshes(CollisionShape);
+		GridMesh->SetCollisionConvexMeshes(AllCollisionShape);
+
+
+		FProcMeshSection MeshSection;
 
 	}
 	
@@ -265,6 +288,20 @@ void ABaseGridActor::DrawPositionIndicator()
 		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %f,%f"),Value.X, Value.Y), nullptr, FColor::Red, -1.0F, false);
 		//bDrawn =true;
 	}
+	/*for (const TPair<FVector2D, UTileData*>& Pair : TileMap)
+	{
+		const FVector2D& Key = Pair.Key;
+		UTileData* Tile = Pair.Value;
+		FVector Location = Tile->LocationWorld;
+		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
+		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
+		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %f,%f"),Tile->LocationWorld.X, Tile->LocationWorld.Y), nullptr, FColor::Red, -1.0F, false);
+		//bDrawn =true;
+		//PrintDotProduct(TopDownController);
+
+		
+		
+	}*/
 	
 }
 

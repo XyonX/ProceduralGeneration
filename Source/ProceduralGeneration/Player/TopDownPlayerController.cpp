@@ -8,10 +8,11 @@
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "ProceduralGeneration/Actors/BaseGridActor.h"
 
 
-
+FOnMouseMovementDelegate ATopDownPlayerController::OnMouseMovementDelegate;
 
 class ABaseGridActor;
 
@@ -28,6 +29,7 @@ void ATopDownPlayerController::BeginPlay()
 {
 
 	Super::BeginPlay();
+	OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
 	GetTopDownPawn();
 	// Set input mode to Game and UI
 	FInputModeGameAndUI InputMode;
@@ -88,6 +90,7 @@ ATopDownPawn* ATopDownPlayerController::GetTopDownPawn()
 
 void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 {
+	//OnMouseMovementDelegate.Execute();
 	FVector2D MousePosition;
 	GetMousePosition(MousePosition.X, MousePosition.Y);
 	OnMouseMove(MousePosition);
@@ -118,9 +121,6 @@ void ATopDownPlayerController::OnMouseMoveXAxis(float Value)
 	{
 		PanHorizontal(-1*Value);
 	}
-	MouseTrace();
-	FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 }
 
 void ATopDownPlayerController::OnMouseMoveY(const FInputActionValue& Value)
@@ -155,7 +155,6 @@ void ATopDownPlayerController::OnMouseMoveYAxis(float Value)
 		PanVertical(-1*Value);
 		
 	}
-	MouseTrace();
 }
 
 void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
@@ -173,7 +172,33 @@ void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
 
 	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
 	DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0f, false);
-	MouseTrace();
+	//DrawDebugSphere(GetWorld(), CursorWorldPosition, 50, 16, FColor::Blue, false, 20.0f);
+	/*float Length = 50.0f; // The length of the cone
+	float AngleWidth = FMath::DegreesToRadians(20.0f); // The width angle of the cone in radians
+	float AngleHeight = FMath::DegreesToRadians(20.0f); // The height angle of the cone in radians
+	int32 NumSides = 16; // The number of sides of the cone
+	FColor Color = FColor::Red; // The color of the cone
+	bool bPersistentLines = true; // Whether the cone should persist or not
+	float LifeTime = -1.0f; // The lifetime of the cone in seconds (-1 means infinite)
+	uint8 DepthPriority = 0; // The depth priority of the cone
+	float Thickness = 1.0f; // The thickness of the cone lines
+
+	// Call the function to draw the cone
+	DrawDebugCone(
+	  GetWorld(),
+	  CursorWorldPosition,
+	  CursorWorldDirection,
+	  Length,
+	  AngleWidth,
+	  AngleHeight,
+	  NumSides,
+	  Color,
+	  bPersistentLines,
+	  LifeTime,
+	  DepthPriority,
+	  Thickness
+	);*/
+	//MouseTrace();
 }
 
 void ATopDownPlayerController::OnMouseRMBHold(const FInputActionValue& Value)
@@ -283,7 +308,11 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	}*/
 
-	
+	CursorWorldHitLocation= MouseTrace();
+	OnMouseMovementDelegate.Broadcast(CursorWorldHitLocation);
+
+	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 
 }
 
@@ -312,7 +341,7 @@ void ATopDownPlayerController::SpawnActorAtCursor()
 	}*/
 }
 
-void ATopDownPlayerController::MouseTrace()
+FVector ATopDownPlayerController::MouseTrace()
 {
 	// Start and end points of the line trace
 	FVector TraceStart = CursorWorldPosition; // Set the starting point of the trace
@@ -336,9 +365,17 @@ void ATopDownPlayerController::MouseTrace()
 		// ...
 
 		// Debug visualization of the line trace
-		DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
+		//DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
 		DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
+		return HitLocation;
 	}
+	return FVector::ZeroVector;
+}
+
+void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
+	//DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
 }
 
 void ATopDownPlayerController::SetupInputComponent()

@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "BaseGridActor.generated.h"
 
+class ATopDownPlayerController;
 class UTileData;
 class UProceduralMeshComponent;
 UCLASS(BlueprintType)
@@ -51,8 +53,11 @@ public:
 	FVector MaterialOpacity;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="ProcMesh")
 	FVector MaterialEmission;
+	ATopDownPlayerController*TopDownController;
 
-	
+	FOnMouseMovementDelegate MouseMovementDelegate;
+
+	void PrintDotProduct (ATopDownPlayerController*TDController);
 
 private:
 
