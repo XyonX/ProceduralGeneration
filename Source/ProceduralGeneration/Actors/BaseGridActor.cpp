@@ -30,6 +30,8 @@ ABaseGridActor::ABaseGridActor()
 	GridSize= FVector(4.0f,4.0f,0.0f);
 	CellSize =FVector (1000.0f,1000.0f,1000.0f);
 	GridCenter = FVector(0.0f,0.0f,0.0f);
+	MaterialEmission=FVector(0.1f,0.1f,0.1f);
+	MaterialOpacity=FVector(0.5f,0.f,0.0f);
 }
 
 // Called when the game starts or when spawned
@@ -37,9 +39,24 @@ void ABaseGridActor::BeginPlay()
 {
 	Super::BeginPlay();
 	GridMesh = NewObject<UProceduralMeshComponent>(this);
-	GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	//GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	//GridMesh->RegisterComponent();
+	
+	// Enable collision for the procedural mesh component
+    GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    
+    // Set the collision response for different object types
+    GridMesh->SetCollisionObjectType(ECollisionChannel::ECC_Visibility);  // Customize the channel based on your needs
+    
+    // Set the collision response for other channels
+    GridMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);  // Set the default response to block
+    
+    // Set the specific collision response for the line trace channel
+    GridMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);  // Customize the channel based on your needs
+
 	GridMesh->RegisterComponent();
+	
 	GenerateGridMesh();
 	DrawPositionIndicator();
 	
@@ -154,27 +171,37 @@ bool ABaseGridActor::GenerateGridMesh()
 	// Calculate normals (assuming flat grid)
 	for (int32 i = 0; i < Vertices.Num(); ++i)
 	{
-		Normals.Add(FVector(0.0f, 0.0f, -1.0f));
+		Normals.Add(FVector(0.0f, 0.0f, 1.0f));
 	}
 
 	//int Count =1;
-for (int i =0 ; i<VertexIndex.Num() ; i++)
+for (int32 i =0 ; i<VertexIndex.Num() ; i++)
 	{
 		int Count = VertexIndex[i];
 		TArray<int32>CTriangles;
+		TArray<FVector>CollisionShape;
+	
+		int32 A =Count;
+		int32 B =Count + GridSize.X + 1;
+		int32 C =Count + GridSize.X + 2;
+		int32 D =Count + 1;
 		// Create triangles
-		CTriangles.Add(Count);
-		CTriangles.Add(Count + 1);
-		CTriangles.Add(Count + GridSize.X + 1);
+		CTriangles.Add(A);
+		CTriangles.Add(B);
+		CTriangles.Add(C);
 
-		CTriangles.Add(Count + GridSize.X + 1);
-		CTriangles.Add(Count + 1);
-		CTriangles.Add(Count + GridSize.X + 2);
-		
-		//UProceduralMeshComponent* PMesh = NewObject<UProceduralMeshComponent>(this);
+		CTriangles.Add(C);
+		CTriangles.Add(D);
+		CTriangles.Add(A);
+		CollisionShape.Add(Vertices[A]);
+		CollisionShape.Add(Vertices[B]);
+		CollisionShape.Add(Vertices[C]);
+		CollisionShape.Add(Vertices[D]);
+	
 		GridMesh->CreateMeshSection(VertexIndex[i], Vertices, CTriangles, Normals, UVs, TArray<FColor>(), TArray<FProcMeshTangent>(), false);
-		//PMesh->RegisterComponent();
-		//AllTiles.Add(PMesh);
+		AllCollisionShape.Add(CollisionShape);
+		//GridMesh->SetCollisionConvexMeshes(CollisionShape);
+
 	}
 	
 	for(const TPair<FVector2D, UTileData*>& Pair : TileMap)
@@ -185,8 +212,12 @@ for (int i =0 ; i<VertexIndex.Num() ; i++)
 		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(MaterialTemplate, this);
 		// Set the desired color for the tile
 		FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
-		ColorParameter= ColorParameter.CopyWithNewOpacity(0.5f);
-		DynMaterial->SetVectorParameterValue("Base Color", ColorParameter);
+		//ColorParameter.A =0.1;
+		DynMaterial->SetVectorParameterValue("Base_Color", ColorParameter);
+		FVector OPCT =MaterialOpacity;
+		FVector EMSV =MaterialEmission;
+		DynMaterial->SetVectorParameterValue("Opacity", OPCT);
+		DynMaterial->SetVectorParameterValue("Emissive_Color", EMSV);
 		GridMesh->SetMaterial(Tile->Index,DynMaterial);
 		
 		// Calculate the center point of the square tile
@@ -205,7 +236,7 @@ for (int i =0 ; i<VertexIndex.Num() ; i++)
 		DrawDebugLine(GetWorld(), Center, LineEndpoint, FColor::Green, true, -1, 0, 1.0f);
 		DrawDebugBox(GetWorld(), Tile->BoundingBox.GetCenter(),Tile->BoundingBox.GetExtent(),FColor::Green,true,-1.0f );
 	}
-	
+	GridMesh->SetCollisionConvexMeshes(AllCollisionShape);
 	return true;
 }
 

@@ -47,6 +47,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="ProcMesh")
 	FVector GridCenter ;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="ProcMesh")
+	FVector MaterialOpacity;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="ProcMesh")
+	FVector MaterialEmission;
+
 	
 
 private:
@@ -59,6 +64,7 @@ private:
 	TArray<int32>Triangles;
 	TArray<FVector>Normals;
 	TArray<FVector2D>UVs;
+	TArray<TArray<FVector>>AllCollisionShape;
 	TMap<FVector2D ,FVector> MainContainer ;
 	TMap<FVector2D , UTileData*>TileMap ;
 	TArray<FVector*> GetVerticesByTilePos (FVector2D TilePos);
