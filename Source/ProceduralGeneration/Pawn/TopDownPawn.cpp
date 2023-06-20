@@ -3,6 +3,8 @@
 
 #include "TopDownPawn.h"
 
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 ATopDownPawn::ATopDownPawn()
@@ -12,12 +14,23 @@ ATopDownPawn::ATopDownPawn()
 	
 	TopDownCamera=CreateDefaultSubobject<UCameraComponent>("TopDownCamera");
 	SetRootComponent(TopDownCamera);
+
+	bAdjustCameraLocation=false;
+	Offset_Vector =FVector ( 1000.0f,1000.0f,500.0f);
+	Offset_Scaler =1;
 }
 
 // Called when the game starts or when spawned
 void ATopDownPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	GridActor=GetGridActor();
+	if(GridActor!= nullptr)
+	{
+		SetSpawnLocation();
+	}
+	
+	
 	
 }
 
@@ -36,5 +49,32 @@ void ATopDownPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 UCameraComponent* ATopDownPawn::GetCameraComponent()
 {
 	return TopDownCamera;
+}
+
+ABaseGridActor* ATopDownPawn::GetGridActor()
+{
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseGridActor::StaticClass(), FoundActors);
+
+	if(FoundActors.Num()>0)
+	{
+		GridActor = Cast<ABaseGridActor>(FoundActors[0]);
+
+		if(GridActor)
+		{
+			return GridActor;
+		}
+	}
+	
+	return nullptr;
+}
+
+void ATopDownPawn::SetSpawnLocation()
+{
+	if(bAdjustCameraLocation)
+	{
+		FVector Loc = GridActor->GetActorLocation()+(Offset_Scaler*Offset_Vector);
+		SetActorLocation(Loc);
+	}
 }
 

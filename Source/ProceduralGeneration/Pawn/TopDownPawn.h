@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Pawn.h"
+#include "ProceduralGeneration/Actors/BaseGridActor.h"
 #include "TopDownPawn.generated.h"
 
 UCLASS()
@@ -29,4 +30,19 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TopDownPawn")
 	UCameraComponent* TopDownCamera;
 	FORCEINLINE UCameraComponent* GetCameraComponent ();
+
+	ABaseGridActor* GetGridActor ();
+	void SetSpawnLocation () ;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pawn")
+	FVector Offset_Vector;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pawn")
+	float Offset_Scaler;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pawn")
+	bool bAdjustCameraLocation;
+
+	UPROPERTY()
+	ABaseGridActor*GridActor;
+
+	
 };
