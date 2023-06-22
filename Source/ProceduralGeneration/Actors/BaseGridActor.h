@@ -55,6 +55,8 @@ public:
 	FVector MaterialEmission;
 	ATopDownPlayerController*TopDownController;
 
+	UTileData*CursorHitTile;
+
 	FOnMouseMovementDelegate MouseMovementDelegate;
 
 	void TileHoverEffect();

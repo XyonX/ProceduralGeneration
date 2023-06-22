@@ -77,10 +77,10 @@ void ABaseGridActor::Tick(float DeltaTime)
 	for (const TPair<FVector2D, UTileData*>& Pair : TileMap)
 	{
 		const FVector2D& Key = Pair.Key;
-		UTileData* Tile = Pair.Value;
-		FBox BoxBounds = Tile->BoundingBox;
+		CursorHitTile = Pair.Value;
+		FBox BoxBounds = CursorHitTile->BoundingBox;
+		TopDownController->HitTile=CursorHitTile;
 		bool IsWithinBounds = BoxBounds.IsInside(CursorHit);
-
 		
 		UMaterialInstanceDynamic* DynMaterial = MaterialContainer[Key];
 		if(IsWithinBounds)
