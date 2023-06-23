@@ -9,7 +9,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProceduralGeneration/Helpers/DelegateHelper.h"
-#include "ProceduralGeneration/Actors/BaseGridActor.h"
+#include "ProceduralGeneration/Tiles/TileData.h"
 
 
 //FOnMouseMovementDelegate ATopDownPlayerController::OnMouseMovementDelegate;
@@ -23,6 +23,8 @@ ATopDownPlayerController::ATopDownPlayerController()
 	VerticalPanAcc=100;
 	CursorRange=100000;
 	//bShowCursor = true;
+	SpawnOffset_Cursor = 200.0f;
+	SpawnOffset_Tile=200.0f;
 }
 
 void ATopDownPlayerController::BeginPlay()
@@ -165,17 +167,16 @@ void ATopDownPlayerController::OnMouseMoveYAxis(float Value)
 	}
 }
 
-void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
+void ATopDownPlayerController::OnMouseLMBHold(const FInputActionValue& Value)
 {
-
 	/*FActorSpawnParameters SpawnParams ;
-	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	
-	if (TesTActor)
-	{
-		GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
-	}*/
+
+if (TesTActor)
+{
+	GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
+}*/
 
 
 	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
@@ -207,6 +208,12 @@ void ATopDownPlayerController::OnMouseLMB(const FInputActionValue& Value)
 	  Thickness
 	);*/
 	//MouseTrace();
+	bShouldDrag=true;
+}
+
+void ATopDownPlayerController::OnMouseLMBReleased(const FInputActionValue& Value)
+{
+	bShouldDrag=false;
 }
 
 void ATopDownPlayerController::OnMouseRMBHold(const FInputActionValue& Value)
@@ -316,7 +323,7 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	}*/
 
-	CursorWorldHitLocation= MouseTrace();
+	 MouseTrace();
 	OnMouseMovementDelegate.Broadcast(CursorWorldHitLocation);
 
 	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value);
@@ -349,24 +356,24 @@ void ATopDownPlayerController::SpawnActorAtCursor()
 	}*/
 }
 
-FVector ATopDownPlayerController::MouseTrace()
+bool ATopDownPlayerController::MouseTrace()
 {
 	// Start and end points of the line trace
 	FVector TraceStart = CursorWorldPosition; // Set the starting point of the trace
 	FVector TraceEnd =CursorWorldPosition+(CursorWorldDirection*CursorRange); // Set the ending point of the trace
-
-	FHitResult HitResult;
+	
 	FCollisionQueryParams TraceParams(FName(TEXT("LineTrace")), true, GetOwner());
 
 	// Perform the line trace
 	//if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, TraceParams))
 	{
+		bIsCursorPointing=true;
 		// A hit has occurred
 		// Process the hit result
 		AActor* HitActor = HitResult.GetActor();
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-		FVector HitLocation = HitResult.Location;
+		CursorWorldHitLocation = HitResult.Location;
 		FVector HitNormal = HitResult.Normal;
 
 		// Perform further actions based on the hit result
@@ -375,15 +382,72 @@ FVector ATopDownPlayerController::MouseTrace()
 		// Debug visualization of the line trace
 		//DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
 		//DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
-		return HitLocation;
+		return true;
 	}
-	return FVector::ZeroVector;
+	bIsCursorPointing=false;
+	return false;
 }
 
 void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
 	DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
+}
+
+void ATopDownPlayerController::OnActorDrag(UStaticMesh* Mesh)
+{
+/*	AStaticMeshActor* SpawnedActor;
+	
+	FVector SpawnLoc_Cursor = CursorWorldPosition+ (SpawnOffset_Cursor*CursorWorldDirection);
+	
+	FActorSpawnParameters SpawnParams ;
+	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	if(bShouldDrag)
+	{
+		
+
+		if(SpawnedActor==nullptr)
+		{
+			SpawnedActor = Cast<AStaticMeshActor>( GetWorld()->SpawnActor<AActor>(AStaticMeshActor::StaticClass(),SpawnLoc_Cursor + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams));
+			if (SpawnedActor)
+			{
+				UStaticMeshComponent* MeshComponent = SpawnedActor->GetStaticMeshComponent();
+				if (MeshComponent)
+				{
+					MeshComponent->SetStaticMesh(Mesh);
+				}
+			}
+		}
+	
+		SpawnedActor->SetActorLocation(SpawnLoc_Cursor);
+
+		if (bIsCursorPointing)
+		{
+			if(HitTile!=nullptr)
+			{
+				FVector SpawnLoc_Tile = CursorWorldHitLocation+ (SpawnOffset_Tile*HitTile->Normal);
+				SpawnedActor->SetActorLocation(SpawnLoc_Tile);
+				if(IsLMBReleased )
+				{
+					SpawnedActor->SetActorLocation(CursorWorldHitLocation);
+					SpawnedActor=nullptr;
+				}
+					
+					
+			}
+
+		
+		}
+		else
+		{
+			if
+		}
+	}
+	if(!bIsDragSucessfull)
+	SpawnedActor->Destroy();
+	*/
+	
 }
 
 void ATopDownPlayerController::SetupInputComponent()
@@ -413,7 +477,8 @@ void ATopDownPlayerController::SetupInputComponent()
 		}
 		if(MouseLMB)
 		{
-			EnhancedInputComp->BindAction(MouseLMB,ETriggerEvent::Triggered,this,&ATopDownPlayerController::OnMouseLMB);
+			EnhancedInputComp->BindAction(MouseLMB,ETriggerEvent::Triggered,this,&ATopDownPlayerController::OnMouseLMBHold);
+			EnhancedInputComp->BindAction(MouseLMB,ETriggerEvent::Completed,this,&ATopDownPlayerController::OnMouseLMBReleased);
 		}
 		if(MouseRMB)
 		{

@@ -25,12 +25,26 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
-	FVector2D Size;
+	float Height;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
+	float Width;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
 	UTexture2D* BGImage;
 
 	UFUNCTION(BlueprintCallable)
 	UTopDownIngameScreen*GetIngameWidget () { return IngameScreen;}
+
+
+
+	//public functions
+
+	void SpawnUI_UMG_1 ();
+	void SpawnUI_Slate_1 ();
+	TSharedPtr<UGameViewportClient ,ESPMode::ThreadSafe>GViewport;
+
+
+	TSharedPtr<SBottomBuildingsPanel>BottomPanelWidget ;
+	
 private:
 
 	

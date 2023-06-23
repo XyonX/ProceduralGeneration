@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include"GameFramework/PlayerController.h"
+#include "ProceduralGeneration/Data/MeshData.h"
 #include "ProceduralGeneration/Pawn/TopDownPawn.h"
 #include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "TopDownPlayerController.generated.h"
@@ -38,13 +39,33 @@ public:
 	TSubclassOf<AActor>TesTActor;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
 	ATopDownPawn*TopDownPawn;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	FHitResult HitResult;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	FVector CursorWorldHitLocation;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	bool bIsCursorPointing;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	float SpawnOffset_Cursor;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	float SpawnOffset_Tile;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
+	UMeshData*MeshData;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Data")
+	UTileData*HitTile;
+	bool bShouldDrag;
+	bool bIsDragSucessfull;
+	bool IsLMBPressed ;
+	bool IsLMBReleased ;
 
 	ATopDownPawn* GetTopDownPawn ();
 	void OnMouseMoveX (const FInputActionValue& Value);
 	void OnMouseMoveXAxis (float Value);
 	void OnMouseMoveY (const FInputActionValue& Value);
 	void OnMouseMoveYAxis (float Value);
-	void OnMouseLMB (const FInputActionValue& Value);
+	void OnMouseLMBHold (const FInputActionValue& Value);
+	void OnMouseLMBReleased (const FInputActionValue& Value);
 	void OnMouseRMBHold (const FInputActionValue& Value);
 	void OnMouseRMBReleased (const FInputActionValue& Value);
 	void PanHorizontal (float Axis);
@@ -60,8 +81,7 @@ public:
 	float HorizontalPanAcc ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float VerticalPanAcc ;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
-	FVector CursorWorldHitLocation;
+	
 
 	
 
@@ -69,7 +89,7 @@ public:
 	void OnMouseMove(const FVector2D& MousePosition);
 	UFUNCTION(BlueprintCallable)
 	void SpawnActorAtCursor ();
-	FVector MouseTrace ();
+	bool MouseTrace ();
 	void CursorMovementReceiver(FVector Value);
 	
 	bool bShowCursor ;
@@ -86,5 +106,8 @@ public:
 	class UInputAction* MouseLMB ;
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
 	class UInputAction* MouseRMB ;
+
+	void OnActorDrag(UStaticMesh*Mesh);
+	
 	
 };
