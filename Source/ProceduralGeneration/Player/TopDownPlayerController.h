@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "CorePlugin/Helpers/DelegateHelper.h"
 #include"GameFramework/PlayerController.h"
 #include "ProceduralGeneration/Data/MeshData.h"
 #include "ProceduralGeneration/Pawn/TopDownPawn.h"
-#include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "TopDownPlayerController.generated.h"
-
 
 UCLASS()
 class PROCEDURALGENERATION_API ATopDownPlayerController  : public APlayerController
@@ -90,7 +89,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnActorAtCursor ();
 	bool MouseTrace ();
+	UFUNCTION()
 	void CursorMovementReceiver(FVector Value);
+	UFUNCTION()
+	void OnCardDragReceiver ();
 	
 	bool bShowCursor ;
 	//static FOnMouseMovementDelegate OnMouseMovementDelegate ;

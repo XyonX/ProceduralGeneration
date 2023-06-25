@@ -8,7 +8,6 @@
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-#include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "ProceduralGeneration/Tiles/TileData.h"
 
 
@@ -31,7 +30,10 @@ void ATopDownPlayerController::BeginPlay()
 {
 
 	Super::BeginPlay();
-	OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
+	//DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	//OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
+	ADelegateHelper::DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	
 	GetTopDownPawn();
 	// Set input mode to Game and UI
 	FInputModeGameAndUI InputMode;
@@ -324,7 +326,11 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 	}*/
 
 	 MouseTrace();
-	OnMouseMovementDelegate.Broadcast(CursorWorldHitLocation);
+	
+	if( OnMouseMovementDelegate.IsBound())
+	{
+		OnMouseMovementDelegate.Broadcast(CursorWorldHitLocation);
+	}
 
 	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value);
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
@@ -392,6 +398,12 @@ void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
 	DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
+}
+
+void ATopDownPlayerController::OnCardDragReceiver()
+{
+	//FString DebugMessage = FString::Printf(TEXT("Mouse World Location: %f, %f"), WorldPosition.X, WorldPosition.Y);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Dragged");
 }
 
 void ATopDownPlayerController::OnActorDrag(UStaticMesh* Mesh)

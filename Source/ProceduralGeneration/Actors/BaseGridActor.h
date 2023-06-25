@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CorePlugin/Helpers/DelegateHelper.h"
 #include "GameFramework/Actor.h"
-#include "ProceduralGeneration/Helpers/DelegateHelper.h"
 #include "BaseGridActor.generated.h"
 
 class ATopDownPlayerController;
