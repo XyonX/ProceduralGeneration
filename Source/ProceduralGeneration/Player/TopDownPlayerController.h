@@ -54,9 +54,11 @@ public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Data")
 	UTileData*HitTile;
 	bool bShouldDrag;
+	bool bShouldDrag_Card;
 	bool bIsDragSucessfull;
 	bool IsLMBPressed ;
 	bool IsLMBReleased ;
+	AActor*CursorActor;
 
 	ATopDownPawn* GetTopDownPawn ();
 	void OnMouseMoveX (const FInputActionValue& Value);
@@ -92,7 +94,11 @@ public:
 	UFUNCTION()
 	void CursorMovementReceiver(FVector Value);
 	UFUNCTION()
-	void OnCardDragReceiver ();
+	void OnCardDragDownReceiver ();
+	UFUNCTION()
+	void OnCardDragUpReceiver ();
+	UFUNCTION()
+	void OnCardDragReceiver(FVector2D CursorPos);
 	
 	bool bShowCursor ;
 	//static FOnMouseMovementDelegate OnMouseMovementDelegate ;

@@ -22,7 +22,7 @@ ATopDownPlayerController::ATopDownPlayerController()
 	VerticalPanAcc=100;
 	CursorRange=100000;
 	//bShowCursor = true;
-	SpawnOffset_Cursor = 200.0f;
+	SpawnOffset_Cursor = 500.0f;
 	SpawnOffset_Tile=200.0f;
 }
 
@@ -32,7 +32,10 @@ void ATopDownPlayerController::BeginPlay()
 	Super::BeginPlay();
 	//DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	//OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
-	ADelegateHelper::DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	ADelegateHelper::DragDownDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragDownReceiver);
+	ADelegateHelper::DragUpDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragUpReceiver);
+	//ADelegateHelper::OnDragDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	ADelegateHelper::OnDragDelegate.BindDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	
 	GetTopDownPawn();
 	// Set input mode to Game and UI
@@ -171,6 +174,14 @@ void ATopDownPlayerController::OnMouseMoveYAxis(float Value)
 
 void ATopDownPlayerController::OnMouseLMBHold(const FInputActionValue& Value)
 {
+
+	FVector2D MousePosition;
+	ULocalPlayer* LocalPlayer = GetLocalPlayer();
+	if (LocalPlayer && LocalPlayer->ViewportClient)
+	{
+		LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
+		OnMouseMove(MousePosition);
+	}
 	/*FActorSpawnParameters SpawnParams ;
 SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -182,7 +193,7 @@ if (TesTActor)
 
 
 	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
-	DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0f, false);
+	//DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0f, false);
 	//DrawDebugSphere(GetWorld(), CursorWorldPosition, 50, 16, FColor::Blue, false, 20.0f);
 	/*float Length = 50.0f; // The length of the cone
 	float AngleWidth = FMath::DegreesToRadians(20.0f); // The width angle of the cone in radians
@@ -400,11 +411,49 @@ void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 	DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
 }
 
-void ATopDownPlayerController::OnCardDragReceiver()
+
+
+void ATopDownPlayerController::OnCardDragDownReceiver()
 {
 	//FString DebugMessage = FString::Printf(TEXT("Mouse World Location: %f, %f"), WorldPosition.X, WorldPosition.Y);
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Dragged");
+
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	bShouldDrag_Card=true;
+	
+	if (TesTActor)
+	{
+		CursorActor= GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
+	}
+
+	
 }
+void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Draging");
+
+	OnMouseMove(CursorPos);
+	
+	if(CursorActor)
+	{
+		CursorActor->SetActorLocation(CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor));
+	}
+}
+
+void ATopDownPlayerController::OnCardDragUpReceiver()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Released");
+	bShouldDrag_Card=false;
+
+	if (CursorActor)
+	{
+		CursorActor->Destroy();
+	}
+}
+
+
 
 void ATopDownPlayerController::OnActorDrag(UStaticMesh* Mesh)
 {
