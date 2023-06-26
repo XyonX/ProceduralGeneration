@@ -42,25 +42,8 @@ ABaseGridActor::ABaseGridActor()
 void ABaseGridActor::BeginPlay()
 {
 	Super::BeginPlay();
+	ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ABaseGridActor::Receiver_OnMouseMove);
 	TopDownController = Cast<ATopDownPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(),0));
-	//GridMesh = NewObject<UProceduralMeshComponent>(this);
-	//GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	//GridMesh->RegisterComponent();
-	
-	// Enable collision for the procedural mesh component
-    //GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    
-    // Set the collision response for different object types
-    //GridMesh->SetCollisionObjectType(ECollisionChannel::ECC_Visibility);  // Customize the channel based on your needs
-    
-    // Set the collision response for other channels
-    //GridMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);  // Set the default response to block
-    
-    // Set the specific collision response for the line trace channel
-    //GridMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);  // Customize the channel based on your needs
-
-	//GridMesh->RegisterComponent();
 	
 	GenerateGridMesh();
 	DrawPositionIndicator();
@@ -73,18 +56,24 @@ void ABaseGridActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	//if(TopDownController)
 	//PrintDotProduct(TopDownController);
-	FVector CursorHit= TopDownController->CursorWorldHitLocation;
+	
+}
+
+void ABaseGridActor::Receiver_OnMouseMove(FVector HitLoc)
+{
 	for (const TPair<FVector2D, UTileData*>& Pair : TileMap)
 	{
 		const FVector2D& Key = Pair.Key;
-		CursorHitTile = Pair.Value;
-		FBox BoxBounds = CursorHitTile->BoundingBox;
-		TopDownController->HitTile=CursorHitTile;
-		bool IsWithinBounds = BoxBounds.IsInside(CursorHit);
+		UTileData* Tile = Pair.Value;
+		
+		FBox BoxBounds = Tile->BoundingBox;
+		bool IsWithinBounds = BoxBounds.IsInside(HitLoc);
 		
 		UMaterialInstanceDynamic* DynMaterial = MaterialContainer[Key];
 		if(IsWithinBounds)
 		{
+			CursorHitTile = Tile;
+			TopDownController->HitTile=CursorHitTile;
 			FVector OPCT =FVector (1.0f,1.0f,1.0f);
 			DynMaterial->SetVectorParameterValue("Opacity",OPCT);
 		}
@@ -186,7 +175,8 @@ bool ABaseGridActor::GenerateGridMesh()
 	{
 		for (int32 X = 0; X <= GridSize.X; X++)
 		{
-			const FVector VertexLocation = FVector(X * CellSize.X + GridOffset.X, Y * CellSize.Y + GridOffset.Y, GridOffset.Z);
+			const FVector VertexLocation = FVector(X * CellSize.X + GridOffset.X, Y
+				* CellSize.Y + GridOffset.Y, GridOffset.Z);
 
 			// Add vertex
 			Vertices.Add(VertexLocation);
@@ -311,8 +301,8 @@ void ABaseGridActor::DrawPositionIndicator()
 		FVector Value = Pair.Value;
 		FVector Location = Value;
 		//DrawDebugSphere(World,Location,50,20,FColor::Red,true,-1);
-		DrawDebugPoint(World,Location,20,FColor::Green,true,-1,0);//depth priority of 0 means always visible
-		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT("Position: %f,%f"),Value.X, Value.Y), nullptr, FColor::Red, -1.0F, false);
+		DrawDebugPoint(World,Location,10,FColor::Green,true,-1,0);//depth priority of 0 means always visible
+		DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT(" %f,%f"),Value.X, Value.Y), nullptr, FColor::Red, -1.0F, false);
 		//bDrawn =true;
 	}
 	/*for (const TPair<FVector2D, UTileData*>& Pair : TileMap)

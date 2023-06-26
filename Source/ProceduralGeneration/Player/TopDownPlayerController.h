@@ -43,11 +43,11 @@ public:
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
 	FVector CursorWorldHitLocation;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Controller")
 	bool bIsCursorPointing;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+		UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float SpawnOffset_Cursor;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Controller")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float SpawnOffset_Tile;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
 	UMeshData*MeshData;
@@ -58,7 +58,11 @@ public:
 	bool bIsDragSucessfull;
 	bool IsLMBPressed ;
 	bool IsLMBReleased ;
+	UPROPERTY()
 	AActor*CursorActor;
+	UPROPERTY(EditAnywhere)
+	TArray<AActor*>PlacedActor;
+	bool bIsObjectPlaced ;
 
 	ATopDownPawn* GetTopDownPawn ();
 	void OnMouseMoveX (const FInputActionValue& Value);
@@ -101,8 +105,8 @@ public:
 	void OnCardDragReceiver(FVector2D CursorPos);
 	
 	bool bShowCursor ;
-	//static FOnMouseMovementDelegate OnMouseMovementDelegate ;
-	FOnMouseMovementDelegate OnMouseMovementDelegate ;
+	
+	
 
 	UObject*SelectedObject;
 

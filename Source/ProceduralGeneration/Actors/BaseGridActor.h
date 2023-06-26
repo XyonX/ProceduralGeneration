@@ -27,6 +27,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void Receiver_OnMouseMove (FVector HitLoc);
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Mat")
 	UMaterialInterface* MaterialTemplate;
 
@@ -61,6 +64,8 @@ public:
 
 	void TileHoverEffect();
 	void PrintDotProduct (ATopDownPlayerController*TDController);
+
+	
 	
 
 private:

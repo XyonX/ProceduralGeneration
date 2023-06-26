@@ -32,9 +32,9 @@ void ATopDownPlayerController::BeginPlay()
 	Super::BeginPlay();
 	//DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	//OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
+	//ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
 	ADelegateHelper::DragDownDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragDownReceiver);
 	ADelegateHelper::DragUpDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragUpReceiver);
-	//ADelegateHelper::OnDragDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	ADelegateHelper::OnDragDelegate.BindDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	
 	GetTopDownPawn();
@@ -50,7 +50,6 @@ void ATopDownPlayerController::BeginPlay()
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
-	OnMouseMovementDelegate.Broadcast(FVector::ZeroVector);
 
 	/*if (bShowCursor)
 	{
@@ -182,45 +181,6 @@ void ATopDownPlayerController::OnMouseLMBHold(const FInputActionValue& Value)
 		LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
 		OnMouseMove(MousePosition);
 	}
-	/*FActorSpawnParameters SpawnParams ;
-SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-if (TesTActor)
-{
-	GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
-}*/
-
-
-	//FVector Loc = CursorWorldPosition+(CursorWorldDirection*10)
-	//DrawDebugString(GetWorld(), CursorWorldPosition, *FString::Printf(TEXT("Position: %f,%f"),CursorWorldPosition.X, CursorWorldPosition.Y), nullptr, FColor::Red, -1.0f, false);
-	//DrawDebugSphere(GetWorld(), CursorWorldPosition, 50, 16, FColor::Blue, false, 20.0f);
-	/*float Length = 50.0f; // The length of the cone
-	float AngleWidth = FMath::DegreesToRadians(20.0f); // The width angle of the cone in radians
-	float AngleHeight = FMath::DegreesToRadians(20.0f); // The height angle of the cone in radians
-	int32 NumSides = 16; // The number of sides of the cone
-	FColor Color = FColor::Red; // The color of the cone
-	bool bPersistentLines = true; // Whether the cone should persist or not
-	float LifeTime = -1.0f; // The lifetime of the cone in seconds (-1 means infinite)
-	uint8 DepthPriority = 0; // The depth priority of the cone
-	float Thickness = 1.0f; // The thickness of the cone lines
-
-	// Call the function to draw the cone
-	DrawDebugCone(
-	  GetWorld(),
-	  CursorWorldPosition,
-	  CursorWorldDirection,
-	  Length,
-	  AngleWidth,
-	  AngleHeight,
-	  NumSides,
-	  Color,
-	  bPersistentLines,
-	  LifeTime,
-	  DepthPriority,
-	  Thickness
-	);*/
-	//MouseTrace();
 	bShouldDrag=true;
 }
 
@@ -338,10 +298,7 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 
 	 MouseTrace();
 	
-	if( OnMouseMovementDelegate.IsBound())
-	{
-		OnMouseMovementDelegate.Broadcast(CursorWorldHitLocation);
-	}
+	ADelegateHelper::OnMouseMovementDelegate.Broadcast(	CursorWorldHitLocation);
 
 	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value);
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
@@ -380,6 +337,7 @@ bool ATopDownPlayerController::MouseTrace()
 	FVector TraceEnd =CursorWorldPosition+(CursorWorldDirection*CursorRange); // Set the ending point of the trace
 	
 	FCollisionQueryParams TraceParams(FName(TEXT("LineTrace")), true, GetOwner());
+	TraceParams.AddIgnoredActor(CursorActor);
 
 	// Perform the line trace
 	//if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams))
@@ -392,13 +350,10 @@ bool ATopDownPlayerController::MouseTrace()
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 		CursorWorldHitLocation = HitResult.Location;
 		FVector HitNormal = HitResult.Normal;
-
-		// Perform further actions based on the hit result
-		// ...
-
+		
 		// Debug visualization of the line trace
 		//DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
-		//DrawDebugSphere(GetWorld(), HitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
+		//DrawDebugSphere(GetWorld(), CursorWorldHitLocation, 100.0f, 16, FColor::Blue, false, 20.0f);
 		return true;
 	}
 	bIsCursorPointing=false;
@@ -415,30 +370,34 @@ void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 
 void ATopDownPlayerController::OnCardDragDownReceiver()
 {
-	//FString DebugMessage = FString::Printf(TEXT("Mouse World Location: %f, %f"), WorldPosition.X, WorldPosition.Y);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Dragged");
-
-	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	bShouldDrag_Card=true;
 	
 	if (TesTActor)
 	{
-		CursorActor= GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), CursorWorldDirection.Rotation(), SpawnParams);
+		CursorActor= GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), FRotator::ZeroRotator, SpawnParams);
 	}
-
 	
 }
 void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Draging");
-
 	OnMouseMove(CursorPos);
 	
 	if(CursorActor)
 	{
-		CursorActor->SetActorLocation(CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor));
+		if(bIsCursorPointing)
+		{
+			FVector newloc = HitTile->CenterPoint;
+			CursorActor->SetActorLocation(newloc);
+			bIsObjectPlaced=true;
+		}
+		else
+		{
+			CursorActor->SetActorLocation(CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor));
+			bIsObjectPlaced=false;
+		}
+		
 	}
 }
 
@@ -447,8 +406,15 @@ void ATopDownPlayerController::OnCardDragUpReceiver()
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Released");
 	bShouldDrag_Card=false;
 
+	
 	if (CursorActor)
 	{
+		if(bIsObjectPlaced)
+		{
+			PlacedActor.Add(CursorActor);
+			CursorActor =nullptr;
+			return;
+		}
 		CursorActor->Destroy();
 	}
 }
