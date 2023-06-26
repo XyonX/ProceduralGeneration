@@ -29,5 +29,11 @@
 			]
 		}
 
-	]
+	],
+	"Plugins": [
+		{
+			"Name": "CoreContent",
+			"Enabled": true
+		}
+		]
 }
