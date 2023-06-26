@@ -6,17 +6,10 @@
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataTable.h"
+#include "ProceduralGeneration/Data/MeshData.h"
 #include "TileMesh.generated.h"
 
-UENUM(BlueprintType)
-enum class ETilingType : uint8
-{
-	BothDirection	UMETA(DisplayName = "Both Direction"),
-	Horizontal 		UMETA(DisplayName = "Horizontal"),
-	Vertical 		UMETA(DisplayName = "Vertical"),
-	UnSupported 	UMETA(DisplayName = "Not Tilable"),
-	
-};
+
 
 // This Struct is to determine which  tile to Update First Among the surrounded Tiles
 USTRUCT()
