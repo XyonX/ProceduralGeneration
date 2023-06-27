@@ -48,31 +48,16 @@ void ARenderActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-UTexture2D* ARenderActor::CaptureRenderedTexture()
+void ARenderActor::CaptureRenderedTexture()
 {
 	// Set the render target on the scene capture component
 	SceneCaptureComponent->TextureTarget = RenderTarget;
 
+	// Disable capturing the skybox and background
+	SceneCaptureComponent->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDR;
+
 	// Capture the scene by rendering
 	SceneCaptureComponent->CaptureScene();
-
-	// Create a new texture and copy the rendered image
-	UTexture2D* RenderedTexture = UTexture2D::CreateTransient(RenderTarget->SizeX, RenderTarget->SizeY, PF_B8G8R8A8);
-	FTexture2DMipMap& Mip = RenderedTexture->GetPlatformData()->Mips[0];
-	void* Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
-	FIntRect Rect(0, 0, RenderTarget->SizeX, RenderTarget->SizeY);
-	RenderTarget->GameThread_GetRenderTargetResource()->ReadPixelsPtr((FColor*)Data, FReadSurfaceDataFlags(), Rect);
-	Mip.BulkData.Unlock();
-
-	// Update the texture resource
-	RenderedTexture->UpdateResource();
-
-	// Save the texture as a PNG file
-	//FString SavePath = FPaths::ProjectContentDir() + "Textures/RenderedTexture.png";
-	//FImageUtils::ExportTexture2DToPNGFile(RenderedTexture, SavePath);
-	//FImageUtils::ExportRenderTarget2DAsPNG()
-	//FImageUtils::ExportRenderTarget2DAsPNG();
-	//FFileHelper::SaveArrayToFile(FImageUtils::ExportRenderTarget2DAsPNG(RenderTarget,), *SavePath);
 
 	// Save the render target as a PNG file
 	FString SavePath = FPaths::ProjectContentDir() + "Textures/RenderedTexture.png";
@@ -83,7 +68,5 @@ UTexture2D* ARenderActor::CaptureRenderedTexture()
 		Ar->Close();
 		delete Ar;
 	}
-
-	return RenderedTexture;
 }
 

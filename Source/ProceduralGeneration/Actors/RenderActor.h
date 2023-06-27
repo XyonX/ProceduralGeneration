@@ -25,17 +25,17 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Components")
 	USceneCaptureComponent2D* SceneCaptureComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* StaticMeshComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Rendering")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Rendering")
 	UTextureRenderTarget2D* RenderTarget;
 
 	UFUNCTION(BlueprintCallable, Category = "Rendering")
-	UTexture2D* CaptureRenderedTexture();
+	void CaptureRenderedTexture();
 
 	
 };
