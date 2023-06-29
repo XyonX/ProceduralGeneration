@@ -377,8 +377,13 @@ void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 
 	if(inSpawnable)
 	{
-		CursorActor =GetWorld()->SpawnActor<ASpawnableActor>(ASpawnableActor::StaticClass(),CursorWorldPosition + (CursorWorldDirection * 500), FRotator::ZeroRotator, SpawnParams);
-		CursorActor->SetMesh(inSpawnable->GetMesh());
+		//CursorActor =GetWorld()->SpawnActor<ASpawnableActor>(ASpawnableActor::StaticClass(),CursorWorldPosition + (CursorWorldDirection * 500), FRotator::ZeroRotator, SpawnParams);
+		
+		FVector SpawnLoc=CursorWorldPosition + (CursorWorldDirection * 500);
+		CursorActor= GetWorld()->SpawnActorDeferred<ASpawnableActor>(ASpawnableActor::StaticClass(), FTransform(FRotator::ZeroRotator, SpawnLoc));
+		CursorActor->Init(inSpawnable->GetMesh(),inSpawnable->GetMaterial_Interface());
+
+		UGameplayStatics::FinishSpawningActor(CursorActor, FTransform(FRotator::ZeroRotator, SpawnLoc));
 	}
 	
 }

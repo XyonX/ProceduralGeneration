@@ -44,7 +44,7 @@ void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TArray<USpawnable*>&
 	for (FMeshProperty*MP : AllMeshProperties)
 	{
 		USpawnable * Spawnable = NewObject<USpawnable>();
-		Spawnable->Init(MP->Mesh,MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition);
+		Spawnable->Init(MP->Mesh,MP->Mesh->GetMaterial(0),MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition);
 		inSpawnables.Add(Spawnable);
 	}
 	
@@ -66,7 +66,7 @@ void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnab
 	for (FMeshProperty*MP : AllMeshProperties)
 	{
 		USpawnable * Spawnable = NewObject<USpawnable>();
-		Spawnable->Init(MP->Mesh,MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition);
+		Spawnable->Init(MP->Mesh,MP->Mesh->GetMaterial(0),MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition);
 		inSpawnables.Add(Spawnable->GetID(),Spawnable);
 	}
 }
