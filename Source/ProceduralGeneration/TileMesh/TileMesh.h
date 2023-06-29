@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "GameplayTagContainer.h"
+#include "CorePlugin/Data/MeshData.h"
 #include "Engine/DataTable.h"
-#include "ProceduralGeneration/Data/MeshData.h"
 #include "TileMesh.generated.h"
 
 

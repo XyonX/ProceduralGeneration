@@ -33,9 +33,10 @@ void ATopDownPlayerController::BeginPlay()
 	//DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	//OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
 	//ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
-	ADelegateHelper::DragDownDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragDownReceiver);
-	ADelegateHelper::DragUpDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragUpReceiver);
+	ADelegateHelper::DragDelegate_Down.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver_Down);
 	ADelegateHelper::OnDragDelegate.BindDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	ADelegateHelper::DragDelegate_Up.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver_Up);
+	
 	
 	GetTopDownPawn();
 	// Set input mode to Game and UI
@@ -368,15 +369,16 @@ void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 
 
 
-void ATopDownPlayerController::OnCardDragDownReceiver()
+void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	bShouldDrag_Card=true;
-	
-	if (TesTActor)
+
+	if(inSpawnable)
 	{
-		CursorActor= GetWorld()->SpawnActor<AActor>(TesTActor,CursorWorldPosition + (CursorWorldDirection * 500), FRotator::ZeroRotator, SpawnParams);
+		CursorActor =GetWorld()->SpawnActor<ASpawnableActor>(ASpawnableActor::StaticClass(),CursorWorldPosition + (CursorWorldDirection * 500), FRotator::ZeroRotator, SpawnParams);
+		CursorActor->SetMesh(inSpawnable->GetMesh());
 	}
 	
 }
@@ -400,8 +402,7 @@ void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
 		
 	}
 }
-
-void ATopDownPlayerController::OnCardDragUpReceiver()
+void ATopDownPlayerController::OnCardDragReceiver_Up()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Released");
 	bShouldDrag_Card=false;
@@ -418,6 +419,10 @@ void ATopDownPlayerController::OnCardDragUpReceiver()
 		CursorActor->Destroy();
 	}
 }
+
+
+
+
 
 
 

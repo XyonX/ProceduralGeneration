@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "CorePlugin/Data/MeshData.h"
 #include "CorePlugin/Helpers/DelegateHelper.h"
 #include"GameFramework/PlayerController.h"
-#include "ProceduralGeneration/Data/MeshData.h"
 #include "ProceduralGeneration/Pawn/TopDownPawn.h"
 #include "TopDownPlayerController.generated.h"
 
@@ -59,9 +59,9 @@ public:
 	bool IsLMBPressed ;
 	bool IsLMBReleased ;
 	UPROPERTY()
-	AActor*CursorActor;
+	ASpawnableActor*CursorActor;
 	UPROPERTY(EditAnywhere)
-	TArray<AActor*>PlacedActor;
+	TArray<ASpawnableActor*>PlacedActor;
 	bool bIsObjectPlaced ;
 
 	ATopDownPawn* GetTopDownPawn ();
@@ -97,12 +97,15 @@ public:
 	bool MouseTrace ();
 	UFUNCTION()
 	void CursorMovementReceiver(FVector Value);
+
 	UFUNCTION()
-	void OnCardDragDownReceiver ();
-	UFUNCTION()
-	void OnCardDragUpReceiver ();
+	void OnCardDragReceiver_Down (USpawnable*inSpawnable);
 	UFUNCTION()
 	void OnCardDragReceiver(FVector2D CursorPos);
+	UFUNCTION()
+	void OnCardDragReceiver_Up ();
+
+	
 	
 	bool bShowCursor ;
 	
