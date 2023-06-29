@@ -32,7 +32,7 @@ ARenderActor::ARenderActor()
 
 	// Create the render target
 	RenderTarget = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTarget"));
-	RenderTarget->InitAutoFormat(256, 256); // Set the dimensions of the render target as desired
+	RenderTarget->InitAutoFormat(2048, 2048); // Set the dimensions of the render target as desired
 }
 
 // Called when the game starts or when spawned
