@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "CoreUI/UI/TopDownIngameScreen.h"
 #include "GameFramework/Actor.h"
+#include "ProceduralGeneration/Game/TopDownGameInstance.h"
+#include "Widgets/Layout/SGridPanel.h"
 #include "UIActor.generated.h"
 
 UCLASS()
@@ -15,38 +17,42 @@ class PROCEDURALGENERATION_API AUIActor : public AActor
 public:
 	// Sets default values for this actor's properties
 	AUIActor();
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	
 
+	/** Dat Variables */
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
 	float Height;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
 	float Width;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
-	UTexture2D* BGImage;
+	
+	
+	
+	/** Getter And Setter */
 
-	UFUNCTION(BlueprintCallable)
-	UTopDownIngameScreen*GetIngameWidget () { return IngameScreen;}
+	UTopDownIngameScreen*GetInGameWidget () { return IngameScreen;}
 
 
-
-	//public functions
-
+	
+	//functions
 	void SpawnUI_UMG_1 ();
 	void SpawnUI_Slate_1 ();
-	TSharedPtr<UGameViewportClient ,ESPMode::ThreadSafe>GViewport;
 
 
-	TSharedPtr<SBottomBuildingsPanel>BottomPanelWidget ;
+
 	
 private:
 
-	
+	UTopDownGameInstance*TDGameInstance;
 	UTopDownIngameScreen*IngameScreen ;
+	TSharedPtr<SBottomBuildingsPanel>BottomPanelWidget ;
+	
+	
+	
 };

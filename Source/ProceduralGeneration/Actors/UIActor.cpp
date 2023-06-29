@@ -4,7 +4,7 @@
 #include "UIActor.h"
 
 #include "Actions/AsyncAction_CreateWidgetAsync.h"
-#include "CoreUI/Slate/CompoundWidgets/SBottomBuildingsPanel.h"
+#include "CoreUI/Slate/Cards/SBuildingCard.h"
 #include "CoreUI/UI/TopDownIngameScreen.h"
 
 
@@ -22,7 +22,14 @@ void AUIActor::BeginPlay()
 	Super::BeginPlay();
 	// Spawn the UTopDownIngameScreen widget
 
+	TDGameInstance=Cast<UTopDownGameInstance>(GetGameInstance());
+	if(TDGameInstance)
+	{
+		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT(" USing TDGameInstance "));}
+	}
+
 	SpawnUI_UMG_1();
+	
 	
 }
 
@@ -34,9 +41,12 @@ void AUIActor::Tick(float DeltaTime)
 
 void AUIActor::SpawnUI_UMG_1()
 {
-	IngameScreen = CreateWidget<UTopDownIngameScreen>(GetWorld(), UTopDownIngameScreen::StaticClass());
-	IngameScreen->SetBackgroundImage(BGImage);
+	IngameScreen = CreateWidget<UTopDownIngameScreen>(GetWorld(), UTopDownIngameScreen::StaticClass());;
 	IngameScreen->SetSize(Height,Width);
+	if(TDGameInstance)
+	{
+		IngameScreen->SetSpawnable(&TDGameInstance->SpawnableItems);
+	}
 	IngameScreen->SynchronizeProperties();
 	IngameScreen->AddToViewport();
 }
