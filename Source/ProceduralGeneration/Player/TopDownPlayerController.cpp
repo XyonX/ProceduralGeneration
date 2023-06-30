@@ -23,7 +23,7 @@ ATopDownPlayerController::ATopDownPlayerController()
 	VerticalPanAcc=100;
 	CursorRange=100000;
 	//bShowCursor = true;
-	SpawnOffset_Cursor = 500.0f;
+	SpawnOffset_Cursor = 2000.0f;
 	SpawnOffset_Tile=200.0f;
 }
 
@@ -349,6 +349,7 @@ bool ATopDownPlayerController::MouseTrace()
 		// A hit has occurred
 		// Process the hit result
 		AActor* HitActor = HitResult.GetActor();
+		HitInstanceIndex= HitResult.Item;
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 		CursorWorldHitLocation = HitResult.Location;
 		FVector HitNormal = HitResult.Normal;
@@ -393,6 +394,8 @@ void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 		}
 		CurrentSpawnableComponent->SetVisibility(true);
 		CurrentCursorActorID= CurrentSpawnableComponent->AddInstance(SpawnTransform);
+		//FString DebugMessage = FString::Printf(TEXT("Instance Index : %d"),CurrentCursorActorID);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 		
 	}
 	
@@ -402,18 +405,20 @@ void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
 	OnMouseMove(CursorPos);
 	FVector SpawnLoc =CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor);
 	FTransform SpawnTransform = FTransform(FRotator::ZeroRotator,SpawnLoc);
+	FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc.X);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	if(CurrentSpawnableComponent)
 	{
 		if(bIsCursorPointing)
 		{
 			FVector newloc = HitTile->CenterPoint;
-			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,FTransform(FRotator::ZeroRotator,newloc));
+			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,FTransform(FRotator::ZeroRotator,newloc),true,true);
 			
 			bIsObjectPlaced=true;
 		}
 		else
 		{
-			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,SpawnTransform);
+			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,SpawnTransform,true,true,true);
 			bIsObjectPlaced=false;
 		}
 		
