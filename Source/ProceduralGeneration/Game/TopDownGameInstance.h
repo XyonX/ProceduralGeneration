@@ -31,6 +31,7 @@ public:
 
 	void Init_Spawnable (UDataTable*inDT,TArray<USpawnable*>&inSpawnables);
 	void Init_Spawnable (UDataTable*inDT,TMap<int32 ,USpawnable*>&inSpawnables,UWorld*InWorld);
+	USpawnable* GetSpawnableByID (int32 inID) {return SpawnableItems[inID];};
 	
 	virtual void Init() override;
 

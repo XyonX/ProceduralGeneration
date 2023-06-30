@@ -45,10 +45,12 @@ public:
 	FVector CursorWorldHitLocation;
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Controller")
 	bool bIsCursorPointing;
-		UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float SpawnOffset_Cursor;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float SpawnOffset_Tile;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
+	FVector SnapingBounds;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
 	UMeshData*MeshData;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Data")
@@ -81,6 +83,9 @@ public:
 	bool TirangleIntersectionTest (TArray<FVector>Triangle_1 ,TArray<FVector>Triangle_2);
 	bool BoxIntersectionTest ( FVector Direction , TArray<FVector>Verts);
 
+	void TraceInstanceInBound (ASpawnableActor*SelectedActor, FVector CenterPoint, TArray<int32>& OutOverlappingIndices);
+	FVector CalculateSnappingPoint ( ASpawnableActor*SelectedActor , FVector HitLocation, TArray<int32>& OutOverlappingIndices) ;
+
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float HorizontalPanAcc ;
@@ -110,8 +115,11 @@ public:
 	bool bShowCursor ;
 	int32 CurrentCursorActorID;
 	int32 HitInstanceIndex;
+	TArray<int32> OverlappingInstancesIndices;
 	UPROPERTY()
 	UInstancedStaticMeshComponent*CurrentSpawnableComponent;
+	UPROPERTY()
+	ASpawnableActor*CurrentSpawnable;
 	
 	
 

@@ -278,6 +278,49 @@ bool ATopDownPlayerController::BoxIntersectionTest(FVector Direction, TArray<FVe
 	
 }
 
+void ATopDownPlayerController::TraceInstanceInBound(ASpawnableActor*SelectedActor, FVector CenterPoint, TArray<int32>& OutOverlappingIndices)
+{
+	UInstancedStaticMeshComponent* ISMC =SelectedActor->GetInstanceMesh();
+	FBox SnappingBounds;
+	FVector min = FVector(CenterPoint.X - (SnapingBounds.X/2) ,CenterPoint.Y-(SnapingBounds.Y/2),CenterPoint.Z-(SnapingBounds.Z/2));
+	FVector max = FVector(CenterPoint.X + (SnapingBounds.X/2) ,CenterPoint.Y+(SnapingBounds.Y/2),CenterPoint.Z+(SnapingBounds.Z/2));
+
+	SnappingBounds.Min=min;
+	SnappingBounds.Max=max;
+	
+	if (ISMC)
+	{
+		OutOverlappingIndices= ISMC->GetInstancesOverlappingBox(SnappingBounds,true);
+	}
+
+	
+}
+
+FVector ATopDownPlayerController:: CalculateSnappingPoint(ASpawnableActor*SelectedActor , FVector HitLocation, TArray<int32>& OutOverlappingIndices)
+{
+	UInstancedStaticMeshComponent* ISMC =SelectedActor->GetInstanceMesh();
+
+	float NearestDistance=100000 ;
+	float NearentInstanceIndex;
+	FVector NearentInstanceLocation;
+	for (int32 index : OutOverlappingIndices)
+	{
+		FTransform OutTransform;
+		ISMC->GetInstanceTransform(index,OutTransform,true);
+
+		float CurrentDistance =FVector::DistSquared(HitLocation,OutTransform.GetLocation());
+		if(CurrentDistance<NearestDistance)
+		{
+			NearestDistance=CurrentDistance;
+			NearestDistance=index;
+			NearentInstanceLocation=OutTransform.GetLocation();
+		}
+		
+	}
+	
+	return NearentInstanceLocation;
+}
+
 void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 {
 	// Implement the logic for hovering over the grid and updating the mesh here
@@ -386,8 +429,9 @@ void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 		{
 			return;
 		}
-		inSpawnable->GetActor()->SetActorHiddenInGame(false);
-		CurrentSpawnableComponent=inSpawnable->GetActor()->GetInstanceMesh();
+		CurrentSpawnable= inSpawnable->GetActor();
+		CurrentSpawnable->SetActorHiddenInGame(false);
+		CurrentSpawnableComponent=CurrentSpawnable->GetInstanceMesh();
 		if(CurrentSpawnableComponent==nullptr)
 		{
 			return;
@@ -412,6 +456,8 @@ void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
 		if(bIsCursorPointing)
 		{
 			FVector newloc = HitTile->CenterPoint;
+			TraceInstanceInBound(CurrentSpawnable,newloc,OverlappingInstancesIndices);
+			CalculateSnappingPoint(CurrentSpawnable,HitResult.Location,OverlappingInstancesIndices);
 			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,FTransform(FRotator::ZeroRotator,newloc),true,true);
 			
 			bIsObjectPlaced=true;
