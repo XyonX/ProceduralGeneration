@@ -30,7 +30,8 @@ public:
 	UDataTable* ImportData (FString DataTableName);
 
 	void Init_Spawnable (UDataTable*inDT,TArray<USpawnable*>&inSpawnables);
-	void Init_Spawnable (UDataTable*inDT,TMap<int32 ,USpawnable*>&inSpawnables);
+	void Init_Spawnable (UDataTable*inDT,TMap<int32 ,USpawnable*>&inSpawnables,UWorld*InWorld);
 	
 	virtual void Init() override;
+
 };

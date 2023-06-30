@@ -52,7 +52,7 @@ void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TArray<USpawnable*>&
 	
 }
 
-void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnable*>& inSpawnables)
+void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnable*>& inSpawnables,UWorld*inWorld)
 {
 	TArray<FMeshProperty*>AllMeshProperties;
 	inDT->GetAllRows<FMeshProperty>(TEXT(""),AllMeshProperties);
@@ -67,6 +67,7 @@ void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnab
 	{
 		USpawnable * Spawnable = NewObject<USpawnable>();
 		Spawnable->Init(MP->Mesh,MP->Mesh->GetMaterial(0),MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition);
+		Spawnable->CreateInstance(inWorld);
 		inSpawnables.Add(Spawnable->GetID(),Spawnable);
 	}
 }
@@ -78,10 +79,10 @@ void UTopDownGameInstance::Init()
 	// Usage example:
 	FString DataTablePath = "/ProceduralGeneration/Data/DT_MeshProperty.DT_MeshProperty";
 	UDataTable* LoadedDataTable =ImportData(SpawnableItemsDataTableName);
-	if (LoadedDataTable)
+	UWorld*CurrentWorld=GetWorld();
+	if(WorldContext)
 	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Data Table Found "));}
+		Init_Spawnable(LoadedDataTable,SpawnableItems,CurrentWorld);
 	}
 	
-	Init_Spawnable(LoadedDataTable,SpawnableItems);
 }

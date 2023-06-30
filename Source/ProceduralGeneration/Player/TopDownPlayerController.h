@@ -108,6 +108,9 @@ public:
 	
 	
 	bool bShowCursor ;
+	int32 CurrentCursorActorID;
+	UPROPERTY()
+	UInstancedStaticMeshComponent*CurrentSpawnableComponent;
 	
 	
 

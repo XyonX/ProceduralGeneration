@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "Actions/AsyncAction_CreateWidgetAsync.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -374,34 +375,45 @@ void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	bShouldDrag_Card=true;
+	FVector SpawnLoc =CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor);
+	FTransform SpawnTransform = FTransform(FRotator::ZeroRotator,SpawnLoc);
 
 	if(inSpawnable)
 	{
-		//CursorActor =GetWorld()->SpawnActor<ASpawnableActor>(ASpawnableActor::StaticClass(),CursorWorldPosition + (CursorWorldDirection * 500), FRotator::ZeroRotator, SpawnParams);
 		
-		FVector SpawnLoc=CursorWorldPosition + (CursorWorldDirection * 500);
-		CursorActor= GetWorld()->SpawnActorDeferred<ASpawnableActor>(ASpawnableActor::StaticClass(), FTransform(FRotator::ZeroRotator, SpawnLoc));
-		CursorActor->Init(inSpawnable->GetMesh(),inSpawnable->GetMaterial_Interface());
-
-		UGameplayStatics::FinishSpawningActor(CursorActor, FTransform(FRotator::ZeroRotator, SpawnLoc));
+		if(inSpawnable->GetActor() ==nullptr)
+		{
+			return;
+		}
+		inSpawnable->GetActor()->SetActorHiddenInGame(false);
+		CurrentSpawnableComponent=inSpawnable->GetActor()->GetInstanceMesh();
+		if(CurrentSpawnableComponent==nullptr)
+		{
+			return;
+		}
+		CurrentSpawnableComponent->SetVisibility(true);
+		CurrentCursorActorID= CurrentSpawnableComponent->AddInstance(SpawnTransform);
+		
 	}
 	
 }
 void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
 {
 	OnMouseMove(CursorPos);
-	
-	if(CursorActor)
+	FVector SpawnLoc =CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor);
+	FTransform SpawnTransform = FTransform(FRotator::ZeroRotator,SpawnLoc);
+	if(CurrentSpawnableComponent)
 	{
 		if(bIsCursorPointing)
 		{
 			FVector newloc = HitTile->CenterPoint;
-			CursorActor->SetActorLocation(newloc);
+			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,FTransform(FRotator::ZeroRotator,newloc));
+			
 			bIsObjectPlaced=true;
 		}
 		else
 		{
-			CursorActor->SetActorLocation(CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor));
+			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,SpawnTransform);
 			bIsObjectPlaced=false;
 		}
 		
@@ -412,16 +424,14 @@ void ATopDownPlayerController::OnCardDragReceiver_Up()
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Card Released");
 	bShouldDrag_Card=false;
 
-	
-	if (CursorActor)
+	if(CurrentSpawnableComponent)
 	{
 		if(bIsObjectPlaced)
 		{
-			PlacedActor.Add(CursorActor);
-			CursorActor =nullptr;
+			CurrentSpawnableComponent=nullptr;
 			return;
 		}
-		CursorActor->Destroy();
+		CurrentSpawnableComponent->RemoveInstance(CurrentCursorActorID);
 	}
 }
 
