@@ -472,7 +472,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 	int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
 	
 	//Pick A Random Tile	//For the first time choose from stream
-	UTile* FirstRandomTile = RemainingTiles[1];
+	UTile* FirstRandomTile = RemainingTiles[FirstIndices];
 	
 	// ADDING INSTANCE OF THE SELECTED MESH
 	AddInstanceMesh(FirstRandomTile);
@@ -744,7 +744,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		UTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Left(SelectedTile,LeftNeighbour);
 	}
-	//Left UP
+	/*//Left UP
 	if(Position2D.Y-1 >=1 &&  Position2D.X+1 <=Map_Height)
 	{
 		FVector2D Pos (Position2D.X+1,Position2D.Y-1);
@@ -757,7 +757,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		FVector2D Pos (Position2D.X-1,Position2D.Y-1);
 		UTile* LeftDownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_LeftDown(SelectedTile,LeftDownNeighbour);
-	}
+	}*/
 
 	//Right
 	if(Position2D.Y+1 <=Map_Width )
@@ -767,7 +767,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		UTile* RightNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Right(SelectedTile,RightNeighbour);
 	}
-	//Right Up
+	/*//Right Up
 	if(Position2D.Y+1 <=Map_Width  &&  Position2D.X+1 <=Map_Height)
 	{
 		
@@ -782,7 +782,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		FVector2D Pos (Position2D.X-1,Position2D.Y+1);
 		UTile* RightDownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_RightDown(SelectedTile,RightDownNeighbour);
-	}
+	}*/
 	//Up
 	if(Position2D.X+1 <=Map_Height )
 	{

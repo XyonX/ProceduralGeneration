@@ -7,6 +7,7 @@
 #include "CorePlugin/Data/MeshData.h"
 #include "CorePlugin/Helpers/DelegateHelper.h"
 #include"GameFramework/PlayerController.h"
+#include "ProceduralGeneration/Game/TopDownGameInstance.h"
 #include "ProceduralGeneration/Pawn/TopDownPawn.h"
 #include "TopDownPlayerController.generated.h"
 
@@ -50,7 +51,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float SpawnOffset_Tile;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
-	FVector SnapingBounds;
+	FVector SnappingExtents;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
 	UMeshData*MeshData;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Data")
@@ -60,6 +61,7 @@ public:
 	bool bIsDragSucessfull;
 	bool IsLMBPressed ;
 	bool IsLMBReleased ;
+	bool bIsSnappingTargetAvailable;
 	UPROPERTY()
 	ASpawnableActor*CursorActor;
 	UPROPERTY(EditAnywhere)
@@ -84,7 +86,8 @@ public:
 	bool BoxIntersectionTest ( FVector Direction , TArray<FVector>Verts);
 
 	void TraceInstanceInBound (ASpawnableActor*SelectedActor, FVector CenterPoint, TArray<int32>& OutOverlappingIndices);
-	FVector CalculateSnappingPoint ( ASpawnableActor*SelectedActor , FVector HitLocation, TArray<int32>& OutOverlappingIndices) ;
+	int32 CalculateClosestInstance ( ASpawnableActor*SelectedActor , FVector HitLocation, TArray<int32>& OutOverlappingIndices) ;
+	FVector CalculateSnappingPoints (ASpawnableActor*SelectedActor,int32 TargetIndex , FVector HitLocation);
 
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
@@ -118,8 +121,11 @@ public:
 	TArray<int32> OverlappingInstancesIndices;
 	UPROPERTY()
 	UInstancedStaticMeshComponent*CurrentSpawnableComponent;
+	USpawnable*CurrentSpawnable;
 	UPROPERTY()
-	ASpawnableActor*CurrentSpawnable;
+	ASpawnableActor*CurrentSpawnableActor;
+	UPROPERTY()
+	UTopDownGameInstance*TopDownGameInstance;
 	
 	
 
