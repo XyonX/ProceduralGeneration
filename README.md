@@ -34,6 +34,10 @@
 - Custom probability Not Applied
 - 4096 Tiles , 64x64 Grid
 
+## Documentation
+
+[Documentation](https://1drv.ms/w/s!Ajugiet9WxPJ1iF4CSTDDvnu53Kd?e=WCeDLp)
+
 ## Raw Without Custom Frequency
 ![](Documentation/Proc_Rand_01.png)
 
@@ -58,8 +62,6 @@
 ![](Generations/Random_03.png)
 
 
-## Documentation
 
-[Documentation](https://linktodocumentation)
 
 
