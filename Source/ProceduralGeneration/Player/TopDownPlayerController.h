@@ -67,6 +67,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<ASpawnableActor*>PlacedActor;
 	bool bIsObjectPlaced ;
+	UPROPERTY()
+	AActor* MouseHitActor;
+	UPROPERTY()
+	UPrimitiveComponent* MouseHitComponent;
 
 	ATopDownPawn* GetTopDownPawn ();
 	void OnMouseMoveX (const FInputActionValue& Value);
@@ -85,8 +89,10 @@ public:
 	bool TirangleIntersectionTest (TArray<FVector>Triangle_1 ,TArray<FVector>Triangle_2);
 	bool BoxIntersectionTest ( FVector Direction , TArray<FVector>Verts);
 
-	void TraceInstanceInBound (ASpawnableActor*SelectedActor, FVector CenterPoint, TArray<int32>& OutOverlappingIndices);
-	int32 CalculateClosestInstance ( ASpawnableActor*SelectedActor , FVector HitLocation, TArray<int32>& OutOverlappingIndices) ;
+	void TraceInstanceInBound (ASpawnableActor*SelectedActor, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices);
+	void TraceInstanceInBound (UInstancedStaticMeshComponent* inISMC, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices);
+	int32 TraceSingleInstanceInBound (UInstancedStaticMeshComponent* inISMC, FVector CenterPoint);
+	int32 CalculateClosestInstance ( UInstancedStaticMeshComponent*inISMC , FVector HitLocation, TArray<int32>& inOverlappingIndices , int32 inCurrentInstanceIndex) ;
 	FVector CalculateSnappingPoints (ASpawnableActor*SelectedActor,int32 TargetIndex , FVector HitLocation);
 
 	
@@ -94,6 +100,8 @@ public:
 	float HorizontalPanAcc ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float VerticalPanAcc ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
+	float SnappingDistance;
 	
 
 	
@@ -109,16 +117,15 @@ public:
 	UFUNCTION()
 	void OnCardDragReceiver_Down (USpawnable*inSpawnable);
 	UFUNCTION()
-	void OnCardDragReceiver(FVector2D CursorPos);
+	void OnCardDragReceiver(FVector2D CursorPos , USpawnable*inSpawnable);
 	UFUNCTION()
 	void OnCardDragReceiver_Up ();
 
 	
 	
 	bool bShowCursor ;
-	int32 CurrentCursorActorID;
+	int32 CurrentInstanceIndex;
 	int32 HitInstanceIndex;
-	TArray<int32> OverlappingInstancesIndices;
 	UPROPERTY()
 	UInstancedStaticMeshComponent*CurrentSpawnableComponent;
 	USpawnable*CurrentSpawnable;
@@ -126,6 +133,9 @@ public:
 	ASpawnableActor*CurrentSpawnableActor;
 	UPROPERTY()
 	UTopDownGameInstance*TopDownGameInstance;
+	UMaterialInstanceDynamic*DefaultDynamicMaterial;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Material")
+	UMaterialInterface*DefaultMaterial;
 	
 	
 

@@ -27,7 +27,8 @@ ATopDownPlayerController::ATopDownPlayerController()
 	SpawnOffset_Tile=200.0f;
 	SnappingExtents.X = 2000;
 	SnappingExtents.Y = 2000;
-	SnappingExtents.Z = 1000;
+	SnappingExtents.Z = 2000;
+	SnappingDistance =20;
 }
 
 void ATopDownPlayerController::BeginPlay()
@@ -37,9 +38,9 @@ void ATopDownPlayerController::BeginPlay()
 	TopDownGameInstance = Cast<UTopDownGameInstance>(GetGameInstance());
 	//DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	//OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
-	//ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
+	ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
 	ADelegateHelper::DragDelegate_Down.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver_Down);
-	ADelegateHelper::OnDragDelegate.BindDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	ADelegateHelper::OnDragDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	ADelegateHelper::DragDelegate_Up.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver_Up);
 	
 	
@@ -283,51 +284,106 @@ bool ATopDownPlayerController::BoxIntersectionTest(FVector Direction, TArray<FVe
 	
 }
 
-void ATopDownPlayerController::TraceInstanceInBound(ASpawnableActor*SelectedActor, FVector CenterPoint, TArray<int32>& OutOverlappingIndices)
+void ATopDownPlayerController::TraceInstanceInBound(ASpawnableActor*SelectedActor, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices)
 {
 	UInstancedStaticMeshComponent* ISMC =SelectedActor->GetInstanceMesh();
 	FBox Bounds;
-	FVector min = FVector(CenterPoint.X - (SnappingExtents.X/2) ,CenterPoint.Y-(SnappingExtents.Y/2),CenterPoint.Z-(SnappingExtents.Z/2));
-	FVector max = FVector(CenterPoint.X + (SnappingExtents.X/2) ,CenterPoint.Y+(SnappingExtents.Y/2),CenterPoint.Z+(SnappingExtents.Z/2));
+	FVector min = FVector(CenterPoint.X - (Extents.X/2) ,CenterPoint.Y-(Extents.Y/2),CenterPoint.Z-(Extents.Z/2));
+	FVector max = FVector(CenterPoint.X + (Extents.X/2) ,CenterPoint.Y+(Extents.Y/2),CenterPoint.Z+(Extents.Z/2));
 
 	Bounds.Min=min;
 	Bounds.Max=max;
 
-	DrawDebugBox(GetWorld(), CenterPoint,SnappingExtents,FColor::Green,false,-1.0f );
+	
 	
 	if (ISMC)
 	{
+		
+		DrawDebugBox(GetWorld(), CenterPoint,SnappingExtents,FColor::Green,true,-1.0f );
 		OutOverlappingIndices= ISMC->GetInstancesOverlappingBox(Bounds,true);
 	}
 
 	
 }
 
-int32 ATopDownPlayerController::CalculateClosestInstance(ASpawnableActor* SelectedActor, FVector HitLocation,
-	TArray<int32>& OutOverlappingIndices)
+void ATopDownPlayerController::TraceInstanceInBound(UInstancedStaticMeshComponent* inISMC, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices)
 {
-	UInstancedStaticMeshComponent* ISMC =SelectedActor->GetInstanceMesh();
+	
+	FBox Bounds;
+	
+	FVector min = FVector(CenterPoint.X - (Extents.X) ,CenterPoint.Y-(Extents.Y),CenterPoint.Z-(Extents.Z));
+	FVector max = FVector(CenterPoint.X + (Extents.X) ,CenterPoint.Y+(Extents.Y),CenterPoint.Z+(Extents.Z));
 
+	Bounds.Min=min;
+	Bounds.Max=max;
+
+	
+	
+	if (inISMC)
+	{
+
+		DrawDebugBox(GetWorld(), CenterPoint,Extents,FColor::Green,true,-1.0f );
+		OutOverlappingIndices= inISMC->GetInstancesOverlappingBox(Bounds,true);
+
+	}
+
+	
+}
+
+int32 ATopDownPlayerController::TraceSingleInstanceInBound(UInstancedStaticMeshComponent* inISMC, FVector CenterPoint)
+{
+	TArray<int32> OutOverlappingIndices;
+	
+	int32 X  =100;
+	int32 Y =100;
+	FBox Bounds;
+	FVector min = FVector((CenterPoint.X - X/2) ,(CenterPoint.Y-Y/2),CenterPoint.Z);
+	FVector max = FVector((CenterPoint.X + X/2) ,(CenterPoint.Y+Y/2),CenterPoint.Z+100);
+
+	OutOverlappingIndices= inISMC->GetInstancesOverlappingBox(Bounds,true);
+
+	if (OutOverlappingIndices.Num() > 0)
+	{
+		return OutOverlappingIndices[0];
+	}
+
+	return -1; // Indicate no instance found
+}
+
+
+
+
+int32 ATopDownPlayerController::CalculateClosestInstance(UInstancedStaticMeshComponent* inISMC, FVector HitLocation,TArray<int32>&inOverlappingIndices, int32 inCurrentInstanceIndex)
+{
+	inOverlappingIndices.Remove(inCurrentInstanceIndex);
+	
 	float NearestDistance=100000 ;
 	float NearestInstanceIndex = -1;
-	FVector NearentInstanceLocation;
-	for (int32 index : OutOverlappingIndices)
+	FTransform NearestInstanceTransform;
+	
+	for	 (int i =0 ; i <inOverlappingIndices.Num() ; i++)
 	{
+		int32 index =inOverlappingIndices[i];
 		FTransform OutTransform;
-		ISMC->GetInstanceTransform(index,OutTransform,true);
+		inISMC->GetInstanceTransform(index,OutTransform,true);
 
 		float CurrentDistance =FVector::DistSquared(HitLocation,OutTransform.GetLocation());
 		if(CurrentDistance<NearestDistance)
 		{
 			NearestDistance=CurrentDistance;
-			//NearestInstanceIndex = index;
-			NearentInstanceLocation=OutTransform.GetLocation();
+			NearestInstanceIndex = index;
+			NearestInstanceTransform = OutTransform ;
+
 		}
 		
 	}
+	FVector NearestInstanceLocation =NearestInstanceTransform.GetLocation();
+	FString DebugMessage = FString::Printf(TEXT("Nearest Instance Location  : %f , %f,%f"),NearestInstanceLocation.X,NearestInstanceLocation.Y,NearestInstanceLocation.Z);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	
 	return NearestInstanceIndex;
 }
+
 FVector ATopDownPlayerController::CalculateSnappingPoints(ASpawnableActor* SelectedActor,int32 TargetIndex , FVector HitLocation)
 {
 	FVector NearestSnappingPoint;
@@ -460,9 +516,9 @@ bool ATopDownPlayerController::MouseTrace()
 		bIsCursorPointing=true;
 		// A hit has occurred
 		// Process the hit result
-		AActor* HitActor = HitResult.GetActor();
+		MouseHitActor = HitResult.GetActor();
 		HitInstanceIndex= HitResult.Item;
-		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		MouseHitComponent = HitResult.GetComponent();
 		CursorWorldHitLocation = HitResult.Location;
 		FVector HitNormal = HitResult.Normal;
 		
@@ -478,10 +534,45 @@ bool ATopDownPlayerController::MouseTrace()
 void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
-	DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
+	//DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
+/*	if (bIsCursorPointing)
+	{
+		
+		UInstancedStaticMeshComponent*ISMC =Cast<UInstancedStaticMeshComponent>(MouseHitComponent);
+		if(ISMC)
+		{
+			ASpawnableActor*SpawnableActor =Cast<ASpawnableActor>(MouseHitActor);
+			UMaterialInterface* DefInterface = SpawnableActor->GetSpawnable()->GetMaterial_Interface();
+			
+			int32 ind= TraceSingleInstanceInBound(ISMC,HitResult.Location);
+			if(ind >= 0)
+			{
+			
+				if(DefaultMaterial)
+				{
+					
+					ISMC->SetMaterial(ind,DefaultMaterial);
+				}
+				
+			}
+			else
+			{
+				ISMC->SetMaterial(ind,DefInterface);
+			}
+
+			
+		}
+		
+		if(CurrentSpawnable != nullptr)
+		{
+
+			if(DefaultMaterial)
+			CurrentSpawnableComponent->SetMaterial(HitInstanceIndex,DefaultMaterial);
+		}
+		
+	}*/
+	
 }
-
-
 
 void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 {
@@ -507,43 +598,71 @@ void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 			return;
 		}
 		CurrentSpawnableComponent->SetVisibility(true);
-		CurrentCursorActorID= CurrentSpawnableComponent->AddInstance(SpawnTransform);
-		//FString DebugMessage = FString::Printf(TEXT("Instance Index : %d"),CurrentCursorActorID);
+		CurrentInstanceIndex= CurrentSpawnableComponent->AddInstance(SpawnTransform);
+		//FString DebugMessage = FString::Printf(TEXT("Instance Index : %d"),CurrentInstanceIndex);
 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 		
 	}
 	
 }
-void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos)
+
+void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos , USpawnable*inSpawnable)
 {
 	OnMouseMove(CursorPos);
-	FVector SpawnLoc =CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor);
-	FTransform SpawnTransform = FTransform(FRotator::ZeroRotator,SpawnLoc);
-	FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc.X);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
-	if(CurrentSpawnableComponent)
+	
+	FVector SpawnLoc_Cursor =CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor);
+	FTransform SpawnTransform_Cursor = FTransform(FRotator::ZeroRotator,SpawnLoc_Cursor);
+	
+	//FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc_Cursor.X);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+
+	ASpawnableActor*ISMC_Actor =inSpawnable->GetActor();
+	UInstancedStaticMeshComponent* ISMC =ISMC_Actor->GetInstanceMesh();
+	
+	if(ISMC)
 	{
 		if(bIsCursorPointing)
 		{
-			FVector newloc = HitTile->CenterPoint;
-			TraceInstanceInBound(CurrentSpawnableActor,newloc,OverlappingInstancesIndices);
-			if(OverlappingInstancesIndices.Num() != 0)
+			float Remainder_X = FMath::Fmod(HitResult.Location.X,SnappingDistance);
+			float Remainder_Y = FMath::Fmod(HitResult.Location.Y,SnappingDistance);
+
+			FVector newloc = FVector(HitResult.Location.X-Remainder_X,HitResult.Location.Y-Remainder_Y,HitResult.Location.Z);
+			
+			//FVector newloc = HitTile->CenterPoint;
+			
+			TArray<int32> OverlappingInstancesIndices;
+			TraceInstanceInBound(ISMC,HitResult.Location,FVector(1000,1000,1000),OverlappingInstancesIndices);
+
+			FString DebugMessage = FString::Printf(TEXT("Num Of Meshes In Bound : %d"),OverlappingInstancesIndices.Num());
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+
+			if(!OverlappingInstancesIndices.IsEmpty())
 			{
-				int32 ind = CalculateClosestInstance(CurrentSpawnableActor,HitResult.Location,OverlappingInstancesIndices);
-				newloc= CalculateSnappingPoints(CurrentSpawnableActor,ind,HitResult.Location);
+				int32 ind = CalculateClosestInstance(ISMC,HitResult.Location,OverlappingInstancesIndices,CurrentInstanceIndex);
+				
+				//FString DbgMessage = FString::Printf(TEXT("Nearest Isntance Index : %d"),ind);
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DbgMessage);
+				
+				//newloc= CalculateSnappingPoints(CurrentSpawnableActor,ind,HitResult.Location);
 			}
+
+			//FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc_Cursor.X);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 			
+			//FVector Extent = TopDownGameInstance->GetSpawnableByID(CurrentSpawnableActor->SpawnableID)->GetBounds().GetExtent();
 			
-			FVector Extent = TopDownGameInstance->GetSpawnableByID(CurrentSpawnableActor->SpawnableID)->GetBounds().GetExtent();
-			DrawDebugBox(GetWorld(), newloc+CurrentSpawnable->GetPivotOffset_Center(),Extent,FColor::Blue,false,-1.0f );
-			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,FTransform(FRotator::ZeroRotator,newloc),true,true);
+			//FVector Center = (newloc+CurrentSpawnable->GetPivotOffset_Center());
+			//DrawDebugBox(GetWorld(),CurrentSpawnable->GetPivotOffset_Center() ,Extent,FColor::Blue,true,-1.0f );
+			ISMC->UpdateInstanceTransform(CurrentInstanceIndex,FTransform(FRotator::ZeroRotator,newloc),true,true);
+			
+			//DrawDebugString(GetWorld(),FVector( newloc.X ,newloc.Y ,newloc.Z+inSpawnable->MeshLength_Z),FString::FromInt(CurrentInstanceIndex), nullptr, FColor::Red, -1.0F, false,1);
 			
 			
 			bIsObjectPlaced=true;
 		}
 		else
 		{
-			CurrentSpawnableComponent->UpdateInstanceTransform(CurrentCursorActorID,SpawnTransform,true,true,true);
+			ISMC->UpdateInstanceTransform(CurrentInstanceIndex,SpawnTransform_Cursor,true,true,true);
 			bIsObjectPlaced=false;
 		}
 		
@@ -559,9 +678,10 @@ void ATopDownPlayerController::OnCardDragReceiver_Up()
 		if(bIsObjectPlaced)
 		{
 			CurrentSpawnableComponent=nullptr;
+			//DrawDebugString(GetWorld(), Location, *FString::Printf(TEXT(" %f,%f"),Value.X, Value.Y), nullptr, FColor::Red, -1.0F, false);
 			return;
 		}
-		CurrentSpawnableComponent->RemoveInstance(CurrentCursorActorID);
+		CurrentSpawnableComponent->RemoveInstance(CurrentInstanceIndex);
 	}
 }
 
