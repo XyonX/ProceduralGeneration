@@ -416,6 +416,28 @@ FVector ATopDownPlayerController::CalculateSnappingPoints(ASpawnableActor* Selec
 		return NearestSnappingPoint-CenterOffset;
 		
 	}
+	if(TilingType==ETilingType::BothDirection)
+	{
+		FVector SnappingPoints[4] ;
+		SnappingPoints[0] =  FVector(TargetCenterPivot.X+lenx,TargetCenterPivot.Y,TargetCenterPivot.Z);
+		SnappingPoints[1] =  FVector(TargetCenterPivot.X-lenx,TargetCenterPivot.Y,TargetCenterPivot.Z);
+		SnappingPoints[2] =  FVector(TargetCenterPivot.X,TargetCenterPivot.Y+leny,TargetCenterPivot.Z);
+		SnappingPoints[3] =  FVector(TargetCenterPivot.X,TargetCenterPivot.Y-leny,TargetCenterPivot.Z);
+
+		float NearestDistance = 100000;
+		for (int i =0 ; i< 4 ; i++)
+		{
+			FVector SnappingPoint =SnappingPoints[i];
+			float dist = FVector::Dist(HitLocation,SnappingPoint);
+			if(dist<NearestDistance)
+			{
+				NearestDistance=dist;
+				NearestSnappingPoint=SnappingPoint;
+			}
+		}
+		return NearestSnappingPoint-CenterOffset;
+		
+	}
 
 	return HitLocation;
 

@@ -66,7 +66,6 @@ public:
 	void PrintDotProduct (ATopDownPlayerController*TDController);
 
 	
-	
 
 private:
 
