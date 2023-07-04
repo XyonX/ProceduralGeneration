@@ -20,7 +20,7 @@ ABaseGridActor::ABaseGridActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GridMesh=CreateDefaultSubobject<UProceduralMeshComponent>("Grid Procedural Mesh");
-	SetRootComponent(GridMesh);
+	//SetRootComponent(GridMesh);
 	GridMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GridMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	//GridMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -31,8 +31,8 @@ ABaseGridActor::ABaseGridActor()
 
 
 	
-	GridSize= FVector(4.0f,4.0f,0.0f);
-	CellSize =FVector (1000.0f,1000.0f,1000.0f);
+	GridSize= FVector(10.0f,10.0f,0.0f);
+	CellSize =FVector (2000.0f,2000.0f,2000.0f);
 	GridCenter = FVector(0.0f,0.0f,0.0f);
 	MaterialEmission=FVector(0.f,0.f,0.f);
 	MaterialOpacity=FVector(0.5f,0.5f,0.5f);

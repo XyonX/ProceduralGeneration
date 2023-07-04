@@ -4,6 +4,7 @@
 #include "TopDownPlayerController.h"
 
 #include "EnhancedInputComponent.h"
+#include "../../../../../../../UE_5.1/Engine/Platforms/Hololens/Source/Runtime/ApplicationCore/Public/HoloLensPlatformApplicationMisc.h"
 #include "Actions/AsyncAction_CreateWidgetAsync.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
@@ -11,8 +12,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "ProceduralGeneration/Tiles/TileData.h"
 
-
-//FOnMouseMovementDelegate ATopDownPlayerController::OnMouseMovementDelegate;
 
 class ABaseGridActor;
 
@@ -24,7 +23,7 @@ ATopDownPlayerController::ATopDownPlayerController()
 	CursorRange=100000;
 	//bShowCursor = true;
 	SpawnOffset_Cursor = 2000.0f;
-	SpawnOffset_Tile=200.0f;
+	SpawnOffset_Tile=0.0f;
 	SnappingExtents.X = 2000;
 	SnappingExtents.Y = 2000;
 	SnappingExtents.Z = 2000;
@@ -36,11 +35,11 @@ void ATopDownPlayerController::BeginPlay()
 
 	Super::BeginPlay();
 	TopDownGameInstance = Cast<UTopDownGameInstance>(GetGameInstance());
-	//DragStartedDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
-	//OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
-	ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
+	
+	//ADelegateHelper::OnMouseMovementDelegate.AddDynamic(this,&ATopDownPlayerController::CursorMovementReceiver);
 	ADelegateHelper::DragDelegate_Down.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver_Down);
-	ADelegateHelper::OnDragDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	//ADelegateHelper::OnDragDelegate.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
+	ADelegateHelper::OnDragDelegate.BindDynamic(this,&ATopDownPlayerController::OnCardDragReceiver);
 	ADelegateHelper::DragDelegate_Up.AddDynamic(this,&ATopDownPlayerController::OnCardDragReceiver_Up);
 	
 	
@@ -115,6 +114,7 @@ void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 	//OnMouseMovementDelegate.Execute();
 	FVector2D MousePosition;
 	GetMousePosition(MousePosition.X, MousePosition.Y);
+	
 	OnMouseMove(MousePosition);
 	if(bCanPan)
 	{
@@ -123,8 +123,8 @@ void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 	//MouseTrace();
 
 	
-	FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value[0]);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value[0]);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	// Check if mouse movement velocity is below a threshold value (e.g., 1.0)
 	/*if (FMath::IsNearlyZero(Value[0], 0.1f))
 	{
@@ -284,27 +284,6 @@ bool ATopDownPlayerController::BoxIntersectionTest(FVector Direction, TArray<FVe
 	
 }
 
-void ATopDownPlayerController::TraceInstanceInBound(ASpawnableActor*SelectedActor, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices)
-{
-	UInstancedStaticMeshComponent* ISMC =SelectedActor->GetInstanceMesh();
-	FBox Bounds;
-	FVector min = FVector(CenterPoint.X - (Extents.X/2) ,CenterPoint.Y-(Extents.Y/2),CenterPoint.Z-(Extents.Z/2));
-	FVector max = FVector(CenterPoint.X + (Extents.X/2) ,CenterPoint.Y+(Extents.Y/2),CenterPoint.Z+(Extents.Z/2));
-
-	Bounds.Min=min;
-	Bounds.Max=max;
-
-	
-	
-	if (ISMC)
-	{
-		
-		DrawDebugBox(GetWorld(), CenterPoint,SnappingExtents,FColor::Green,true,-1.0f );
-		OutOverlappingIndices= ISMC->GetInstancesOverlappingBox(Bounds,true);
-	}
-
-	
-}
 
 void ATopDownPlayerController::TraceInstanceInBound(UInstancedStaticMeshComponent* inISMC, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices)
 {
@@ -351,14 +330,12 @@ int32 ATopDownPlayerController::TraceSingleInstanceInBound(UInstancedStaticMeshC
 }
 
 
-
-
 int32 ATopDownPlayerController::CalculateClosestInstance(UInstancedStaticMeshComponent* inISMC, FVector HitLocation,TArray<int32>&inOverlappingIndices, int32 inCurrentInstanceIndex)
 {
 	inOverlappingIndices.Remove(inCurrentInstanceIndex);
 	
 	float NearestDistance=100000 ;
-	float NearestInstanceIndex = -1;
+	int32 NearestInstanceIndex = -1;
 	FTransform NearestInstanceTransform;
 	
 	for	 (int i =0 ; i <inOverlappingIndices.Num() ; i++)
@@ -377,9 +354,10 @@ int32 ATopDownPlayerController::CalculateClosestInstance(UInstancedStaticMeshCom
 		}
 		
 	}
-	FVector NearestInstanceLocation =NearestInstanceTransform.GetLocation();
-	FString DebugMessage = FString::Printf(TEXT("Nearest Instance Location  : %f , %f,%f"),NearestInstanceLocation.X,NearestInstanceLocation.Y,NearestInstanceLocation.Z);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+
+	//FString DebugMessage = FString::Printf(TEXT("Nearest Instance Location  : %f , %f,%f"),NearestInstanceLocation.X,NearestInstanceLocation.Y,NearestInstanceLocation.Z);
+	//FString DebugMessage = FString::Printf(TEXT("Nearest Instance Index  : %d "),NearestInstanceIndex);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	
 	return NearestInstanceIndex;
 }
@@ -446,6 +424,25 @@ FVector ATopDownPlayerController::CalculateSnappingPoints(ASpawnableActor* Selec
 
 }
 
+FVector2D ATopDownPlayerController::ScreenScapeToWindowSpace(FVector2D ScreeSpace)
+{
+
+	//int32 SizeX;
+	//int32 SizeY;
+	//GetViewportSize(SizeX,SizeY);
+	
+	TSharedPtr<SWindow> MainGameWindow= GEngine->GameViewport->GetWindow();
+
+	FVector2D WindowPosition = MainGameWindow->GetPositionInScreen();
+	FVector2D WindowSzie = MainGameWindow->GetSizeInScreen();
+
+	FVector2D WindowSpace = ScreeSpace-WindowPosition;
+
+	return WindowSpace;
+	
+	
+}
+
 void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 {
 	// Implement the logic for hovering over the grid and updating the mesh here
@@ -454,6 +451,9 @@ void ATopDownPlayerController::OnMouseMove(const FVector2D& MousePosition)
 	//{
 	//	GridActor->OnMouseMove(MousePosition);
 	//}
+
+	//FString DebugMessage = FString::Printf(TEXT("Screen pos , X : %f , Y : %f "),MousePosition.X,MousePosition.Y);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 
 	FVector WorldPosition;
 	FVector WorldDirection;
@@ -514,13 +514,8 @@ bool ATopDownPlayerController::MouseTrace()
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, TraceParams))
 	{
 		bIsCursorPointing=true;
-		// A hit has occurred
-		// Process the hit result
-		MouseHitActor = HitResult.GetActor();
-		HitInstanceIndex= HitResult.Item;
-		MouseHitComponent = HitResult.GetComponent();
 		CursorWorldHitLocation = HitResult.Location;
-		FVector HitNormal = HitResult.Normal;
+
 		
 		// Debug visualization of the line trace
 		//DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, FColor::Red, false, 20.0f);
@@ -533,8 +528,8 @@ bool ATopDownPlayerController::MouseTrace()
 
 void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
-	//DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(" Hit Location :  %f = FloatVariable"), Value.X));
+	DrawDebugSphere(GetWorld(), Value, 100.0f, 16, FColor::Blue, false, 20.0f);
 /*	if (bIsCursorPointing)
 	{
 		
@@ -576,7 +571,7 @@ void ATopDownPlayerController::CursorMovementReceiver(FVector Value)
 
 void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 {
-	
+	CurrentSpawnable=inSpawnable;
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride =ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	bShouldDrag_Card=true;
@@ -606,17 +601,26 @@ void ATopDownPlayerController::OnCardDragReceiver_Down(USpawnable*inSpawnable)
 	
 }
 
-void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos , USpawnable*inSpawnable)
+void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos )
 {
-	OnMouseMove(CursorPos);
+	
+	FVector2D CursorWindowSpace = ScreenScapeToWindowSpace(CursorPos);
+
+	FString DebugMessage = FString::Printf(TEXT("Windowed Position , X : %f , Y : %f "),CursorWindowSpace.X,CursorWindowSpace.Y);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+	
+	OnMouseMove(CursorWindowSpace);
+	
 	
 	FVector SpawnLoc_Cursor =CursorWorldPosition + (CursorWorldDirection * SpawnOffset_Cursor);
 	FTransform SpawnTransform_Cursor = FTransform(FRotator::ZeroRotator,SpawnLoc_Cursor);
-	
-	//FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc_Cursor.X);
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 
-	ASpawnableActor*ISMC_Actor =inSpawnable->GetActor();
+
+	//DrawDebugLine(GetWorld(),CursorWorldPosition,CursorWorldPosition+(CursorWorldDirection*2000),FColor::Blue,true,-1,0,10);
+	
+if(CurrentSpawnable)
+{
+	ASpawnableActor*ISMC_Actor =CurrentSpawnable->GetActor();
 	UInstancedStaticMeshComponent* ISMC =ISMC_Actor->GetInstanceMesh();
 	
 	if(ISMC)
@@ -628,23 +632,22 @@ void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos , USpawnab
 
 			FVector newloc = FVector(HitResult.Location.X-Remainder_X,HitResult.Location.Y-Remainder_Y,HitResult.Location.Z);
 			
-			//FVector newloc = HitTile->CenterPoint;
 			
-			TArray<int32> OverlappingInstancesIndices;
-			TraceInstanceInBound(ISMC,HitResult.Location,FVector(1000,1000,1000),OverlappingInstancesIndices);
+			//TArray<int32> OverlappingInstancesIndices;
+			//TraceInstanceInBound(ISMC,HitResult.Location,FVector(1000.0f,1000.0f,1000.0f),OverlappingInstancesIndices);
 
-			FString DebugMessage = FString::Printf(TEXT("Num Of Meshes In Bound : %d"),OverlappingInstancesIndices.Num());
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
-
-			if(!OverlappingInstancesIndices.IsEmpty())
-			{
-				int32 ind = CalculateClosestInstance(ISMC,HitResult.Location,OverlappingInstancesIndices,CurrentInstanceIndex);
-				
-				//FString DbgMessage = FString::Printf(TEXT("Nearest Isntance Index : %d"),ind);
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DbgMessage);
-				
-				//newloc= CalculateSnappingPoints(CurrentSpawnableActor,ind,HitResult.Location);
-			}
+			//FString DebugMessage = FString::Printf(TEXT("Num Of Meshes In Bound : %d"),OverlappingInstancesIndices.Num());
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+			/*
+						if(!OverlappingInstancesIndices.IsEmpty())
+						{
+							int32 ind = CalculateClosestInstance(ISMC,HitResult.Location,OverlappingInstancesIndices,CurrentInstanceIndex);
+							
+							//FString DbgMessage = FString::Printf(TEXT("Nearest Isntance Index : %d"),ind);
+							//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DbgMessage);
+							
+							//newloc= CalculateSnappingPoints(CurrentSpawnableActor,ind,HitResult.Location);
+						}*/
 
 			//FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc_Cursor.X);
 			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
@@ -667,6 +670,7 @@ void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos , USpawnab
 		}
 		
 	}
+}
 }
 void ATopDownPlayerController::OnCardDragReceiver_Up()
 {

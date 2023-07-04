@@ -67,10 +67,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<ASpawnableActor*>PlacedActor;
 	bool bIsObjectPlaced ;
+
 	UPROPERTY()
-	AActor* MouseHitActor;
-	UPROPERTY()
-	UPrimitiveComponent* MouseHitComponent;
+	USpawnable*CurrentSpawnable;
+
 
 	ATopDownPawn* GetTopDownPawn ();
 	void OnMouseMoveX (const FInputActionValue& Value);
@@ -83,18 +83,22 @@ public:
 	void OnMouseRMBReleased (const FInputActionValue& Value);
 	void PanHorizontal (float Axis);
 	void PanVertical (float Axis);
+	
+	
 
 
 	//Triangle Intersection Test
 	bool TirangleIntersectionTest (TArray<FVector>Triangle_1 ,TArray<FVector>Triangle_2);
 	bool BoxIntersectionTest ( FVector Direction , TArray<FVector>Verts);
 
-	void TraceInstanceInBound (ASpawnableActor*SelectedActor, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices);
+
 	void TraceInstanceInBound (UInstancedStaticMeshComponent* inISMC, FVector CenterPoint,FVector Extents, TArray<int32>& OutOverlappingIndices);
 	int32 TraceSingleInstanceInBound (UInstancedStaticMeshComponent* inISMC, FVector CenterPoint);
 	int32 CalculateClosestInstance ( UInstancedStaticMeshComponent*inISMC , FVector HitLocation, TArray<int32>& inOverlappingIndices , int32 inCurrentInstanceIndex) ;
 	FVector CalculateSnappingPoints (ASpawnableActor*SelectedActor,int32 TargetIndex , FVector HitLocation);
 
+	UFUNCTION(BlueprintCallable)
+	FVector2D ScreenScapeToWindowSpace (FVector2D ScreeSpace);
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	float HorizontalPanAcc ;
@@ -117,7 +121,8 @@ public:
 	UFUNCTION()
 	void OnCardDragReceiver_Down (USpawnable*inSpawnable);
 	UFUNCTION()
-	void OnCardDragReceiver(FVector2D CursorPos , USpawnable*inSpawnable);
+	void OnCardDragReceiver(FVector2D CursorPos);
+	//void OnCardDragReceiver(FVector2D CursorPos , USpawnable*inSpawnable);
 	UFUNCTION()
 	void OnCardDragReceiver_Up ();
 
@@ -125,10 +130,8 @@ public:
 	
 	bool bShowCursor ;
 	int32 CurrentInstanceIndex;
-	int32 HitInstanceIndex;
 	UPROPERTY()
 	UInstancedStaticMeshComponent*CurrentSpawnableComponent;
-	USpawnable*CurrentSpawnable;
 	UPROPERTY()
 	ASpawnableActor*CurrentSpawnableActor;
 	UPROPERTY()
