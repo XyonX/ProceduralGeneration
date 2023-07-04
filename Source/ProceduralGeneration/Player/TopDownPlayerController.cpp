@@ -295,13 +295,11 @@ void ATopDownPlayerController::TraceInstanceInBound(UInstancedStaticMeshComponen
 
 	Bounds.Min=min;
 	Bounds.Max=max;
-
-	
 	
 	if (inISMC)
 	{
 
-		DrawDebugBox(GetWorld(), CenterPoint,Extents,FColor::Green,true,-1.0f );
+		DrawDebugBox(GetWorld(), CenterPoint,Extents,FColor::Green,false,-1.0f );
 		OutOverlappingIndices= inISMC->GetInstancesOverlappingBox(Bounds,true);
 
 	}
@@ -332,7 +330,6 @@ int32 ATopDownPlayerController::TraceSingleInstanceInBound(UInstancedStaticMeshC
 
 int32 ATopDownPlayerController::CalculateClosestInstance(UInstancedStaticMeshComponent* inISMC, FVector HitLocation,TArray<int32>&inOverlappingIndices, int32 inCurrentInstanceIndex)
 {
-	inOverlappingIndices.Remove(inCurrentInstanceIndex);
 	
 	float NearestDistance=100000 ;
 	int32 NearestInstanceIndex = -1;
@@ -344,7 +341,8 @@ int32 ATopDownPlayerController::CalculateClosestInstance(UInstancedStaticMeshCom
 		FTransform OutTransform;
 		inISMC->GetInstanceTransform(index,OutTransform,true);
 
-		float CurrentDistance =FVector::DistSquared(HitLocation,OutTransform.GetLocation());
+		//float CurrentDistance =FVector::DistSquared(HitLocation,OutTransform.GetLocation());
+		float CurrentDistance =FVector::Dist(HitLocation,OutTransform.GetLocation());
 		if(CurrentDistance<NearestDistance)
 		{
 			NearestDistance=CurrentDistance;
@@ -370,24 +368,23 @@ FVector ATopDownPlayerController::CalculateSnappingPoints(ASpawnableActor* Selec
 	FTransform TargetTransform;
 	SelectedActor->GetInstanceMesh()->GetInstanceTransform(TargetIndex,TargetTransform,true);
 	FVector TargetLocation = TargetTransform.GetLocation();
-	FVector TargetCenterPivot = TargetLocation + CurrentSpawnable->GetPivotOffset_Center();
+	FVector CenterOffset = CurrentSpawnable->GetPivotOffset_Center();
+	FVector TargetCenterPivot = TargetLocation + CenterOffset;
 	
-
-	//USpawnable* Spawnable = TopDownGameInstance->GetSpawnableByID(SelectedActor->SpawnableID);
 
 	float lenx = CurrentSpawnable->MeshLength_X;
 	float leny = CurrentSpawnable->MeshLength_Y;
-	float lenz = CurrentSpawnable->MeshLength_X;
+	float lenz = CurrentSpawnable->MeshLength_Z;
 
 	ETilingType TilingType = CurrentSpawnable->GetTilingType();
 
 	if(TilingType==ETilingType::Horizontal)
 	{
-		FVector SnappingPoint1 =  FVector(TargetCenterPivot.X,TargetCenterPivot.Y+leny/2,TargetCenterPivot.Z);
-		FVector SnappingPoint2 =  FVector(TargetCenterPivot.X,TargetCenterPivot.Y-leny/2,TargetCenterPivot.Z);
+		FVector SnappingPoint1 =  FVector(TargetCenterPivot.X,TargetCenterPivot.Y+leny,TargetCenterPivot.Z);
+		FVector SnappingPoint2 =  FVector(TargetCenterPivot.X,TargetCenterPivot.Y-leny,TargetCenterPivot.Z);
 
-		float dist1 =  FVector::DistSquared(HitLocation,SnappingPoint1);
-		float dist2 =	FVector::DistSquared(HitLocation,SnappingPoint2);
+		float dist1 =  FVector::Dist(HitLocation,SnappingPoint1);
+		float dist2 =	FVector::Dist(HitLocation,SnappingPoint2);
 
 		if(dist1<dist2)
 		{
@@ -397,16 +394,16 @@ FVector ATopDownPlayerController::CalculateSnappingPoints(ASpawnableActor* Selec
 		{
 			NearestSnappingPoint=SnappingPoint2;
 		}
-		return NearestSnappingPoint;
+		return NearestSnappingPoint-CenterOffset;
 		
 	}
 	if(TilingType==ETilingType::Vertical)
 	{
-		FVector SnappingPoint1 =  FVector(TargetCenterPivot.X+lenx/2,TargetCenterPivot.Y,TargetCenterPivot.Z);
-		FVector SnappingPoint2 =  FVector(TargetCenterPivot.X-lenx/2,TargetCenterPivot.Y,TargetCenterPivot.Z);
+		FVector SnappingPoint1 =  FVector(TargetCenterPivot.X+lenx,TargetCenterPivot.Y,TargetCenterPivot.Z);
+		FVector SnappingPoint2 =  FVector(TargetCenterPivot.X-lenx,TargetCenterPivot.Y,TargetCenterPivot.Z);
 
-		float dist1 =  FVector::DistSquared(HitLocation,SnappingPoint1);
-		float dist2 =	FVector::DistSquared(HitLocation,SnappingPoint2);
+		float dist1 =  FVector::Dist(HitLocation,SnappingPoint1);
+		float dist2 =	FVector::Dist(HitLocation,SnappingPoint2);
 
 		if(dist1<dist2)
 		{
@@ -416,7 +413,7 @@ FVector ATopDownPlayerController::CalculateSnappingPoints(ASpawnableActor* Selec
 		{
 			NearestSnappingPoint=SnappingPoint2;
 		}
-		return NearestSnappingPoint;
+		return NearestSnappingPoint-CenterOffset;
 		
 	}
 
@@ -606,8 +603,8 @@ void ATopDownPlayerController::OnCardDragReceiver(FVector2D CursorPos )
 	
 	FVector2D CursorWindowSpace = ScreenScapeToWindowSpace(CursorPos);
 
-	FString DebugMessage = FString::Printf(TEXT("Windowed Position , X : %f , Y : %f "),CursorWindowSpace.X,CursorWindowSpace.Y);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
+	//FString DebugMessage = FString::Printf(TEXT("Windowed Position , X : %f , Y : %f "),CursorWindowSpace.X,CursorWindowSpace.Y);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	
 	OnMouseMove(CursorWindowSpace);
 	
@@ -633,33 +630,29 @@ if(CurrentSpawnable)
 			FVector newloc = FVector(HitResult.Location.X-Remainder_X,HitResult.Location.Y-Remainder_Y,HitResult.Location.Z);
 			
 			
-			//TArray<int32> OverlappingInstancesIndices;
-			//TraceInstanceInBound(ISMC,HitResult.Location,FVector(1000.0f,1000.0f,1000.0f),OverlappingInstancesIndices);
+			TArray<int32> OverlappingInstancesIndices;
+			TraceInstanceInBound(ISMC,HitResult.Location,SnappingExtents,OverlappingInstancesIndices);
 
 			//FString DebugMessage = FString::Printf(TEXT("Num Of Meshes In Bound : %d"),OverlappingInstancesIndices.Num());
 			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
-			/*
-						if(!OverlappingInstancesIndices.IsEmpty())
-						{
-							int32 ind = CalculateClosestInstance(ISMC,HitResult.Location,OverlappingInstancesIndices,CurrentInstanceIndex);
-							
-							//FString DbgMessage = FString::Printf(TEXT("Nearest Isntance Index : %d"),ind);
-							//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DbgMessage);
-							
-							//newloc= CalculateSnappingPoints(CurrentSpawnableActor,ind,HitResult.Location);
-						}*/
 
-			//FString DebugMessage = FString::Printf(TEXT("Instance Index : %f"),SpawnLoc_Cursor.X);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
-			
-			//FVector Extent = TopDownGameInstance->GetSpawnableByID(CurrentSpawnableActor->SpawnableID)->GetBounds().GetExtent();
-			
-			//FVector Center = (newloc+CurrentSpawnable->GetPivotOffset_Center());
-			//DrawDebugBox(GetWorld(),CurrentSpawnable->GetPivotOffset_Center() ,Extent,FColor::Blue,true,-1.0f );
-			ISMC->UpdateInstanceTransform(CurrentInstanceIndex,FTransform(FRotator::ZeroRotator,newloc),true,true);
-			
-			//DrawDebugString(GetWorld(),FVector( newloc.X ,newloc.Y ,newloc.Z+inSpawnable->MeshLength_Z),FString::FromInt(CurrentInstanceIndex), nullptr, FColor::Red, -1.0F, false,1);
-			
+			OverlappingInstancesIndices.Remove(CurrentInstanceIndex);
+			if(!OverlappingInstancesIndices.IsEmpty())
+			{
+				int32 index = CalculateClosestInstance(ISMC,newloc,OverlappingInstancesIndices,CurrentInstanceIndex);
+
+				FVector NewSnappingLocation = CalculateSnappingPoints(CurrentSpawnableActor,index,newloc);
+				
+				FString DbgMessage = FString::Printf(TEXT("Nearest Isntance Index : %d"),index);
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DbgMessage);
+
+				ISMC->UpdateInstanceTransform(CurrentInstanceIndex,FTransform(FRotator::ZeroRotator,NewSnappingLocation),true,true);
+				
+			}
+			else
+			{
+				ISMC->UpdateInstanceTransform(CurrentInstanceIndex,FTransform(FRotator::ZeroRotator,newloc),true,true);
+			}
 			
 			bIsObjectPlaced=true;
 		}
