@@ -2,9 +2,6 @@
 
 
 #include "BaseLandscapeActor.h"
-
-
-
 #include "IImageWrapper.h"
 #include "Misc/FileHelper.h"
 #include "IImageWrapperModule.h"
@@ -12,14 +9,12 @@
 // Sets default values
 ABaseLandscapeActor::ABaseLandscapeActor()
 {
-
-	//RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
-	//SetRootComponent(RootSceneComponent);
+	
 
 	PMC = CreateDefaultSubobject<UProceduralMeshComponent>("PMC ");
 	SetRootComponent(PMC);
-	MapHeight =1000000;
-	MapWidth =1000000;
+	MapHeight =100'000;
+	MapWidth =100'000;
 
 	NumVertsX =1024;
 	NumVertsY=1024;
@@ -38,10 +33,65 @@ void ABaseLandscapeActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if(ImportHeightMap(FilePath,1024,HeightMap))
+	FString SavePath_HeightMap = FPaths::ProjectSavedDir() +  TEXT("Data/HeightMap.sav");
+	FString SavePath_MeshData = FPaths::ProjectSavedDir() + TEXT("Data/LandscapeMesh.dat");
+	
+	if (FPaths::FileExists(SavePath_HeightMap))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red,"Height Map Import Successful");
-		GenerateLandscape();
+		TArray<uint8> SaveData;
+		if (FFileHelper::LoadFileToArray(SaveData, *SavePath_HeightMap))
+		{
+			FMemoryReader MemoryReader(SaveData, true);
+
+			if(DeserializeHeightMap(MemoryReader))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Height Map Loaded from File");
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Failed to deserialize height map");
+			}
+			
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Failed to load height map from file");
+		}
+		
+	}
+	else
+	{
+		if (ImportHeightMap(FilePath, 1024, HeightMap))
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Height Map Import Successful");
+		}
+	}
+
+
+	if (FPaths::FileExists(SavePath_MeshData))
+	{
+		TArray<uint8> MeshDataSaveData;
+		if (FFileHelper::LoadFileToArray(MeshDataSaveData, *SavePath_MeshData))
+		{
+			FMemoryReader MemoryReader(MeshDataSaveData, true);
+
+			if(DeserializePMC(MemoryReader))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Mesh Data Loaded from File");
+			}
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Failed to deserialize mesh data");
+			}
+			
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Failed to load mesh data from file");
+		}
+	}
+	else
+	{
+		GenerateLandscape(); // Generate the landscape if the mesh data file doesn't exist
 	}
 
 }
@@ -80,6 +130,18 @@ bool ABaseLandscapeActor::ImportHeightMap(const FString& inFilePath, int32 Image
 		// Add the height value to the height map array
 		OutHeightMap.Add(Height);
 	}
+
+	// Serialize height map
+	FBufferArchive MemoryWriter;
+	SerializeHeightMap(MemoryWriter);
+	MemoryWriter.Flush();
+
+	TArray<uint8> SaveData;
+	SaveData.Empty();
+	SaveData.Append(MemoryWriter.GetData(), MemoryWriter.Num());
+
+	FString SavePath = FPaths::ProjectSavedDir() + TEXT("Data/HeightMap.sav");
+	FFileHelper::SaveArrayToFile(SaveData, *SavePath);
 
 	return true;
 	
@@ -149,8 +211,61 @@ bool ABaseLandscapeActor::GenerateLandscape()
 	}
 
 	
+	// Serialize height map
+	FBufferArchive MemoryWriter;
+	SerializePMC(MemoryWriter);
+	MemoryWriter.Flush();
+
+	TArray<uint8> SaveData;
+	SaveData.Empty();
+	SaveData.Append(MemoryWriter.GetData(), MemoryWriter.Num());
+
+	// Save the mesh data to a file
+	FString SavePath = FPaths::ProjectSavedDir() + TEXT("Data/LandscapeMesh.dat");
+	//FFileHelper::SaveArrayToFile(MemoryWriter, *SavePath);
+	FFileHelper::SaveArrayToFile(SaveData, *SavePath);
 
 	return true;
 
+}
+
+bool ABaseLandscapeActor::SerializeHeightMap(FBufferArchive& Ar)
+{
+	Ar << HeightMap;
+	return true;
+}
+
+bool ABaseLandscapeActor::DeserializeHeightMap(FMemoryReader& Ar)
+{
+	Ar << HeightMap;
+	return true;
+}
+
+bool ABaseLandscapeActor::SerializePMC(FBufferArchive& Ar)
+{
+	Ar<<Vertices;
+	Ar<<Triangles;
+	Ar<<Normals;
+	
+	return true;
+	
+}
+
+bool ABaseLandscapeActor::DeserializePMC(FMemoryReader& Ar)
+{
+	Ar<<Vertices;
+	Ar<<Triangles;
+	Ar<<Normals;
+	
+	// Reconstruct the mesh section using the deserialized data
+	PMC->CreateMeshSection(0, Vertices, Triangles, Normals, TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+	
+	if (LandscapeMaterial)
+	{
+		PMC->SetMaterial(0, LandscapeMaterial);
+	}
+	
+	
+	return true;
 }
 

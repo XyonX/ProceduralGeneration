@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "ProceduralMeshComponent.h"
 #include "GameFramework/Actor.h"
+#include "Serialization/BufferArchive.h"
+#include "Serialization/MemoryReader.h"
 #include "BaseLandscapeActor.generated.h"
 
 UCLASS()
@@ -58,14 +60,26 @@ protected:
 private:
 
 	TArray<FVector> Vertices;
-	TArray<FVector> Normals;
 	TArray<int32> Triangles;
+	TArray<FVector> Normals;
+	
 	
 	TArray<float> HeightMap;
 
 
 	USceneComponent* RootSceneComponent;
 	UProceduralMeshComponent*PMC;
+
+
+	/**Fucntions */
+	
+	bool SerializeHeightMap(FBufferArchive& Ar);
+	bool DeserializeHeightMap(FMemoryReader& Ar);
+	
+	bool SerializePMC(FBufferArchive& Ar);
+    bool DeserializePMC(FMemoryReader& Ar);
+	
+
 
 	
 };
