@@ -13,19 +13,23 @@
 ABaseLandscapeActor::ABaseLandscapeActor()
 {
 
-	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
-	SetRootComponent(RootSceneComponent);
+	//RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+	//SetRootComponent(RootSceneComponent);
 
-	PMC = CreateDefaultSubobject<UProceduralMeshComponent>("Procedural Mesh Component ");
-	MapHeight =100000;
-	MapWidth =100000;
+	PMC = CreateDefaultSubobject<UProceduralMeshComponent>("PMC ");
+	SetRootComponent(PMC);
+	MapHeight =1000000;
+	MapWidth =1000000;
 
-	NumVertsX =1000;
-	NumVertsY=1000;
+	NumVertsX =1024;
+	NumVertsY=1024;
 	CellSizeX=MapHeight /(NumVertsX-1);
 	CellSizeY=MapWidth/(NumVertsY-1);
 
-	FilePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("HeightMap/Heightmap_4096x4096_01.raw"));
+	//FilePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("HeightMap/Heightmap_4096x4096_01.raw"));
+	FilePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("HeightMap/Heightmap_1024x1024_01.raw"));
+
+	HeightMultiplier=1;
 
 }
 
@@ -34,9 +38,9 @@ void ABaseLandscapeActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if(ImportHeightMap(FilePath,4096,HeightMap))
+	if(ImportHeightMap(FilePath,1024,HeightMap))
 	{
-		
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red,"Height Map Import Successful");
 		GenerateLandscape();
 	}
 
@@ -51,51 +55,28 @@ bool ABaseLandscapeActor::ImportHeightMap(const FString& inFilePath, int32 Image
 	if (!FFileHelper::LoadFileToArray(FileData, *inFilePath))
 	{
 		// Failed to load the file
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Failed to load the file");
 		return false;
 	}
 
-	// Get the image wrapper module
-	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+	// Calculate the expected size of the raw data based on the desired image size
+	int32 ExpectedDataSize = ImageSize * ImageSize * sizeof(uint8);
 
-	// Detect the image format from the file extension
-	EImageFormat ImageFormat = ImageWrapperModule.DetectImageFormat(FileData.GetData(), FileData.Num());
-	if (ImageFormat == EImageFormat::Invalid)
+	if (FileData.Num() != ExpectedDataSize)
 	{
-		// Failed to detect the image format
-		return false;
-	}
-
-	// Create the image wrapper for the detected format
-	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(ImageFormat);
-	if (!ImageWrapper.IsValid() || !ImageWrapper->SetCompressed(FileData.GetData(), FileData.Num()))
-	{
-		// Failed to create image wrapper or set the compressed data
-		return false;
-	}
-
-	// Convert the image to RGBA32 format
-	TArray64<uint8> RawData;
-	if (!ImageWrapper->GetRaw(ERGBFormat::Gray, 8, RawData))
-	{
-		// Failed to get the raw data
-		return false;
-	}
-
-	// Check if the image size matches the desired size
-	if (ImageWrapper->GetWidth() != ImageSize || ImageWrapper->GetHeight() != ImageSize)
-	{
-		// Image size does not match the desired size
+		// Invalid data size
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Invalid data size");
 		return false;
 	}
 
 	// Clear the height map array
 	OutHeightMap.Empty();
 
-	// Iterate through the pixel data and extract the height values
-	for (int32 i = 0; i < RawData.Num(); ++i)
+	// Iterate through the raw data and extract the height values
+	for (int32 i = 0; i < FileData.Num(); ++i)
 	{
-		// Convert the pixel value to a normalized height value in the range of 0.0 to 1.0
-		float Height = static_cast<float>(RawData[i]) / 255.0f;
+		// Cast the uint8 value to float and normalize within the range of 0.0 to 1.0
+		float Height = static_cast<float>(FileData[i]) / 255.0f;
 		// Add the height value to the height map array
 		OutHeightMap.Add(Height);
 	}
@@ -104,13 +85,15 @@ bool ABaseLandscapeActor::ImportHeightMap(const FString& inFilePath, int32 Image
 	
 }
 
-FVector ABaseLandscapeActor::CalculateVertexNormal(const TArray<float>& inHeightMap, int32 inNumVertsX, int32 inNumVertsY,int32 VertexX, int32 VertexY)
+FVector ABaseLandscapeActor::CalculateVertexNormal(const TArray<float>& inHeightMap, int32 inNumVertsX, int32 inNumVertsY, int32 VertexX, int32 VertexY)
 {
-	float CenterHeight = inHeightMap[VertexY*inNumVertsX+VertexX];
-	float LeftHeight = inHeightMap[(VertexY-1)*inNumVertsX+VertexX];
-	float RightHeight = inHeightMap[(VertexY+1)*inNumVertsX+VertexX];
-	float TopHeight = inHeightMap[VertexY*inNumVertsX+(VertexX+1)];
-	float BottomHeight = inHeightMap[VertexY*inNumVertsX+(VertexX-1)];
+	float CenterHeight = inHeightMap[VertexY * inNumVertsX + VertexX];
+
+	// Check boundary conditions for neighboring vertices
+	float LeftHeight = (VertexY > 0) ? inHeightMap[(VertexY-1)*inNumVertsX+VertexX] : CenterHeight;
+	float RightHeight = (VertexY < inNumVertsY - 1) ? inHeightMap[(VertexY+1)*inNumVertsX+VertexX] : CenterHeight;
+	float TopHeight =  (VertexX < inNumVertsX - 1)? inHeightMap[VertexY*inNumVertsX+(VertexX+1)] : CenterHeight;
+	float BottomHeight = (VertexX > 0) ? inHeightMap[VertexY*inNumVertsX+(VertexX-1)] : CenterHeight;
 
 	// Calculate the gradient in the X and Y directions
 	float GradientX = RightHeight - LeftHeight;
@@ -124,6 +107,7 @@ FVector ABaseLandscapeActor::CalculateVertexNormal(const TArray<float>& inHeight
 }
 
 
+
 bool ABaseLandscapeActor::GenerateLandscape()
 {
 	for (int32 Y =0 ; Y<NumVertsY;Y++)
@@ -131,7 +115,7 @@ bool ABaseLandscapeActor::GenerateLandscape()
 		for (int X = 0; X <NumVertsX ; X++)
 		{
 			float Height = HeightMap[Y*NumVertsX + X];
-			FVector VertexLocation = FVector(X*CellSizeX,Y*CellSizeY,Height);
+			FVector VertexLocation = FVector(X*CellSizeX,Y*CellSizeY,Height*HeightMultiplier);
 			Vertices.Add(VertexLocation);
 
 			// Calculate the normal using neighboring vertices (optional)
@@ -140,7 +124,7 @@ bool ABaseLandscapeActor::GenerateLandscape()
 
 			if( Y<NumVertsY-1 && X < NumVertsX-1)
 			{
-				int32 A = Y*NumVertsX+1 ;
+				int32 A = Y*NumVertsX+X ;
 				int32 B = (Y+1)*NumVertsX +X;
 				int32 C =B+1;
 				int32 D =A+1;
@@ -158,6 +142,13 @@ bool ABaseLandscapeActor::GenerateLandscape()
 	}
 
 	PMC->CreateMeshSection(0,Vertices,Triangles,Normals,TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+
+	if(LandscapeMaterial)
+	{
+		PMC->SetMaterial(0,LandscapeMaterial);
+	}
+
+	
 
 	return true;
 

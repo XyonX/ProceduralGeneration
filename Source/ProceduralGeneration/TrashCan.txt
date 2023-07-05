@@ -1,0 +1,33 @@
+﻿	// Load the image file
+	TArray<uint8> FileData;
+	if (!FFileHelper::LoadFileToArray(FileData, *inFilePath))
+	{
+		// Failed to load the file
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red,"Failed to load the file");
+		return false;
+	}
+
+
+	// Calculate the expected size of the raw data based on the desired image size
+	int32 ExpectedDataSize = ImageSize * ImageSize * sizeof(float);
+
+	if (FileData.Num() != ExpectedDataSize)
+	{
+		// Invalid data size
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Invalid data size");
+		return false;
+	}
+
+	// Clear the height map array
+	OutHeightMap.Empty();
+
+	// Iterate through the raw data and extract the height values
+	for (int32 i = 0; i < FileData.Num(); i += sizeof(float))
+	{
+		// Extract the height value from the raw data
+		float Height = *reinterpret_cast<const float*>(&FileData[i]);
+		// Add the height value to the height map array
+		OutHeightMap.Add(Height);
+	}
+
+	return true;

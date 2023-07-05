@@ -46,6 +46,12 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="LandScapeActor")
 	float CellSizeY;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="LandScapeActor")
+	float HeightMultiplier;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="LandScapeActor")
+	UMaterialInterface*LandscapeMaterial;
+
 	FString FilePath;
 
 
