@@ -25,15 +25,71 @@ void ARuntimeAppearanceEditor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ARuntimeAppearanceEditor::ExtractMeshData()
+bool ARuntimeAppearanceEditor::ConvertStaticMeshToProceduralMesh(UStaticMeshComponent* InSMC, UProceduralMeshComponent* OutPMC)
 {
-	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(CharacterMeshComponent,0,PMC,false);
+	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(InSMC,0,OutPMC,false);
+	if(OutPMC ==nullptr)
+	{
+		return false;
+	}
+	return true;
+	
+}
 
-	 PMS_FullBody= PMC->GetProcMeshSection(0);
+void ARuntimeAppearanceEditor::ExtractMeshSectionStaticMeshComponent()
+{
+	//It Returns A MeshSection from the PMC
+	PMS_FullBody= CharacterProceduralMesh->GetProcMeshSection(0);
 
+
+	
 	UKismetProceduralMeshLibrary::GetSectionFromStaticMesh(CharacterMesh,0,Index,Vertices,Triangles,Normals,UVs,Tangents);
 
 	
-	PMC->GetProcMeshSection(0);
+
+	CharacterMesh->GetVertexColorData(VertexColorData);
+
+	for(auto& Pair : VertexColorData)
+	{
+		switch (Pair.Value)
+		{
+		case Head :
+			{
+				Vertices_Head.Add(Pair.Key);
+				break;
+			}
+		case Torso:
+			{
+				Vertices_Torso.Add(Pair.Key);
+				break;
+			}
+		case Arms:
+			{
+				Vertices_Arms.Add(Pair.Key);
+				break;
+			}
+		case Legs:
+			{
+				Vertices_Legs.Add(Pair.Key);
+				break;
+			}
+		case Hands:
+			{
+				Vertices_Hands.Add(Pair.Key);
+				break;
+			}
+		case Feet:
+			{
+				Vertices_Feet.Add(Pair.Key);
+				break;
+			}
+			default:
+				
+				continue;
+			
+	}
+	
+	
+	CharacterProceduralMesh->GetProcMeshSection(0);
 }
 

@@ -8,6 +8,20 @@
 #include "RuntimeAppearanceEditor.generated.h"
 
 
+
+/** Color Code for Character Parts 
+
+	Head: FColor::Red or (255, 0, 0)
+	Torso: FColor::Green or (0, 255, 0)
+	Arms: FColor::Blue or (0, 0, 255)
+	Legs: FColor::Yellow or (255, 255, 0)
+	Hands: FColor::Cyan or (0, 255, 255)
+	Feet: FColor::Magenta or (255, 0, 255)
+
+
+*/
+
+
 /** Class to Modify Character Mesh Appearance at Runtime */
 UCLASS()
 class PROCEDURALGENERATION_API ARuntimeAppearanceEditor : public AActor
@@ -25,16 +39,37 @@ protected:
 	UPROPERTY()
 	UStaticMesh*CharacterMesh;
 	UPROPERTY()
-	UStaticMeshComponent* CharacterMeshComponent;
+		UStaticMeshComponent* CharacterStaticMesh;
 	UPROPERTY()
-	UProceduralMeshComponent*PMC;
+	UProceduralMeshComponent* CharacterProceduralMesh;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 
-	void ExtractMeshData ();
+	//Extract The Mesh Data
+	bool ConvertStaticMeshToProceduralMesh (UStaticMeshComponent*InSMC, UProceduralMeshComponent* OutPMC );
+	void ExtractMeshSectionStaticMeshComponent ();
+
+protected:
+
+	FColor Head = FColor::Red ;
+	FColor Torso = FColor::Green;
+	FColor Arms = FColor::Blue ;
+	FColor Legs = FColor::Yellow ;
+	FColor Hands =  FColor::Cyan;
+    FColor Feet =  FColor::Magenta;
+
+
+	TArray<FVector3f> Vertices_Head;
+	TArray<FVector3f> Vertices_Torso;
+	TArray<FVector3f> Vertices_Arms;
+	TArray<FVector3f> Vertices_Legs;
+	TArray<FVector3f> Vertices_Hands;
+	TArray<FVector3f> Vertices_Feet;
+	
+	
 
 private:
 
@@ -44,6 +79,8 @@ private:
 	TArray<FVector> Normals;
 	TArray<FVector2D> UVs;
 	TArray<FProcMeshTangent> Tangents;
+
+	TMap<FVector3f ,FColor>VertexColorData;
 
 	FProcMeshSection*PMS_FullBody;
 };
