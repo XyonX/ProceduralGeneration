@@ -21,17 +21,19 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
 	UDataTable*SpawnableItemsData;
 
-	//Processed Imported Data
-	//UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
-	//TArray<USpawnable*>SpawnableItems;
+	//Main Spawnable Container
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
 	TMap<int32 ,USpawnable*>SpawnableItems;
+	//Subset of Spawnable
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
+	TMap<int32 ,USpawnable*>ProceduralSpawnables;
 
 	UDataTable* ImportData (FString DataTableName);
 
-	void Init_Spawnable (UDataTable*inDT,TArray<USpawnable*>&inSpawnables);
+
 	void Init_Spawnable (UDataTable*inDT,TMap<int32 ,USpawnable*>&inSpawnables,UWorld*InWorld);
 	USpawnable* GetSpawnableByID (int32 inID) {return SpawnableItems[inID];};
+	TMap<int32 ,USpawnable*>* GetAllSpawnables () {return &SpawnableItems;};
 	
 	virtual void Init() override;
 

@@ -12,44 +12,14 @@
 UTopDownGameInstance::UTopDownGameInstance(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
+	
 }
-/*
-UDataTable* UTopDownGameInstance::ImportData(const FString& DataTablePath)
-{
-//return   Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *DataTablePath));
 
-	FString AssetPath = FString::Printf(TEXT("/ProceduralGeneration/Data/%s.%s"), *SpawnableItemsDataTableName, *SpawnableItemsDataTableName);
-	//FString AssetPath = FString::Printf(TEXT("ProceduralGeneration/Data/DT_MeshProperty.DT_MeshProperty"));
-	//return   Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *DataTablePath));
-	return   Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetPath));
-}*/
 
 UDataTable* UTopDownGameInstance::ImportData(FString DataTableName)
 {
 	FString AssetPath = FString::Printf(TEXT("/ProceduralGeneration/Data/%s.%s"), *DataTableName, *DataTableName);
 	return   Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetPath));
-}
-
-void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TArray<USpawnable*>& inSpawnables)
-{
-	TArray<FMeshProperty*>AllMeshProperties;
-	inDT->GetAllRows<FMeshProperty>(TEXT(""),AllMeshProperties);
-
-	if (AllMeshProperties.IsEmpty())
-	{
-		return;
-	}
-	//UThumbnailManager& ThumbnailManager = UThumbnailManager::Get();
-	
-	for (FMeshProperty*MP : AllMeshProperties)
-	{
-		USpawnable * Spawnable = NewObject<USpawnable>();
-		Spawnable->Init(MP->Mesh,MP->Mesh->GetMaterial(0),MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition,MP->MeshAlignment);
-		inSpawnables.Add(Spawnable);
-	}
-	
-
-	
 }
 
 void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnable*>& inSpawnables,UWorld*inWorld)
@@ -66,9 +36,13 @@ void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnab
 	for (FMeshProperty*MP : AllMeshProperties)
 	{
 		USpawnable * Spawnable = NewObject<USpawnable>();
-		Spawnable->Init(MP->Mesh,MP->Mesh->GetMaterial(0),MP->Icon,MP->TilingType,MP->MeshPivotPosition,MP->MeshQuadrantPosition,MP->MeshAlignment);
+		Spawnable->Init(MP);
 		Spawnable->CreateInstance(inWorld);
 		inSpawnables.Add(Spawnable->GetID(),Spawnable);
+		if(Spawnable->IsAProceduralSpawnable())
+		{
+			ProceduralSpawnables.Add(Spawnable->GetID(),Spawnable);
+		}
 	}
 }
 
