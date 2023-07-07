@@ -47,7 +47,34 @@ void ARuntimeAppearanceEditor::ExtractMeshSectionStaticMeshComponent()
 
 	
 
-	CharacterMesh->GetVertexColorData(VertexColorData);
+	
+	//CharacterMesh->GetVertexColorData(VertexColorData);
+	//FStaticMeshLODResources& LODResource= CharacterMesh->GetRenderData()->LODResources;
+	
+	FSkeletalMeshRenderData*RenderData= CharacterSkeletalMesh->GetSkeletalMeshRenderData();
+	FSkeletalMeshLODRenderData& SkeletalMeshRenderData =  RenderData->LODRenderData[0];
+
+	if(SkeletalMeshRenderData.SkinWeightVertexBuffer.GetNumVertices() >0)
+	{
+		TArray<FSkinWeightInfo> SkinWeights;
+		SkeletalMeshRenderData.SkinWeightVertexBuffer.GetSkinWeights(SkinWeights);
+
+		for (int32 VertexIndex = 0; VertexIndex < SkinWeights.Num(); ++VertexIndex)
+		{
+			const FSkinWeightInfo& SkinWeight = SkinWeights[VertexIndex];
+
+			// Process the bone influences as needed
+			for (int32 InfluenceIndex = 0; InfluenceIndex < MAX_TOTAL_INFLUENCES ; ++InfluenceIndex)
+			{
+				uint32 BoneIndex = SkinWeight.InfluenceBones[InfluenceIndex];
+				float Weight = SkinWeight.InfluenceWeights[InfluenceIndex];
+
+				// Do something with the bone index and weight
+			}
+			
+		}
+
+	}
 
 	for(auto& Pair : VertexColorData)
 	{
@@ -88,8 +115,8 @@ void ARuntimeAppearanceEditor::ExtractMeshSectionStaticMeshComponent()
 				continue;
 			
 	}
-	
-	
+
+		
 	CharacterProceduralMesh->GetProcMeshSection(0);
 }
 

@@ -39,7 +39,9 @@ protected:
 	UPROPERTY()
 	UStaticMesh*CharacterMesh;
 	UPROPERTY()
-		UStaticMeshComponent* CharacterStaticMesh;
+	UStaticMeshComponent* CharacterStaticMesh;
+	UPROPERTY()
+	USkeletalMeshComponent* CharacterSkeletalMesh;
 	UPROPERTY()
 	UProceduralMeshComponent* CharacterProceduralMesh;
 
