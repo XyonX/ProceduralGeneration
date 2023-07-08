@@ -22,26 +22,40 @@ UDataTable* UTopDownGameInstance::ImportData(FString DataTableName)
 	return   Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *AssetPath));
 }
 
-void UTopDownGameInstance::Init_Spawnable(UDataTable* inDT, TMap<int32, USpawnable*>& inSpawnables,UWorld*inWorld)
+void UTopDownGameInstance::Init_Spawnable (UDataTable*InDT,TMap<int32 ,USpawnable*>&InSpawnables,TMap<int32 ,USpawnable*>&InProceduralSpawnables,UWorld*InWorld)
 {
 	TArray<FMeshProperty*>AllMeshProperties;
-	inDT->GetAllRows<FMeshProperty>(TEXT(""),AllMeshProperties);
+	InDT->GetAllRows<FMeshProperty>(TEXT(""),AllMeshProperties);
 
 	if (AllMeshProperties.IsEmpty())
 	{
 		return;
 	}
 	//UThumbnailManager& ThumbnailManager = UThumbnailManager::Get();
-	
+
+	//Creating Default Spawnable
+
+	//USpawnable * Spawnable = NewObject<USpawnable>();
+	//Spawnable->Init(Spawnable);
+	//Spawnable->CreateInstance(InWorld);
+
 	for (FMeshProperty*MP : AllMeshProperties)
 	{
 		USpawnable * Spawnable = NewObject<USpawnable>();
 		Spawnable->Init(MP);
-		Spawnable->CreateInstance(inWorld);
-		inSpawnables.Add(Spawnable->GetID(),Spawnable);
+		Spawnable->CreateInstance(InWorld);
+		InSpawnables.Add(Spawnable->GetID(),Spawnable);
 		if(Spawnable->IsAProceduralSpawnable())
 		{
-			ProceduralSpawnables.Add(Spawnable->GetID(),Spawnable);
+			InProceduralSpawnables.Add(Spawnable->GetID(),Spawnable);
+		}
+	}
+	if(!InProceduralSpawnables.IsEmpty())
+	{
+		for (auto& pair : InProceduralSpawnables)
+		{
+			USpawnable*Spawnable = pair.Value;
+			Spawnable->CalculateSupportedSpawnables(ProceduralSpawnables);
 		}
 	}
 }
@@ -56,7 +70,7 @@ void UTopDownGameInstance::Init()
 	UWorld*CurrentWorld=GetWorld();
 	if(WorldContext)
 	{
-		Init_Spawnable(LoadedDataTable,SpawnableItems,CurrentWorld);
+		Init_Spawnable(LoadedDataTable,SpawnableItems,ProceduralSpawnables,CurrentWorld);
 	}
 	
 }

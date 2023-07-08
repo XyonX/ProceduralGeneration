@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "CorePlugin/Data/MeshData.h"
 #include "Engine/GameInstance.h"
 #include "TopDownGameInstance.generated.h"
 
@@ -28,10 +29,12 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
 	TMap<int32 ,USpawnable*>ProceduralSpawnables;
 
+	FMeshProperty DefaultSpawnableProperty;
+
 	UDataTable* ImportData (FString DataTableName);
 
 
-	void Init_Spawnable (UDataTable*inDT,TMap<int32 ,USpawnable*>&inSpawnables,UWorld*InWorld);
+	void Init_Spawnable (UDataTable*InDT,TMap<int32 ,USpawnable*>&InSpawnables,TMap<int32 ,USpawnable*>&InProceduralSpawnables,UWorld*InWorld);
 	USpawnable* GetSpawnableByID (int32 inID) {return SpawnableItems[inID];};
 	TMap<int32 ,USpawnable*>* GetAllSpawnables () {return &SpawnableItems;};
 	
