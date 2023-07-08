@@ -21,8 +21,6 @@ UCoreGenerator::UCoreGenerator()
 UCoreGenerator::~UCoreGenerator()
 {
 	TileContainer =nullptr;
-	TileContainer_Remaining =  nullptr;
-	TileContainer_Collapsed = nullptr;
 }
 
 void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMesh*in_UnitMesh , int in_height , int in_width )
@@ -35,10 +33,10 @@ void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMes
 	
 }
 
-bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer  ,TArray<UTileMesh*>& in_TileMeshContainer )
+bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer,TMap<int32 ,USpawnable*>*in_SpawnableContainer )
 {
 
-	GenerateTile(in_TileContainer, in_TileMeshContainer, TileCount,Map_Height,Map_Width);
+	GenerateTile(in_TileContainer, in_SpawnableContainer, TileCount,Map_Height,Map_Width);
 
 	CalculateMeshDimension(UnitMesh ,Actor_Length_X,Actor_Length_Y,Actor_Length_Z);
 
@@ -51,12 +49,6 @@ bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer  ,TArray<UTileMesh*>& 
 		return false;
 	}
 	return true;
-}
-
-bool UCoreGenerator::Run(UTileMap* in_TileContainer, TArray<UTileMesh*>& in_TileMeshContainer)
-{
-	return  GenerateTile(in_TileContainer, in_TileMeshContainer, TileCount,Map_Height,Map_Width);
-	
 }
 
 void UCoreGenerator::AddUIEntry()
@@ -130,9 +122,9 @@ void UCoreGenerator::CalculateMeshDimension(const UStaticMesh* StaticMesh , int&
 	}
 }
 
-bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount, int in_Height, int in_Width)
+bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TMap<INT32,USpawnable*>* in_SpawnableContainer,
+	int& in_TileCount, int in_Height, int in_Width)
 {
-	
 	int id=0;
 	in_TileCount =  0;
 	for (int Y = 0 ; Y<  in_Width ; Y++)
@@ -155,44 +147,10 @@ bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TArray<UTile
 			UTile* TilePtr(Tile);
 
 			// Call the Init function to initialize the object
-			TilePtr->Init(id, POS,UnscaledLoc, in_TileMeshCContainer);
+			TilePtr->Init(id, POS,UnscaledLoc, in_SpawnableContainer);
 
 			// Add the shared pointer to the array
 			in_TileContainer.Add(TilePtr);
-			
-		}
-	}
-	return true;
-}
-bool UCoreGenerator::GenerateTile(UTileMap* in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width)
-{
-	
-	int id=0;
-	in_TileCount =  0;
-	for (int Y = 0 ; Y<  in_Width ; Y++)
-	{
-		int Ypos=Y+1;
-		for (int X = 0 ; X< in_Height ; X++)
-		{
-			
-			id++;
-			in_TileCount ++ ;
-			
-			int Xpos=X+1;
-			FVector2D POS(Xpos,Ypos);
-			FVector2D UnscaledLoc = FVector2d(X,Y);
-			
-			// create a new instance of UTile with NewObject
-			UTile* Tile = NewObject<UTile>();
-
-			// create a shared pointer to Tile
-			UTile* TilePtr(Tile);
-
-			// Call the Init function to initialize the object
-			TilePtr->Init(id, POS,UnscaledLoc, in_TileMeshCContainer);
-
-			// Add the shared pointer to the array
-			//in_TileContainer->Add(TilePtr);
 			
 		}
 	}

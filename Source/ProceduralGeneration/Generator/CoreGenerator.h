@@ -24,19 +24,14 @@ public:
 	virtual int GetWidth () {return Map_Width;}
 	FString GetDataAssetPath()const;
 	inline TArray<UTile*>* GetAllTiles   () {return  TileContainer;}
-	inline TArray<UTile*>* GetRemainingTiles   () {return  TileContainer_Remaining;}
-	inline TArray<UTile*>* GetCollapsedTiles   () {return  TileContainer_Collapsed;}
-
 	//UI
 	void AddUIEntry ();
 	
 	//Generation
-	virtual bool Run (TArray<UTile*>& in_TileContainer ,TArray<UTileMesh*>& in_TileMeshContainer ) ;
-	virtual bool Run (UTileMap*in_TileContainer ,TArray<UTileMesh*>& in_TileMeshContainer ) ;
+	virtual bool Run (TArray<UTile*>& in_TileContainer, TMap<INT32,USpawnable*>*in_SpawnableContainer ) ;
 	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh, int in_height , int in_width );
 	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
-	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
-	virtual bool GenerateTile( UTileMap* in_TileContainer, TArray<UTileMesh*>& in_TileMeshCContainer , int& in_TileCount ,int in_Height ,int in_Width );
+	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TMap<INT32,USpawnable*>* in_SpawnableContainer , int& in_TileCount ,int in_Height ,int in_Width );
 	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
 	virtual void SetTilesWorldLocation (UTileMap* in_TileContainer, int Length_X ,int Length_Y );
 
@@ -62,8 +57,6 @@ public:
 protected:
 
 	TArray<UTile*>* TileContainer;
-    TArray<UTile*>* TileContainer_Remaining;
-    TArray<UTile*>* TileContainer_Collapsed;
 
 	
 
