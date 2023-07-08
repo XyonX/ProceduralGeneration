@@ -10,6 +10,7 @@
 #include "ProceduralGeneration/Generator/CoreGenerator.h"
 #include <unordered_map>
 #include "ProceduralGeneration/ADT/TileMap.h"
+#include "ProceduralGeneration/Spawner/CoreSpawner.h"
 #include "BaseProceduralActor.generated.h"
 
 
@@ -87,10 +88,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	TArray<UTileMesh*> TotalTileMesh;
 
+	
+	TMap<int32 ,USpawnable*>* TotalSpawnables;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UTileMesh* DefaultTileMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UTile* DefaultTile;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	USpawnable* DefaultSpawnable;
 
 	//std::unordered_map<FMatrixPosition , UTile* ,>
 	
@@ -145,18 +151,25 @@ public:
 
 
 	// Default  Generator  if   custom   generator  is  not  available
-	UPROPERTY()
+
 	TSubclassOf<UCoreGenerator>DefaultGenerator;
+	TSubclassOf<UCoreSpawner>DefaultSpawner;
 
 	//user can select the    custom generator ifd    they  want to  use  custom  algorithm
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Defaults")
 	TSubclassOf<UCoreGenerator> CustomGenerator;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Defaults")
+	TSubclassOf<UCoreSpawner> CustomSpawner;
 	
 	//TSharedPtr<UCoreGenerator>Generator;
 	UPROPERTY()
-	 UCoreGenerator* Generator;
+	UCoreGenerator* Generator;
+	UPROPERTY()
+	UCoreSpawner* Spawner;
+	
 
 	bool RunGenerator ();
+	bool RunSpawner ();
 	
 	
 
@@ -213,7 +226,7 @@ public:
 	void UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);
 
 	// Returns mesh with lowest entropy from given array of tiles
-	UTile* ReturnTileWithLowestEntropy(TArray<UTile*>&  TotalTile);
+	//UTile* ReturnTileWithLowestEntropy(TArray<UTile*>&  TotalTile);
 	UTile* GetTileByID(int ID,TArray<UTile*>& TotalTile);
 	UTile* GetTileByPosition2D(FVector2D Pos, TArray<UTile*>& TotalTile);
 	

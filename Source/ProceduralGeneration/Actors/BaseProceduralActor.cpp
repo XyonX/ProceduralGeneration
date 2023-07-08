@@ -46,11 +46,16 @@ ABaseProceduralActor::ABaseProceduralActor()
 	
 	//SETTING UP DEFAULT TILE
 	DefaultTile = CreateDefaultSubobject<UTile>("DefaultTile");
-	DefaultTileMesh=CreateDefaultSubobject<UTileMesh>("DefaultTileMesh");
 	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
 	DefaultTile->Position_2D=FVector2D(0,0);
-	DefaultTile->SelectedTiledMesh = DefaultTileMesh ;
-	DefaultTile->AllAvailableMeshToChooseFrom.Empty();
+	DefaultTile->AllAvailableSpawnableToChooseFrom.Empty();
+	
+	DefaultSpawnable = CreateDefaultSubobject<USpawnable>("DefaultSpawnable");
+	UTexture2D* DefaultTexture = UTexture2D::StaticClass()->GetDefaultObject<UTexture2D>();
+	DefaultSpawnable->SetIcon(DefaultTexture);
+	DefaultSpawnable->SetMesh(FloorMesh);
+	
+
 	//DefaultTileMesh->TileMesh = FloorMesh;
 	
 	
@@ -70,52 +75,35 @@ ABaseProceduralActor::ABaseProceduralActor()
 void ABaseProceduralActor::BeginPlay()
 {
 	
-	
 	Super::BeginPlay();
-	//DefaultTileMesh->InstancedMesh = DefaultInstanceMeshComponent ;
-	//DefaultTileMesh->InstancedMesh =  NewObject<UInstancedStaticMeshComponent>(this);
-	//DefaultTileMesh->InstancedMesh->RegisterComponent();
-	
-
 	
 	//init the class
 	Init();
 
 	DefaultGenerator = UCoreGenerator::StaticClass();
+	DefaultSpawner=UCoreSpawner::StaticClass();
+	
 	SetupInput();
 
 
 	if(RunGenerator() == false)
 	{
 		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Generator failed !!!  "));
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Generator Failed !!!  "));
 		}
 		return;
 	}
-
-	//GENERATING TILE
-	//CalculateMeshLength();
-	//GenerateTile();
-	//SetTileLength(Actor_Length_X,Actor_Length_Y);
-	GenerateBaseFloor(AllTilesPTR);
-	
-	if (!AllTilesPTR.IsEmpty() && !TotalTileMesh.IsEmpty())
+	if(RunSpawner() ==false)
 	{
 		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT(" BOTH TILE AND TOTAL MESH AVAILABLE WAVE FUNCTION CALLING  "));
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Spawner Failed !!!  "));
 		}
+		return;
+	}
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Generation Successfull !!!  "));
+	}
 
-		// STARTING THE MAIN ALGORITHM
-		WaveFunctionCollapse();
-		bIsFirstGenDone=true;
-	}
-	else
-	{
-		// error occurred, display an error message
-		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Could not generate tile or total mesh. Aborting."));
-		}
-	}
 }
 
 void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -380,15 +368,19 @@ bool ABaseProceduralActor::RunGenerator()
 	//Map_Width=Generator->GetWidth();
 	Generator->Init(ControllerWidget,FloorMesh,Map_Height,Map_Width);
 	Generator->AddUIEntry();
-	return  Generator->Run(AllTilesPTR,TotalTileMesh);
+	return  Generator->Run(AllTilesPTR,TotalSpawnables);
 }
 
-bool ABaseProceduralActor::Init()
+bool ABaseProceduralActor::RunSpawner()
 {
-/*	if(TileContainer ==nullptr)
-	{
-		TileContainer = NewObject<UTileMap>();
-	}*/
+	Spawner = NewObject<UCoreSpawner>(this,DefaultSpawner);
+	Spawner->Init(&AllTilesPTR,TotalSpawnables,DefaultTile,DefaultSpawnable);
+
+	return  Spawner->Run();
+}
+
+bool ABaseProceduralActor::Init() 
+{
 	if (GetTileMeshData())
 	{
 		if (SetTileMeshData())
@@ -453,7 +445,7 @@ void ABaseProceduralActor::InitTileMesh(TArray<UTileMesh*>& totaltilemeshes, TAr
 			
 	}
 }
-
+/*
 // THE MAIN ALGORITHM
 void ABaseProceduralActor::WaveFunctionCollapse()
 {
@@ -502,7 +494,7 @@ void ABaseProceduralActor::WaveFunctionCollapse()
 		DefaultTileMesh->InstancedMesh->AddInstance(Transform);
 		
 	}
-}
+}*/
 
 void ABaseProceduralActor::UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& TotalTilee ,TArray<UTile*>& RemainingTile, TArray<UTile*>& TotalCollapsedTile)
 {
@@ -517,7 +509,7 @@ void ABaseProceduralActor::UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& 
 	// Add th the collapsed tile
 	TotalCollapsedTile.Add(Tile);
 }
-
+/*
 UTile*  ABaseProceduralActor::ReturnTileWithLowestEntropy(TArray<UTile*>& TotalTile)
 {
 	UTile*LowestEntropyTile =DefaultTile;
@@ -553,7 +545,7 @@ UTile*  ABaseProceduralActor::ReturnTileWithLowestEntropy(TArray<UTile*>& TotalT
 	}
 	
 	return LowestEntropyTile;
-}
+}*/
 
 UTile* ABaseProceduralActor::GetTileByID(int ID, TArray<UTile*>& TotalTile)
 {
@@ -636,7 +628,7 @@ bool ABaseProceduralActor::GenerateTile()
 			UTile* TilePtr(Tile);
 
 			// Call the Init function to initialize the object
-			TilePtr->Init(id, POS,UnscaledLoc, TotalTileMesh);
+			TilePtr->Init(id, POS,UnscaledLoc, TotalSpawnables);
 
 			// Add the shared pointer to the array
 			AllTilesPTR.Add(TilePtr);
@@ -733,6 +725,7 @@ void ABaseProceduralActor::GenerateBaseFloor( TArray<UTile*>& TotalTies)
 	}
 }
 
+/*
 // THIS FUNCTION UPDATE SURROUNDING MAINLY CALL THOSE 4 FUNCTION
 void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>& TotalTile)
 {
@@ -744,7 +737,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		UTile* LeftNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Left(SelectedTile,LeftNeighbour);
 	}
-	/*//Left UP
+	//Left UP
 	if(Position2D.Y-1 >=1 &&  Position2D.X+1 <=Map_Height)
 	{
 		FVector2D Pos (Position2D.X+1,Position2D.Y-1);
@@ -757,7 +750,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		FVector2D Pos (Position2D.X-1,Position2D.Y-1);
 		UTile* LeftDownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_LeftDown(SelectedTile,LeftDownNeighbour);
-	}*/
+	}
 
 	//Right
 	if(Position2D.Y+1 <=Map_Width )
@@ -767,7 +760,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		UTile* RightNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_Right(SelectedTile,RightNeighbour);
 	}
-	/*//Right Up
+	//Right Up
 	if(Position2D.Y+1 <=Map_Width  &&  Position2D.X+1 <=Map_Height)
 	{
 		
@@ -782,7 +775,7 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 		FVector2D Pos (Position2D.X-1,Position2D.Y+1);
 		UTile* RightDownNeighbour  = GetTileByPosition2D(Pos,AllTilesPTR);
 		UpdateAvailableMesh_RightDown(SelectedTile,RightDownNeighbour);
-	}*/
+	}
 	//Up
 	if(Position2D.X+1 <=Map_Height )
 	{
@@ -805,26 +798,26 @@ void ABaseProceduralActor::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTi
 void ABaseProceduralActor::UpdateAvailableMesh_Left(UTile* SelectedTile,UTile* LeftNeighbour)
 {
 	
-	TArray<UTileMesh*> UpdatedAvailableTileMesh;
+	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
 	if( LeftNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<UTileMesh*>TileMeshPTR = LeftNeighbour->AllAvailableMeshToChooseFrom;
+	TArray<USpawnable*>TileMeshPTR = LeftNeighbour->AllAvailableSpawnableToChooseFrom;
 	
-	for (UTileMesh* AvailableTileMesh_Left : TileMeshPTR )
+	for (USpawnable* AvailableTileMesh_Left : TileMeshPTR )
 	{
 		if (AvailableTileMesh_Left == nullptr) {
 			continue;
 		}
 
-		if (AvailableTileMesh_Left->CompatibleMeshTag_Right.HasTag(SelectedTile->SelectedTiledMesh->MeshTag)) {
+		if (AvailableTileMesh_Left->CompatibleMeshTag_Right.HasTag(SelectedTile->SelectedSpawnable->MeshTag)) {
 			UpdatedAvailableTileMesh.Add(AvailableTileMesh_Left);
 		}
 			
 	}
-	LeftNeighbour->AllAvailableMeshToChooseFrom =UpdatedAvailableTileMesh;
+	LeftNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
 	
 }
 
@@ -1023,7 +1016,7 @@ void ABaseProceduralActor::AddInstanceMesh(UTile* SelectedTile )
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,  TEXT(" INSTANCE ADING DONE "));}
 	}
 }
-
+*/
 
 
 
