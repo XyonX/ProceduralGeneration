@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "ProceduralGeneration/TileMesh/TileMesh.h"
 #include "functional"
+#include "CorePlugin/Spawnables/Spawnable.h"
 #include "Tile.generated.h"
 
 
@@ -29,13 +30,13 @@ public:
 	UTile();
 	virtual ~UTile() override;
 	//UTile(int id ,FVector2D pos2d ,FVector worldloc  , TArray<UTileMesh>& totaltilemesh);
-
-	void Init (int id ,FVector2D pos2d ,FVector2D Unscaledloc , TArray<UTileMesh*>& totaltilemesh);
+	
+	void Init (int id, FVector2D pos2d, FVector2D Unscaledloc, TMap<int32, USpawnable*>* TotalSpawnables );
     
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	int ID ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	UTileMesh* SelectedTiledMesh;
+	USpawnable* SelectedSpawnable;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
 	FVector2D Position_2D ;
@@ -52,9 +53,8 @@ public:
 	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
 	
 	bool bIsSaturated ;
-
 	UPROPERTY(EditAnywhere,BlueprintReadWrite , Category= "Tile")
-	TArray<UTileMesh*> AllAvailableMeshToChooseFrom;
+	TArray<USpawnable*> AllAvailableSpawnableToChooseFrom;
 	
 	
 	

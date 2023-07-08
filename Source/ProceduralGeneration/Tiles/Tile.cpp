@@ -14,31 +14,26 @@ UTile::UTile()
 	World_Location = FVector(0,0,0);
 }
 
-void UTile::Init(int id, FVector2D pos2d,FVector2D Unscaledloc, TArray<UTileMesh*>& totaltilemesh)
+void UTile::Init(int id, FVector2D pos2d, FVector2D Unscaledloc, TMap<int32, USpawnable*>* TotalSpawnables)
 {
 	ID=id;
 	Position_2D=pos2d;
 	World_Location_2D_UnScaled =Unscaledloc;
 	World_Location = FVector(0.f,0.f,0.f);
-	AllAvailableMeshToChooseFrom.Reserve(totaltilemesh.Num());
-	if(totaltilemesh.IsEmpty())
+	AllAvailableSpawnableToChooseFrom.Reserve(TotalSpawnables->Num());
+	if(TotalSpawnables->IsEmpty())
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Total Mesh Array is Empty !!! Set Default Mesh Failed  "));}
 	}
-	for ( UTileMesh* MeshElement : totaltilemesh)
+	for ( auto& pair : TotalSpawnables)
 	{
-		AllAvailableMeshToChooseFrom.Add(MeshElement);
+		AllAvailableSpawnableToChooseFrom.Add(pair.Value);
 	}
 }
 
 UTile::~UTile()
 {
-	
-	SelectedTiledMesh = nullptr;
-	for (int32 i = AllAvailableMeshToChooseFrom.Num() - 1; i >= 0; i--)
-	{
-		AllAvailableMeshToChooseFrom.RemoveAt(i);
-	}
+	SelectedSpawnable=nullptr;
 }
 
 //	SET COLLPSE STATUS IN THE FTILE STRUCT
