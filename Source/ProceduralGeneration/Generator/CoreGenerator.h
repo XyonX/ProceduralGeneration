@@ -6,12 +6,15 @@
 #include "UObject/Object.h"
 #include "ProceduralGeneration/Tiles/Tile.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
-#include "ProceduralGeneration/ADT/TileMap.h"
 #include "CoreGenerator.generated.h"
+
+//class USpawnable;
+//class UTile;
+
 
 // The Base class of All tile  generation algorithm 
 UCLASS()
-class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedFromThis<UCoreGenerator>
+class PROCEDURALGENERATION_API UCoreGenerator : public UObject //, public TSharedFromThis<UCoreGenerator>
 {
 	GENERATED_BODY()
 public:
@@ -28,12 +31,11 @@ public:
 	void AddUIEntry ();
 	
 	//Generation
-	virtual bool Run (TArray<UTile*>& in_TileContainer, TMap<INT32,USpawnable*>*in_SpawnableContainer ) ;
+	virtual bool Run (TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>*in_SpawnableContainer ) ;
 	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh, int in_height , int in_width );
 	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
-	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TMap<INT32,USpawnable*>* in_SpawnableContainer , int& in_TileCount ,int in_Height ,int in_Width );
+	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>* in_SpawnableContainer , int& in_TileCount ,int in_Height ,int in_Width );
 	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
-	virtual void SetTilesWorldLocation (UTileMap* in_TileContainer, int Length_X ,int Length_Y );
 
     //Debug Visualization
 	bool bDrawn = false; // Keep track of whether the point has been drawn or not
@@ -46,11 +48,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
 	UDataAsset* GeneratorDataAsset ;
 
-	TSharedRef<SWidget> HandleMenuContent()  ;
-	TSharedRef<ITableRow> HandleCustomDataAssetListRow (UObject* Item, const TSharedRef<STableViewBase>& OwnerTable);
+	//TSharedRef<SWidget> HandleMenuContent()  ;
+	//TSharedRef<ITableRow> HandleCustomDataAssetListRow (UObject* Item, const TSharedRef<STableViewBase>& OwnerTable);
 
-	void ScanDataAssets ();
-	TArray<UObject*>CustomDataAssetList;
+	//void ScanDataAssets ();
+	//TArray<UObject*>CustomDataAssetList;
 	void SetControllerTab (TSharedPtr<SGenerationControllerTab> in_ControllerTab){ControllerTab =in_ControllerTab;}
 
 

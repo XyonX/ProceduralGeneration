@@ -40,6 +40,8 @@ struct FTileMeshData : public FTableRowBase
 	ETilingType TilingType ;
 	UPROPERTY(EditAnywhere, Category = "My Category", meta = (ClampMin = "0", ClampMax = "1") ,meta = (ToolTip = "Percentage How Much Tile Should Repeat before break (of total Length )"))
 	float Frequency;
+
+	//Campatible Mesh Data
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")
 	FGameplayTagContainer ComaptileMeshTag_Left ;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="TileMesh")

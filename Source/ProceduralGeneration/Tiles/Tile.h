@@ -4,11 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "ProceduralGeneration/TileMesh/TileMesh.h"
-#include "functional"
-#include "CorePlugin/Spawnables/Spawnable.h"
 #include "Tile.generated.h"
 
+class USpawnable;
 
 //Collapse status enum
 UENUM(BlueprintType)

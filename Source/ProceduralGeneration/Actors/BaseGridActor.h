@@ -59,6 +59,7 @@ public:
 	ATopDownPlayerController*TopDownController;
 
 	UTileData*CursorHitTile;
+	
 
 	FOnMouseMovementDelegate MouseMovementDelegate;
 

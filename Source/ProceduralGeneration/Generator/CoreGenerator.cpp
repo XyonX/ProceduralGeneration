@@ -2,12 +2,12 @@
 #include "CoreGenerator.h"
 #include "EditorStyleSet.h"
 #include "Widgets/Layout/SExpandableArea.h"
-#include "PropertyEditorModule.h"
 #include "PropertyCustomizationHelpers.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Widgets/Layout/SScrollBox.h"
-#include "CoreUI/DockTab/GenerationControllerTab.h"
+
+#include "ProceduralGeneration/Tiles/Tile.h"
 
 #define LOCTEXT_NAMESPACE "Editor Window"
 
@@ -30,7 +30,6 @@ void UCoreGenerator::Init(TSharedPtr<SGenerationControllerTab> InTab, UStaticMes
 	ControllerTab=InTab;
 	if(UnitMesh==nullptr)
 	UnitMesh=in_UnitMesh;
-	
 }
 
 bool UCoreGenerator::Run(TArray<UTile*>& in_TileContainer,TMap<int32 ,USpawnable*>*in_SpawnableContainer )
@@ -122,7 +121,7 @@ void UCoreGenerator::CalculateMeshDimension(const UStaticMesh* StaticMesh , int&
 	}
 }
 
-bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TMap<INT32,USpawnable*>* in_SpawnableContainer,
+bool UCoreGenerator::GenerateTile(TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>* in_SpawnableContainer,
 	int& in_TileCount, int in_Height, int in_Width)
 {
 	int id=0;
@@ -168,14 +167,6 @@ void UCoreGenerator::SetTilesWorldLocation(TArray<UTile*>& in_TileContainer, int
 		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
 	}
 }
-void UCoreGenerator::SetTilesWorldLocation(UTileMap* in_TileContainer, int Length_X ,int Length_Y)
-{
-/*	for (auto& Pair : in_TileContainer)
-	{
-		UTile* Tile = Pair.second;
-		Tile->World_Location=FVector(Tile->World_Location_2D_UnScaled.X * Length_X ,Tile->World_Location_2D_UnScaled.Y * Length_Y , 0.0 );
-	}*/
-}
 
 void UCoreGenerator::DrawPositionIndicator(TArray<UTile*>* in_TileContainer)
 {
@@ -220,7 +211,7 @@ FString UCoreGenerator::GetDataAssetPath() const
 {
 	return SelectedDataAssetPath;
 }
-
+/*
 TSharedRef<SWidget> UCoreGenerator::HandleMenuContent()
 {
 	ScanDataAssets();
@@ -286,6 +277,6 @@ void UCoreGenerator::ScanDataAssets()
 			CustomDataAssetList.Add(Object);
 		}
 	}
-}
+}*/
 
 #undef  LOCTEXT

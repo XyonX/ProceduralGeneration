@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "CorePlugin/Data/MeshData.h"
 #include "CorePlugin/Helpers/DelegateHelper.h"
 #include"GameFramework/PlayerController.h"
 #include "ProceduralGeneration/Game/TopDownGameInstance.h"
 #include "ProceduralGeneration/Pawn/TopDownPawn.h"
 #include "TopDownPlayerController.generated.h"
 
+class UTileData;
 UCLASS()
 class PROCEDURALGENERATION_API ATopDownPlayerController  : public APlayerController
 {
@@ -52,10 +52,6 @@ public:
 	float SpawnOffset_Tile;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Controller")
 	FVector SnappingExtents;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
-	UMeshData*MeshData;
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Data")
-	UTileData*HitTile;
 	bool bShouldDrag;
 	bool bShouldDrag_Card;
 	bool bIsDragSucessfull;
@@ -70,9 +66,10 @@ public:
 
 	UPROPERTY()
 	USpawnable*CurrentSpawnable;
-
+	UTileData*HitTile;
 
 	ATopDownPawn* GetTopDownPawn ();
+	
 	void OnMouseMoveX (const FInputActionValue& Value);
 	void OnMouseMoveXAxis (float Value);
 	void OnMouseMoveY (const FInputActionValue& Value);

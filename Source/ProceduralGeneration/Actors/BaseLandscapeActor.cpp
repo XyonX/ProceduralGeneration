@@ -79,6 +79,7 @@ void ABaseLandscapeActor::BeginPlay()
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Mesh Data Loaded from File");
 			}
+			else
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, "Failed to deserialize mesh data");
 			}
@@ -211,18 +212,17 @@ bool ABaseLandscapeActor::GenerateLandscape()
 	}
 
 	
-	// Serialize height map
-	FBufferArchive MemoryWriter;
-	SerializePMC(MemoryWriter);
-	MemoryWriter.Flush();
+    // Serialize the PMC data
+    FBufferArchive MemoryWriter;
+    SerializePMC(MemoryWriter);
+    MemoryWriter.Flush();
 
 	TArray<uint8> SaveData;
 	SaveData.Empty();
 	SaveData.Append(MemoryWriter.GetData(), MemoryWriter.Num());
 
-	// Save the mesh data to a file
+	
 	FString SavePath = FPaths::ProjectSavedDir() + TEXT("Data/LandscapeMesh.dat");
-	//FFileHelper::SaveArrayToFile(MemoryWriter, *SavePath);
 	FFileHelper::SaveArrayToFile(SaveData, *SavePath);
 
 	return true;

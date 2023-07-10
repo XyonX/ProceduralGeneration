@@ -6,12 +6,13 @@
 #include "EnhancedInputComponent.h"
 #include "../../../../../../../UE_5.1/Engine/Platforms/Hololens/Source/Runtime/ApplicationCore/Public/HoloLensPlatformApplicationMisc.h"
 #include "Actions/AsyncAction_CreateWidgetAsync.h"
+#include "Components/InputComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "CorePlugin/Spawnables/SpawnableActor.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProceduralGeneration/Tiles/TileData.h"
-
 
 class ABaseGridActor;
 
@@ -109,6 +110,7 @@ ATopDownPawn* ATopDownPlayerController::GetTopDownPawn()
 	
 }
 
+
 void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 {
 	//OnMouseMovementDelegate.Execute();
@@ -126,10 +128,10 @@ void ATopDownPlayerController::OnMouseMoveX(const FInputActionValue& Value)
 	//FString DebugMessage = FString::Printf(TEXT("Velocity X : %f"),Value[0]);
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, DebugMessage);
 	// Check if mouse movement velocity is below a threshold value (e.g., 1.0)
-	/*if (FMath::IsNearlyZero(Value[0], 0.1f))
-	{
-		MouseTrace();
-	}*/
+	///*if (FMath::IsNearlyZero(Value[0], 0.1f))
+	//{
+	//	MouseTrace();
+	//}
 		
 	
 }

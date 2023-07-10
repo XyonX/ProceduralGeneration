@@ -1,31 +1,20 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
-#include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
-#include "LevelEditor.h"
 #include "LevelEditorActions.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
-#include "Editor/LevelEditor/Public/LevelEditorActions.h"
-#include "ProceduralGeneration/Generator/CoreGenerator.h"
-#include <unordered_map>
-#include "ProceduralGeneration/ADT/TileMap.h"
-#include "ProceduralGeneration/Spawner/CoreSpawner.h"
+#include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
 #include "BaseProceduralActor.generated.h"
 
-
-// COLLAPSE STATUS ENUM
+class UCoreGenerator;
+class UCoreSpawner;
+class UTopDownGameInstance;
+class USpawnable;
 class ACoreDebugContainer;
-struct FMatrixPosition;
 class UTile;
 class UTileMesh;
-struct FTileMeshData;
 
-// CAN BE CONSIDERED AS A SINGLE MESH UNIT CONTAINING ONE MAIN MESH AND OTHER NEEDED VARIABLES
 
-// THE MAIN TILE WE ARE GENERATING AND STORING IN AN ARRAY
-
-// STARTING OF THE MAIN CLASS
 
 UCLASS()
 class PROCEDURALGENERATION_API ABaseProceduralActor : public AActor
@@ -43,89 +32,38 @@ protected:
 
 
 public:
-	//UPROPERTY(BlueprintReadOnly,Category = "Tile")
-	//UTileMap*  TileContainer;
-    // Variables
-    // these are numbers like 100x100 procedural tile
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
     int Map_Height =4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
     int Map_Width =4;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
-    FRandomStream Stream;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    float Actor_Length;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    float Actor_Length_X;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    float Actor_Length_Y;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    float Actor_Length_Z;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     UInstancedStaticMeshComponent* FlorInstanceMeshComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	UInstancedStaticMeshComponent* DefaultInstanceMeshComponent;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    UInstancedStaticMeshComponent* TileMeshInstance;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     UStaticMesh* FloorMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    
-    //bool
-    bool bWantBaseFloor;
-	bool bIsFirstGenDone ;
-	bool bIsGenSaturated;
-
-    // THE MAIN TILES CONTAINER			//TODO DELETE THEM LATER
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     TArray<UTile*> AllTilesPTR;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<UTile*> RemainingTiles;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<UTile*> CollapsedTiles;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	TArray<UTile*> SaturatedTiles;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	TArray<UTileMesh*> TotalTileMesh;
-
-	
 	TMap<int32 ,USpawnable*>* TotalSpawnables;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	UTileMesh* DefaultTileMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UTile* DefaultTile;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	USpawnable* DefaultSpawnable;
-
-	//std::unordered_map<FMatrixPosition , UTile* ,>
-	
-	
-	
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    bool bWantCustomTileSize;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    float AllTiles_Float;
+	UPROPERTY()
+	UTopDownGameInstance*TopDownGameInstance;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Debug")
-    ACoreDebugContainer* DebugContainerAcotr;
-	
-    //Data
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
-	UDataTable* TileMeshDataAsset ;
-	TArray<FTileMeshData*>TileMeshDataArray ;
+    ACoreDebugContainer* DebugContainerActor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	FString TileMeshDataAssetName = "DT_TileMesh";
 	FName TileMeshDataAssetName_FName = "DT_TileMesh";
-
-	//Debugger	custom debug manager class
 	TDebugger Debugger ;
 
+	
 	//INPUT
 	//Create a input Component and bind it with the fucntion
 	void SetupInput();
 	
 	// Context THAT CONTAINS INPUT ACTIONS CAN HAVE MORE THAN ONE 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input mapping Context")
+	UPROPERTY (EditDefaultsOnly,BlueprintReadWrite,Category="Input mapping Context")
 	class UInputMappingContext*ProceduralGenerationMapping;
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
@@ -145,7 +83,6 @@ public:
 	//UI FUNCTIONS
 	void ToggleTab();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-	bool OnReGenerate();
 	bool OnDelegate ();
 	static FOnGenerateButtonClick GenerateClickDelegate_Actor ;
 
@@ -170,65 +107,6 @@ public:
 
 	bool RunGenerator ();
 	bool RunSpawner ();
-	
-	
-
-	
-	//Setting up initial variables 
-	bool Init();
-
-	// gets the tilemesh data from data table 
-    bool GetTileMeshData();
-
-	// setup the data in totaltilemesh
-	bool SetTileMeshData ();
-	void InitTileMesh(TArray<UTileMesh*>& totaltilemeshes ,TArray<FTileMeshData*>& totaltilemeshedatas);
-	
-	// The Main function
-	UFUNCTION(BlueprintCallable)
-	void WaveFunctionCollapse();
-
-	// Calculate the length of mesh
-	void CalculateMeshLength();
-
-	// Generate tile
-	// Uses the Calculate Length function data to provide world position
-	UFUNCTION(BlueprintCallable)
-	bool GenerateTile();
-	void SetTileLength(int Length_X ,int Length_Y);
-
-	// Choose a random tile from given array
-	// Mainly for first random tile choose
-	UTile* ChooseRandomTile(TArray<UTile*>& AllTileToChooseFrom);
-
-	// Choose a random mesh from available mesh array
-	UTileMesh* RandomMeshFromAvailableMesh(UTile* Tile);
-
-	// This function adds an instance to the selected mesh
-	void AddInstanceMesh(UTile* SelectedTile);
-
-	void GenerateBaseFloor(TArray<UTile*>& TotalTile);
-
-	// Just call those 4 surrounded function update function
-	void UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>& TotalTile);
-
-	// Updating Surrounding Mesh
-	void UpdateAvailableMesh_Left(UTile* SelectedTile,UTile* LeftNeighbour);
-	void UpdateAvailableMesh_LeftUp(UTile* SelectedTile,UTile* LeftUpNeighbour);
-	void UpdateAvailableMesh_LeftDown(UTile* SelectedTile,UTile* LeftDownNeighbour);
-	void UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNeighbour);
-	void UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* RightUpNeighbour);
-	void UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* RightDownNeighbour);
-	void UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbour);
-	void UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeighbour);
-
-	// Returns mesh with lowest entropy from given array of tiles
-	void UpdateCollapsedTileData(UTile*Tile , TArray<UTile*>& TotalTile, TArray<UTile*>& RemainingTilee, TArray<UTile*>&  TotalCollapsedTile);
-
-	// Returns mesh with lowest entropy from given array of tiles
-	//UTile* ReturnTileWithLowestEntropy(TArray<UTile*>&  TotalTile);
-	UTile* GetTileByID(int ID,TArray<UTile*>& TotalTile);
-	UTile* GetTileByPosition2D(FVector2D Pos, TArray<UTile*>& TotalTile);
 	
 	
 };

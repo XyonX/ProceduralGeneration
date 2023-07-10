@@ -3,6 +3,8 @@
 
 #include "RuntimeAppearanceEditor.h"
 #include "KismetProceduralMeshLibrary.h"
+//#include "Rendering/SkeletalMeshRenderData.h"
+//#include "Rendering/SkinWeightVertexBuffer.h"
 
 
 // Sets default values
@@ -27,30 +29,27 @@ void ARuntimeAppearanceEditor::Tick(float DeltaTime)
 
 bool ARuntimeAppearanceEditor::ConvertStaticMeshToProceduralMesh(UStaticMeshComponent* InSMC, UProceduralMeshComponent* OutPMC)
 {
+	/*
 	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(InSMC,0,OutPMC,false);
 	if(OutPMC ==nullptr)
 	{
 		return false;
-	}
+	}*/
 	return true;
 	
 }
 
 void ARuntimeAppearanceEditor::ExtractMeshSectionStaticMeshComponent()
 {
+	/*
 	//It Returns A MeshSection from the PMC
 	PMS_FullBody= CharacterProceduralMesh->GetProcMeshSection(0);
-
-
 	
 	UKismetProceduralMeshLibrary::GetSectionFromStaticMesh(CharacterMesh,0,Index,Vertices,Triangles,Normals,UVs,Tangents);
 
-	
-
-	
 	//CharacterMesh->GetVertexColorData(VertexColorData);
 	//FStaticMeshLODResources& LODResource= CharacterMesh->GetRenderData()->LODResources;
-	
+
 	FSkeletalMeshRenderData*RenderData= CharacterSkeletalMesh->GetSkeletalMeshRenderData();
 	FSkeletalMeshLODRenderData& SkeletalMeshRenderData =  RenderData->LODRenderData[0];
 
@@ -74,8 +73,8 @@ void ARuntimeAppearanceEditor::ExtractMeshSectionStaticMeshComponent()
 			
 		}
 
-	}
-
+	}*/
+/*
 	for(auto& Pair : VertexColorData)
 	{
 		switch (Pair.Value)
@@ -117,6 +116,6 @@ void ARuntimeAppearanceEditor::ExtractMeshSectionStaticMeshComponent()
 	}
 
 		
-	CharacterProceduralMesh->GetProcMeshSection(0);
+	CharacterProceduralMesh->GetProcMeshSection(0);*/
 }
 

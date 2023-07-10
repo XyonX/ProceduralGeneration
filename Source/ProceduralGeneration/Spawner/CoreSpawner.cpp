@@ -3,12 +3,15 @@
 
 #include "CoreSpawner.h"
 #include "ProceduralGeneration/Tiles/Tile.h"
+#include "CorePlugin/Spawnables/Spawnable.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameplayTagContainer.h"
 
 UCoreSpawner::UCoreSpawner()
 {
 }
 
+/*
 UCoreSpawner::UCoreSpawner(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables , int InMap_Height , int InMap_Width)
 {
 	TotalTiles=InTotalTiles;
@@ -17,11 +20,14 @@ UCoreSpawner::UCoreSpawner(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*
 	Map_Width=InMap_Width;
 	
 	
-}
-bool UCoreSpawner::Init(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,,UTile*InDefaultTile,USpawnable*InDefaultSpawnable)
+}*/
+
+bool UCoreSpawner::Init(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,UTile*InDefaultTile,USpawnable*InDefaultSpawnable,int InMap_Height , int InMap_Width)
 {
 	SetTotalTiles(InTotalTiles);
 	SetTotalSpawnables(InTotalSpawnables);
+	Map_Height=InMap_Height;
+	Map_Width=InMap_Width;
 	return true;
 	
 }
@@ -100,6 +106,7 @@ void UCoreSpawner::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>* In
 		UTile* RightNeighbour  = GetTileByPosition2D(Pos,InTotalTile);
 		UpdateAvailableMesh_Right(SelectedTile,RightNeighbour);
 	}
+	//Up
 	if(Position2D.X+1 <=Map_Height )
 	{
 		
@@ -115,7 +122,8 @@ void UCoreSpawner::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>* In
 		UTile* DownNeighbour  = GetTileByPosition2D(Pos,InTotalTile);
 		UpdateAvailableMesh_Down(SelectedTile,DownNeighbour);
 	}
-		/*//Left UP
+	/*
+		//Left UP
 	if(Position2D.Y-1 >=1 &&  Position2D.X+1 <=Map_Height)
 	{
 		FVector2D Pos (Position2D.X+1,Position2D.Y-1);
@@ -145,7 +153,6 @@ void UCoreSpawner::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>* In
 		UTile* RightDownNeighbour  = GetTileByPosition2D(Pos,InTotalTile);
 		UpdateAvailableMesh_RightDown(SelectedTile,RightDownNeighbour);
 	}*/
-	//Up
 
 }
 
@@ -389,7 +396,7 @@ UTile* UCoreSpawner::ReturnTileWithLowestEntropy(TArray<UTile*>* inTotalTiles)
 
 UTile* UCoreSpawner::GetTileByID(int ID, TArray<UTile*>* inTotalTiles)
 {
-	for (UTile* Tile : inTotalTiles)
+	for (UTile* Tile : *inTotalTiles)
 	{
 		if(Tile->ID==ID)
 			return  Tile ;
@@ -408,7 +415,7 @@ void UCoreSpawner::WaveFunctionCollapse()
 {
 	//Adding RemainingTile To All Tile
 	RemainingTiles.Reserve(TotalTiles->Num());
-	for(UTile* Tile : &TotalTiles)
+	for(UTile* Tile : *TotalTiles)
 		
 	{
 		RemainingTiles.Add(Tile)  ;
@@ -426,6 +433,8 @@ void UCoreSpawner::WaveFunctionCollapse()
 
 	//Update  Collapsed Tile Data
 	UpdateCollapsedTileData(FirstRandomTile,&RemainingTiles,&CollapsedTiles);
+
+	UpdateSurroundingMesh(FirstRandomTile,&RemainingTiles);
 
 	while (!RemainingTiles.IsEmpty())
 	{
@@ -474,5 +483,3 @@ bool UCoreSpawner::Run()
 		return false;
 	}
 }
-
-

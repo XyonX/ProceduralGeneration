@@ -2,8 +2,8 @@
 
 
 #include "TopDownPawn.h"
-
 #include "Kismet/GameplayStatics.h"
+#include "ProceduralGeneration/Actors/BaseGridActor.h"
 
 
 // Sets default values

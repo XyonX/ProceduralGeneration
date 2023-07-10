@@ -5,9 +5,10 @@
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Pawn.h"
-#include "ProceduralGeneration/Actors/BaseGridActor.h"
+//#include "ProceduralGeneration/Actors/BaseGridActor.h"
 #include "TopDownPawn.generated.h"
 
+class ABaseGridActor;
 UCLASS()
 class PROCEDURALGENERATION_API ATopDownPawn : public APawn
 {

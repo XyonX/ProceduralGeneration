@@ -3,13 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
-#include "CorePlugin/Spawnables/Spawnable.h"
-#include "ProceduralGeneration/Game/TopDownGameInstance.h"
 #include "UObject/Object.h"
 #include "CoreSpawner.generated.h"
 
 class UTile;
+class USpawnable;
 /**
  This class  Handel Mesh Spawning Related Logics
  -TileMesh Replaced With Spawner
@@ -21,10 +19,10 @@ class PROCEDURALGENERATION_API UCoreSpawner : public UObject
 
 public:
 	UCoreSpawner();
-	UCoreSpawner(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables , int InMap_Height , int InMap_Width)();
+//	UCoreSpawner(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables , int InMap_Height , int InMap_Width)();
 
 	
-	bool Init (TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,UTile*InDefaultTile, USpawnable*InDefaultSpawnable);
+	bool Init (TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,UTile*InDefaultTile, USpawnable*InDefaultSpawnable,int InMap_Height , int InMap_Width);
 	void SetTotalTiles (TArray<UTile*>*InTotalTiles);
 	void SetTotalSpawnables (TMap<int32,USpawnable*>* InTotalSpawnables);
 

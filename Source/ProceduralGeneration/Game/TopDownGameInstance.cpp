@@ -33,12 +33,6 @@ void UTopDownGameInstance::Init_Spawnable (UDataTable*InDT,TMap<int32 ,USpawnabl
 	}
 	//UThumbnailManager& ThumbnailManager = UThumbnailManager::Get();
 
-	//Creating Default Spawnable
-
-	//USpawnable * Spawnable = NewObject<USpawnable>();
-	//Spawnable->Init(Spawnable);
-	//Spawnable->CreateInstance(InWorld);
-
 	for (FMeshProperty*MP : AllMeshProperties)
 	{
 		USpawnable * Spawnable = NewObject<USpawnable>();

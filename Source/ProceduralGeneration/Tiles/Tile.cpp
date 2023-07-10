@@ -2,7 +2,7 @@
 
 
 #include "Tile.h"
-
+#include "CorePlugin/Spawnables/Spawnable.h"
 
 UTile::UTile()
 {
@@ -25,7 +25,7 @@ void UTile::Init(int id, FVector2D pos2d, FVector2D Unscaledloc, TMap<int32, USp
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Total Mesh Array is Empty !!! Set Default Mesh Failed  "));}
 	}
-	for ( auto& pair : TotalSpawnables)
+	for ( auto& pair : *TotalSpawnables)
 	{
 		AllAvailableSpawnableToChooseFrom.Add(pair.Value);
 	}
