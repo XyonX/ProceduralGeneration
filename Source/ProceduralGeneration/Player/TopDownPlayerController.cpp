@@ -4,7 +4,7 @@
 #include "TopDownPlayerController.h"
 
 #include "EnhancedInputComponent.h"
-#include "../../../../../../../UE_5.1/Engine/Platforms/Hololens/Source/Runtime/ApplicationCore/Public/HoloLensPlatformApplicationMisc.h"
+#include "../../../../../../../UE_5.2/Engine/Platforms/Hololens/Source/Runtime/ApplicationCore/Public/HoloLensPlatformApplicationMisc.h"
 #include "Actions/AsyncAction_CreateWidgetAsync.h"
 #include "Components/InputComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"

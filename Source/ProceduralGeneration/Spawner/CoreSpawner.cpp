@@ -11,18 +11,7 @@ UCoreSpawner::UCoreSpawner()
 {
 }
 
-/*
-UCoreSpawner::UCoreSpawner(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables , int InMap_Height , int InMap_Width)
-{
-	TotalTiles=InTotalTiles;
-	TotalSpawnables=InTotalSpawnables;
-	Map_Height=InMap_Height;
-	Map_Width=InMap_Width;
-	
-	
-}*/
-
-bool UCoreSpawner::Init(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,UTile*InDefaultTile,USpawnable*InDefaultSpawnable,int InMap_Height , int InMap_Width)
+bool UCoreSpawner::Init(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,int InMap_Height , int InMap_Width)
 {
 	SetTotalTiles(InTotalTiles);
 	SetTotalSpawnables(InTotalSpawnables);
@@ -51,28 +40,29 @@ void UCoreSpawner::SetTotalSpawnables(TMap<int32, USpawnable*>* InTotalSpawnable
 USpawnable* UCoreSpawner::RandomSpawnableFromAvailableSpawnable(UTile* InTile)
 {
 	//if(Tile.AllAvailableMeshToChooseFrom.Num() == 0)
-	if(InTile->AllAvailableSpawnableToChooseFrom.IsEmpty())
+	if(InTile->GetSupportedSpawnable().IsEmpty())
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("   Available mesh list is empty For this tile unable to select any random Mesh "));}
 		return DefaultSpawnable;
 	}
 	
-	int RandomMESH = FMath::RandRange(0,InTile->AllAvailableSpawnableToChooseFrom.Num()-1 );
-	USpawnable* SelectedSpawnable = InTile->AllAvailableSpawnableToChooseFrom[RandomMESH];
+	int RandomMESH = FMath::RandRange(0,InTile->GetSupportedSpawnable().Num()-1 );
+	USpawnable* SelectedSpawnable = InTile->GetSupportedSpawnable()[RandomMESH];
 	return SelectedSpawnable;
 }
 
 void UCoreSpawner::AddInstanceMesh(UTile* InSelectedTile)
 {
-	InSelectedTile->SelectedSpawnable = RandomSpawnableFromAvailableSpawnable(InSelectedTile);
-	if(InSelectedTile->SelectedSpawnable->GetMesh() ==nullptr  )
+
+	InSelectedTile->SetSelectedSpawnable( RandomSpawnableFromAvailableSpawnable(InSelectedTile)) ;
+	if(InSelectedTile->GetSelectedSpawnable()->GetMesh() ==nullptr  )
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Instance Add Failedd Selected Tile Didint have any Selected  Mesh "));}
 		return;
 	}
 		FTransform SpawnTransform ;
-		SpawnTransform.SetLocation(InSelectedTile->World_Location);
-		InSelectedTile->SelectedSpawnable->AddInstance(SpawnTransform);
+		SpawnTransform.SetLocation(InSelectedTile->GetWorldLocation());
+		InSelectedTile->GetSelectedSpawnable()->AddInstance(SpawnTransform);
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,  TEXT(" INSTANCE ADING DONE "));}
 }
 
@@ -88,7 +78,7 @@ void UCoreSpawner::UpdateCollapsedTileData(UTile* inTile, TArray<UTile*>* inRema
 
 void UCoreSpawner::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>* InTotalTile)
 {
-	FVector2D Position2D = SelectedTile->Position_2D;
+	FVector2D Position2D = SelectedTile->GetPosition2D();
 	//Left
 	if(Position2D.Y-1 >=1 )
 	{
@@ -160,11 +150,11 @@ void UCoreSpawner::UpdateAvailableMesh_Left(UTile* SelectedTile, UTile* LeftNeig
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( LeftNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( LeftNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesLeft = LeftNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesLeft = LeftNeighbour->GetSupportedSpawnable();
 	
 	for (USpawnable* LeftSpawnable : AllSpawnablesLeft )
 	{
@@ -172,23 +162,23 @@ void UCoreSpawner::UpdateAvailableMesh_Left(UTile* SelectedTile, UTile* LeftNeig
 			continue;
 		}
 
-		if (LeftSpawnable->CompatibleMeshTag_Right.HasTag(SelectedTile->SelectedSpawnable->SpawnableTag)) {
+		if (LeftSpawnable->CompatibleMeshTag_Right.HasTag(SelectedTile->GetSelectedSpawnable()->SpawnableTag)) {
 			UpdatedAvailableTileMesh.Add(LeftSpawnable);
 		}
 			
 	}
-	LeftNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	LeftNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh) ;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_LeftUp(UTile* SelectedTile, UTile* LeftUpNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( LeftUpNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( LeftUpNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesLeftUp = LeftUpNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesLeftUp = LeftUpNeighbour->GetSupportedSpawnable();
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -203,18 +193,18 @@ void UCoreSpawner::UpdateAvailableMesh_LeftUp(UTile* SelectedTile, UTile* LeftUp
 		}
 			
 	}*/
-	LeftUpNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	LeftUpNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh) ;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_LeftDown(UTile* SelectedTile, UTile* LeftDownNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( LeftDownNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( LeftDownNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesLeftDown = LeftDownNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesLeftDown = LeftDownNeighbour->GetSupportedSpawnable();
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -229,18 +219,18 @@ void UCoreSpawner::UpdateAvailableMesh_LeftDown(UTile* SelectedTile, UTile* Left
 		}
 			
 	}*/
-	LeftDownNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	LeftDownNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh);
 }
 
 void UCoreSpawner::UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( RightNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( RightNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesRight = RightNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesRight = RightNeighbour->GetSupportedSpawnable();
 	
 	for (USpawnable* RightSpawnable : AllSpawnablesRight )
 	{
@@ -248,23 +238,23 @@ void UCoreSpawner::UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNe
 			continue;
 		}
 
-		if (RightSpawnable->CompatibleMeshTag_Left.HasTag(SelectedTile->SelectedSpawnable->SpawnableTag)) {
+		if (RightSpawnable->CompatibleMeshTag_Left.HasTag(SelectedTile->GetSelectedSpawnable()->SpawnableTag)) {
 			UpdatedAvailableTileMesh.Add(RightSpawnable);
 		}
 			
 	}
-	RightNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	RightNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh);
 }
 
 void UCoreSpawner::UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* RightUpNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( RightUpNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( RightUpNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesRightUp = RightUpNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesRightUp = RightUpNeighbour->GetSupportedSpawnable();
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -279,18 +269,18 @@ void UCoreSpawner::UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* Right
 		}
 			
 	}*/
-	RightUpNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	RightUpNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh) ;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* RightDownNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( RightDownNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( RightDownNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesRightDown = RightDownNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesRightDown = RightDownNeighbour->GetSupportedSpawnable();
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -305,18 +295,18 @@ void UCoreSpawner::UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* Rig
 		}
 			
 	}*/
-	RightDownNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	RightDownNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh) ;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( UpNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( UpNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesUp = UpNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesUp = UpNeighbour->GetSupportedSpawnable();
 	
 	for (USpawnable* UpSpawnable : AllSpawnablesUp )
 	{
@@ -324,23 +314,23 @@ void UCoreSpawner::UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbou
 			continue;
 		}
 
-		if (UpSpawnable->CompatibleMeshTag_Down.HasTag(SelectedTile->SelectedSpawnable->SpawnableTag)) {
+		if (UpSpawnable->CompatibleMeshTag_Down.HasTag(SelectedTile->GetSelectedSpawnable()->SpawnableTag)) {
 			UpdatedAvailableTileMesh.Add(UpSpawnable);
 		}
 			
 	}
-	UpNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	UpNeighbour->SetSupportedSpawnable(UpdatedAvailableTileMesh) ;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
 
-	if( DownNeighbour->CollapseStatus==EcollapseStatus::Collapsed)
+	if( DownNeighbour->GetCollapseStatus()==EcollapseStatus::Collapsed)
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesUp = DownNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesUp = DownNeighbour->GetSupportedSpawnable();
 	
 	for (USpawnable* DownSpawnable : AllSpawnablesUp )
 	{
@@ -348,30 +338,30 @@ void UCoreSpawner::UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeig
 			continue;
 		}
 
-		if (DownSpawnable->CompatibleMeshTag_Up.HasTag(SelectedTile->SelectedSpawnable->SpawnableTag)) {
+		if (DownSpawnable->CompatibleMeshTag_Up.HasTag(SelectedTile->GetSelectedSpawnable()->SpawnableTag)) {
 			UpdatedAvailableTileMesh.Add(DownSpawnable);
 		}
 			
 	}
-	DownNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	DownNeighbour->GetSupportedSpawnable() =UpdatedAvailableTileMesh;
 }
 
 
 UTile* UCoreSpawner::ReturnTileWithLowestEntropy(TArray<UTile*>* inTotalTiles)
 {
-	UTile*LowestEntropyTile =DefaultTile;
+	UTile*LowestEntropyTile =nullptr;
 	bool bfirst = true ;
 	bIsGenSaturated =true;
 	for(int i = inTotalTiles->Num()-1 ; i >= 0 ; i-- )
 	{
 		UTile* tile = (*inTotalTiles)[i];
-		if(tile->CollapseStatus ==EcollapseStatus::Collapsed)
+		if(tile->GetCollapseStatus() ==EcollapseStatus::Collapsed)
 		{
 			continue;
 		}
-		if( tile->AllAvailableSpawnableToChooseFrom.Num() <=0 )
+		if( tile->GetSupportedSpawnable().Num() <=0 )
 		{
-			tile->bIsSaturated  =true;
+			tile->SetSaturated(true) ;
 			RemainingTiles.Remove(tile);
 			SaturatedTiles.Add(tile);
 			continue;
@@ -384,7 +374,7 @@ UTile* UCoreSpawner::ReturnTileWithLowestEntropy(TArray<UTile*>* inTotalTiles)
 			bIsGenSaturated =false;
 			continue;
 		}
-		if(tile->AllAvailableSpawnableToChooseFrom.Num()< LowestEntropyTile->AllAvailableSpawnableToChooseFrom.Num())
+		if(tile->GetSupportedSpawnable().Num()< LowestEntropyTile->GetSupportedSpawnable().Num())
 		{
 			LowestEntropyTile = tile;
 			bIsGenSaturated=false;
@@ -398,16 +388,18 @@ UTile* UCoreSpawner::GetTileByID(int ID, TArray<UTile*>* inTotalTiles)
 {
 	for (UTile* Tile : *inTotalTiles)
 	{
-		if(Tile->ID==ID)
+		if(Tile->GetID()==ID)
 			return  Tile ;
 	}
-	//return &DefaultTile;
 	return nullptr;
 }
 
 UTile* UCoreSpawner::GetTileByPosition2D(FVector2D Pos, TArray<UTile*>* inTotalTiles)
 {
-	int32 index = ((Pos.Y - 1) * Map_Height) + (Pos.X - 1);
+	//int32 index = ((Pos.Y - 1) * Map_Height) + (Pos.X - 1);
+	//return (*inTotalTiles) [index];
+
+	int32 index = (Pos.Y  * Map_Height) + Pos.X;
 	return (*inTotalTiles) [index];
 }
 
@@ -423,7 +415,7 @@ void UCoreSpawner::WaveFunctionCollapse()
 
 	// FIRST RANDOM ID FROM STREAM
 	Stream.GenerateNewSeed();
-	int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(RemainingTiles.Num()-1,Stream);
+	int FirstIndices =  UKismetMathLibrary::RandomIntegerFromStream(Stream,RemainingTiles.Num()-1);
 	
 	//Pick A Random Tile	//For the first time choose from stream
 	UTile* FirstRandomTile = RemainingTiles[FirstIndices];

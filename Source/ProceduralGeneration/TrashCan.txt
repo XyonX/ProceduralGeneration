@@ -850,3 +850,59 @@ bool ABaseProceduralActor::Init()
         	}
         	
         }
+        
+        
+        void UCoreGenerator::AddUIEntry()
+        {
+        	if(ControllerTab ==nullptr)
+        	{
+        		return;
+        	}
+        	// Get the vertical box widget
+        	TSharedPtr<SVerticalBox> VerticalBoxWidget = StaticCastSharedRef<SVerticalBox>(ControllerTab->GetWidget().ToSharedRef());
+        
+        	if(VerticalBoxWidget==nullptr)
+        		return;
+        
+        	// Add a new slot to the vertical box and create a collapsible box widget inside the slot
+        	VerticalBoxWidget->AddSlot()
+        					.VAlign(VAlign_Top)
+        					.HAlign(HAlign_Fill)
+        	
+        				[
+        					SNew(SExpandableArea)
+        					.BorderBackgroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 0.5f))
+        					.BodyBorderBackgroundColor(FLinearColor(0.25f, 0.25f, 0.25f, 0.5f))
+        					.HeaderContent()
+        					[
+        							SNew(SBorder)
+        							.BorderBackgroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
+        								[
+        								  SNew(STextBlock)
+        								  .Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+        								  .ColorAndOpacity(FLinearColor::White)
+        								  .Text(FText::FromString("Generator"))
+        								]
+        					]
+        					.BodyContent()
+        					[
+        						SNew(SVerticalBox)
+        							+ SVerticalBox::Slot()
+        							.Padding(5.0f)
+        							
+        								[
+        									SNew(STextBlock)
+        									.Text(FText::FromString("New Area"))
+        									/*SNew(SComboButton)
+        									.OnGetMenuContent(this, &UCoreGenerator::HandleMenuContent)
+        									.ContentPadding(FMargin(2.0f, 2.0f))
+        									.ButtonContent()
+        									[
+        										SNew(STextBlock)
+        										.Text(LOCTEXT("CustomDataAsset", "Choose Custom Data Asset"))
+        									]*/
+        								]
+        							
+        					]
+        			];
+        }

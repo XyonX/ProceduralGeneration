@@ -27,33 +27,48 @@ public:
 	// Constructor and distructor
 	UTile();
 	virtual ~UTile() override;
-	//UTile(int id ,FVector2D pos2d ,FVector worldloc  , TArray<UTileMesh>& totaltilemesh);
 	
-	void Init (int id, FVector2D pos2d, FVector2D Unscaledloc, TMap<int32, USpawnable*>* TotalSpawnables );
-    
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	int ID ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	USpawnable* SelectedSpawnable;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FVector2D Position_2D ;
+	void Init (int id, FVector2D pos2d, TMap<int32, USpawnable*>* TotalSpawnables );
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FVector World_Location ;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	FVector2D World_Location_2D_UnScaled ;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tile")
-	EcollapseStatus CollapseStatus ;
-	
+	EcollapseStatus GetCollapseStatus (){return CollapseStatus;};
 	void SetCollapseStatus( EcollapseStatus CollapseStatuss);
+
+	int GetID (){return ID;};
+	void SetID (int InID){ID=InID;};
 	
-	bool bIsSaturated ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite , Category= "Tile")
+	FVector GetWorldLocation (){return  World_Location;};
+	void SetWorldLocation (FVector InWorldLocation){World_Location=InWorldLocation;};
+	
+	FVector2D GetPosition2D (){return Position_2D ;};
+	void SetPosition2D (FVector2D InPosition2D){Position_2D=InPosition2D;};
+
+	
+	bool IsSaturated (){return bIsSaturated;};
+	void SetSaturated (bool InbIsSaturated){bIsSaturated=InbIsSaturated;};
+
+	
+	TArray<USpawnable*> GetSupportedSpawnable (){return AllAvailableSpawnableToChooseFrom;};
+	void SetSupportedSpawnable (TArray<USpawnable*> InAvailableSpawnable){AllAvailableSpawnableToChooseFrom = InAvailableSpawnable;};
+
+	USpawnable* GetSelectedSpawnable (){return  SelectedSpawnable;};
+	void SetSelectedSpawnable (USpawnable*InSpawnable){SelectedSpawnable=InSpawnable;};
+
+private:
+	
+	
+	UPROPERTY()
+	int ID ;
+	UPROPERTY()
+	USpawnable* SelectedSpawnable;
+	UPROPERTY()
 	TArray<USpawnable*> AllAvailableSpawnableToChooseFrom;
-	
-	
+	UPROPERTY()
+	FVector2D Position_2D ;
+	UPROPERTY()
+	FVector World_Location ;
+	UPROPERTY()
+	EcollapseStatus CollapseStatus ;
+	bool bIsSaturated ;
 	
 };

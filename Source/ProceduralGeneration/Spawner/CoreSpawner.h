@@ -22,7 +22,7 @@ public:
 //	UCoreSpawner(TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables , int InMap_Height , int InMap_Width)();
 
 	
-	bool Init (TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,UTile*InDefaultTile, USpawnable*InDefaultSpawnable,int InMap_Height , int InMap_Width);
+	bool Init (TArray<UTile*>*InTotalTiles, TMap<int32,USpawnable*>*InTotalSpawnables,int InMap_Height , int InMap_Width);
 	void SetTotalTiles (TArray<UTile*>*InTotalTiles);
 	void SetTotalSpawnables (TMap<int32,USpawnable*>* InTotalSpawnables);
 
@@ -66,8 +66,6 @@ protected:
 	FRandomStream Stream;
 	UPROPERTY()
 	USpawnable*DefaultSpawnable;
-	UPROPERTY()
-	UTile*DefaultTile;
 	bool bIsGenSaturated;
 
 
@@ -80,9 +78,12 @@ private:
 
 	TArray<UTile*>* TotalTiles;
 	TMap<INT32,USpawnable*>*TotalSpawnables;
-	
+
+	UPROPERTY()
 	TArray<UTile*> RemainingTiles;
+	UPROPERTY()
 	TArray<UTile*> CollapsedTiles;
+	UPROPERTY()
 	TArray<UTile*> SaturatedTiles;
 	
 	
