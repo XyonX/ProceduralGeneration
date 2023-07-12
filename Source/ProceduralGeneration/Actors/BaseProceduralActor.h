@@ -33,29 +33,28 @@ protected:
 
 public:
 
-	TArray<UTile*>* TotalTiles;
-	TMap<int32 ,USpawnable*>* TotalSpawnables;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
     int Map_Height =4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
     int Map_Width =4;
-
-	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    UInstancedStaticMeshComponent* FlorInstanceMeshComponent;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
     UStaticMesh* FloorMesh;
-
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+    TArray<UTile*> AllTilesPTR;
+	TMap<int32 ,USpawnable*>* TotalSpawnables;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	UTile* DefaultTile;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	USpawnable* DefaultSpawnable;
 	UPROPERTY()
 	UTopDownGameInstance*TopDownGameInstance;
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Debug")
-	
     ACoreDebugContainer* DebugContainerActor;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	FString TileMeshDataAssetName = "DT_TileMesh";
 	FName TileMeshDataAssetName_FName = "DT_TileMesh";
-	
 	TDebugger Debugger ;
 
 	
@@ -89,6 +88,7 @@ public:
 
 
 	// Default  Generator  if   custom   generator  is  not  available
+
 	TSubclassOf<UCoreGenerator>DefaultGenerator;
 	TSubclassOf<UCoreSpawner>DefaultSpawner;
 

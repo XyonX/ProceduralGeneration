@@ -34,22 +34,6 @@
 		{
 			"Name": "CoreContent",
 			"Enabled": true
-		},
-		{
-			"Name": "EnhancedInput",
-			"Enabled": true
-		},
-		{
-			"Name": "CoreMaterials",
-			"Enabled": true
-		},
-		{
-			"Name": "CorePlugin",
-			"Enabled": true
-		},
-		{
-			"Name": "CoreUI",
-			"Enabled": true
 		}
-	]
+		]
 }

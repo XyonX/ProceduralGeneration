@@ -1,12 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "BaseProceduralActor.h"
+
+//#include "../../../../../../../UE_5.1/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Containers/Array.h"
 #include "ProceduralGeneration/Tiles/Tile.h"
+#include "UObject/ConstructorHelpers.h"
 #include "GameFramework/PlayerController.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
+//#include "InputMappingContext.h"
+//#include "EnhancedInputModule.h"
+#include "CorePlugin/Spawnables/Spawnable.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "Engine/LocalPlayer.h"
 #include "ProceduralGeneration/Game/TopDownGameInstance.h"
@@ -24,8 +28,22 @@ ABaseProceduralActor::ABaseProceduralActor()
 {
 	// TURNING OFF TICK
 	PrimaryActorTick.bCanEverTick = false;
-	Map_Height=4;
-	Map_Width=4;
+	
+	// CREATING  INSTANCE MESH FOR BASE FLOOR 
+	FlorInstanceMeshComponent= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
+	
+	
+	//SETTING UP DEFAULT TILE
+	DefaultTile = CreateDefaultSubobject<UTile>("DefaultTile");
+	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
+	DefaultTile->Position_2D=FVector2D(0,0);
+	DefaultTile->AllAvailableSpawnableToChooseFrom.Empty();
+	
+	DefaultSpawnable = CreateDefaultSubobject<USpawnable>("DefaultSpawnable");
+	UTexture2D* DefaultTexture = UTexture2D::StaticClass()->GetDefaultObject<UTexture2D>();
+	DefaultSpawnable->SetIcon(DefaultTexture);
+	DefaultSpawnable->SetMesh(FloorMesh);
+	
 	
 }
 
@@ -33,9 +51,9 @@ void ABaseProceduralActor::BeginPlay()
 {
 	
 	Super::BeginPlay();
-	
 	SetupInput();
 	
+
 	TopDownGameInstance=Cast<UTopDownGameInstance>(GetGameInstance());
 	if(TopDownGameInstance)
 	{
@@ -77,13 +95,19 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	for (int32 i = TotalTiles->Num() - 1; i >= 0; i--)
+	for (int32 i = AllTilesPTR.Num() - 1; i >= 0; i--)
 	{
-		UTile* Tile = (*TotalTiles)[i];
+		UTile* Tile = AllTilesPTR[i];
 		Tile->ConditionalBeginDestroy();
-		TotalTiles->RemoveAt(i);
+		AllTilesPTR.RemoveAt(i);
 	}
-	TotalTiles->Empty();
+	AllTilesPTR.Empty();
+	
+	if(DefaultTile != nullptr)
+	{
+		DefaultTile->ConditionalBeginDestroy();
+		DefaultTile=nullptr;
+	}
 
 	if (ControllerWindow.IsValid() && ControllerWindow->IsVisible())
 	{
@@ -113,7 +137,7 @@ void ABaseProceduralActor::SetupInput()
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Local player Not found "));}
 		return;
 	}
-
+/*
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputModule = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if(!EnhancedInputModule)
 	{
@@ -126,8 +150,8 @@ void ABaseProceduralActor::SetupInput()
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Maping  context  not fofund "));}
 		return;
 	}
-	EnhancedInputModule->AddMappingContext(ProceduralGenerationMapping,-1);
-	
+	//EnhancedInputModule->AddMappingContext(ProceduralGenerationMapping,-1);
+	/*
 	// Create an input component and attach it to the player controller
 	UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
 	if (!EnhancedInputComp )
@@ -140,7 +164,7 @@ void ABaseProceduralActor::SetupInput()
 	{
 		EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" BindAcction done "));}
-	}
+	}*/
 		
 	
 	
@@ -170,7 +194,7 @@ void ABaseProceduralActor::ToggleTab()
 			//SGenerationControllerTab::GenerateDelegate.BindUObject(this,&ABaseProceduralActor::OnReGenerate);
 			SGenerationControllerTab::DebugDelegate.BindUObject(this,&ABaseProceduralActor::OnDelegate);
 			Generator->SetControllerTab(ControllerWidget);
-			//Generator->AddUIEntry();
+			Generator->AddUIEntry();
 		}
 
 		ControllerWindow = SNew(SWindow)
@@ -238,30 +262,17 @@ bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
 	Generator = NewObject<UCoreGenerator>(this, DefaultGenerator);
-	if(Generator != nullptr)
-	{
-		Generator->Init(TotalSpawnables,FloorMesh,Map_Height,Map_Width);
-    	TotalTiles =  Generator->Run();
-	}
-
-	if(TotalTiles==nullptr || TotalTiles->IsEmpty())
-	{
-		return false;
-	}
-	return true;
-
+	Generator->Init(ControllerWidget,FloorMesh,Map_Height,Map_Width);
+	Generator->AddUIEntry();
+	return  Generator->Run(AllTilesPTR,TotalSpawnables);
 }
 
 bool ABaseProceduralActor::RunSpawner()
 {
 	Spawner = NewObject<UCoreSpawner>(this,DefaultSpawner);
-	if(Spawner !=nullptr)
-	{
-		Spawner->Init(TotalTiles,TotalSpawnables,Map_Height,Map_Width);
-    	return  Spawner->Run();
-	}
-	return false;
+	Spawner->Init(&AllTilesPTR,TotalSpawnables,DefaultTile,DefaultSpawnable,Map_Height,Map_Width);
 
+	return  Spawner->Run();
 }
 
 

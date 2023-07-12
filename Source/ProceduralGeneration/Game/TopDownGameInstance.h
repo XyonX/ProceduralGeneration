@@ -20,7 +20,7 @@ public:
 	// Data Table storing the static meshes and its properties
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
 	UDataTable*SpawnableItemsData;
-	
+
 	//Main Spawnable Container
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="GI")
 	TMap<int32 ,USpawnable*>SpawnableItems;

@@ -26,12 +26,14 @@ public:
 	virtual int GetHeight () {return Map_Height;}
 	virtual int GetWidth () {return Map_Width;}
 	FString GetDataAssetPath()const;
-	inline TArray<UTile*>* GetAllTiles   () {return  &TileContainer;}
+	inline TArray<UTile*>* GetAllTiles   () {return  TileContainer;}
+	//UI
+	void AddUIEntry ();
 	
 	//Generation
-	virtual TArray<UTile*>* Run ( ) ;
-	virtual void Init ( TMap<int32,USpawnable*>*in_SpawnableContainer ,UStaticMesh*InUnitMesh,int InMapHeight , int InMapWidth);
-	virtual bool CalculateMeshDimension(const UStaticMesh*StaticMesh , float& out_LenX ,float&  out_LenY , float&  out_LenZ);
+	virtual bool Run (TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>*in_SpawnableContainer ) ;
+	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh, int in_height , int in_width );
+	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
 	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>* in_SpawnableContainer , int& in_TileCount ,int in_Height ,int in_Width );
 	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
 
@@ -43,13 +45,8 @@ public:
 	bool OnDebug ();
 
 
-	//Blueprint Exposed Data
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
 	UDataAsset* GeneratorDataAsset ;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
-	UStaticMesh*UnitMesh;
-
-	
 
 	//TSharedRef<SWidget> HandleMenuContent()  ;
 	//TSharedRef<ITableRow> HandleCustomDataAssetListRow (UObject* Item, const TSharedRef<STableViewBase>& OwnerTable);
@@ -61,28 +58,28 @@ public:
 
 protected:
 
-	UPROPERTY()
-	TArray<UTile*> TileContainer;
-	TMap<int32,USpawnable*>*SpawnableContainer;
-	TArray<FVector2D>TileWorldLocationContainer;
+	TArray<UTile*>* TileContainer;
 
 	
 
 	int TileCount ;
-
-	float  Actor_Length_X ;
-	float  Actor_Length_Y ;
-	float  Actor_Length_Z ;
+	UPROPERTY( EditAnywhere, BlueprintReadWrite,Category="Generation")
+	UStaticMesh*UnitMesh;
 	
 private:
 
 	//Map Dimension
 
 	UPROPERTY(EditAnywhere,Category = "Generation")
-	int Map_Height  = 4;
+	int Map_Height  = 10;
 	UPROPERTY(EditAnywhere, Category = "Generation")
-	int Map_Width =  4;
-	
+	int Map_Width =  10;
+
+
+	//Mesh Dimension
+	int  Actor_Length_X = 1.0f;
+	int  Actor_Length_Y = 1.0f;
+	int  Actor_Length_Z = 1.0f;
 
 	TSharedPtr<SGenerationControllerTab> ControllerTab ;
 

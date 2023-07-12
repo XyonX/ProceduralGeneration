@@ -48,7 +48,6 @@ void UTopDownGameInstance::Init_Spawnable (UDataTable*InDT,TMap<int32 ,USpawnabl
 	{
 		for (auto& pair : InProceduralSpawnables)
 		{
-			
 			USpawnable*Spawnable = pair.Value;
 			Spawnable->CalculateSupportedSpawnables(ProceduralSpawnables);
 		}

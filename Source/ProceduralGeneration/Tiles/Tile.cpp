@@ -14,10 +14,11 @@ UTile::UTile()
 	World_Location = FVector(0,0,0);
 }
 
-void UTile::Init(int id, FVector2D pos2d, TMap<int32, USpawnable*>* TotalSpawnables)
+void UTile::Init(int id, FVector2D pos2d, FVector2D Unscaledloc, TMap<int32, USpawnable*>* TotalSpawnables)
 {
 	ID=id;
 	Position_2D=pos2d;
+	World_Location_2D_UnScaled =Unscaledloc;
 	World_Location = FVector(0.f,0.f,0.f);
 	AllAvailableSpawnableToChooseFrom.Reserve(TotalSpawnables->Num());
 	if(TotalSpawnables->IsEmpty())
@@ -34,8 +35,6 @@ UTile::~UTile()
 {
 	SelectedSpawnable=nullptr;
 }
-
-
 
 //	SET COLLPSE STATUS IN THE FTILE STRUCT
 void UTile::SetCollapseStatus(EcollapseStatus CollapseStatuss)
