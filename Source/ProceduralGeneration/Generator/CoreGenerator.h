@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "ProceduralGeneration/Tiles/Tile.h"
-#include "CoreUI/DockTab/GenerationControllerTab.h"
 #include "CoreGenerator.generated.h"
 
 //class USpawnable;
@@ -13,77 +12,53 @@
 
 
 // The Base class of All tile  generation algorithm 
-UCLASS()
-class PROCEDURALGENERATION_API UCoreGenerator : public UObject //, public TSharedFromThis<UCoreGenerator>
+UCLASS(Blueprintable)
+class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedFromThis<UCoreGenerator>
 {
 	GENERATED_BODY()
 public:
 	UCoreGenerator();
 	~UCoreGenerator();
-	
 
-	// Getters
-	virtual int GetHeight () {return Map_Height;}
-	virtual int GetWidth () {return Map_Width;}
-	FString GetDataAssetPath()const;
-	inline TArray<UTile*>* GetAllTiles   () {return  TileContainer;}
-	//UI
-	void AddUIEntry ();
 	
 	//Generation
-	virtual bool Run (TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>*in_SpawnableContainer ) ;
-	virtual void Init (TSharedPtr<SGenerationControllerTab> InTab , UStaticMesh*in_UnitMesh, int in_height , int in_width );
-	virtual void CalculateMeshDimension(const UStaticMesh*StaticMesh , int& out_LenX ,int&  out_LenY , int&  out_LenZ);
-	virtual bool GenerateTile( TArray<UTile*>& in_TileContainer, TMap<int32,USpawnable*>* in_SpawnableContainer , int& in_TileCount ,int in_Height ,int in_Width );
-	virtual void SetTilesWorldLocation (TArray<UTile*>& in_TileContainer, int Length_X ,int Length_Y );
 
-    //Debug Visualization
-	bool bDrawn = false; // Keep track of whether the point has been drawn or not
-	int32 PointId = 0; // The debug draw ID of the point
-    void DrawPositionIndicator (TArray<UTile*>* in_TileContainer);
-	void RemoveIndicator (TArray<UTile*>* in_TileContainer);
-	bool OnDebug ();
+	//The Main Function to Generate the grid
+	virtual TArray<UTile*>* Run () ;
+	
+	virtual FVector2D ConfigureTileSize();
+	
+	virtual bool GenerateTile(FVector2D InGridSize ,FVector2D InTileSize , TArray<UTile*>&OutGrid);
 
+public:
+	
+	bool bIsStaticGrid;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Data")
-	UDataAsset* GeneratorDataAsset ;
+	/** Getter and Setters */
 
-	//TSharedRef<SWidget> HandleMenuContent()  ;
-	//TSharedRef<ITableRow> HandleCustomDataAssetListRow (UObject* Item, const TSharedRef<STableViewBase>& OwnerTable);
+	UFUNCTION(BlueprintCallable)
+	FVector2D GetGridSize ( ){ return  GridSize;};
+	UFUNCTION(BlueprintCallable)
+	FVector2D GetTileSize(){return  TileSize;};
 
-	//void ScanDataAssets ();
-	//TArray<UObject*>CustomDataAssetList;
-	void SetControllerTab (TSharedPtr<SGenerationControllerTab> in_ControllerTab){ControllerTab =in_ControllerTab;}
-
-
-protected:
-
-	TArray<UTile*>* TileContainer;
+	UFUNCTION(BlueprintCallable)
+	void SetGridSize (FVector2D InSize ){ GridSize=InSize;};
+	UFUNCTION(BlueprintCallable)
+	void SetTileSize(FVector2D InSize){TileSize=InSize;};
 
 	
-
-	int TileCount ;
-	UPROPERTY( EditAnywhere, BlueprintReadWrite,Category="Generation")
-	UStaticMesh*UnitMesh;
+	TArray<UTile*>* GetGrid   () {return  &Grid;}
 	
 private:
+	
+	UPROPERTY()
+	TArray<UTile*> Grid;
+	
 
-	//Map Dimension
-
-	UPROPERTY(EditAnywhere,Category = "Generation")
-	int Map_Height  = 10;
-	UPROPERTY(EditAnywhere, Category = "Generation")
-	int Map_Width =  10;
-
-
-	//Mesh Dimension
-	int  Actor_Length_X = 1.0f;
-	int  Actor_Length_Y = 1.0f;
-	int  Actor_Length_Z = 1.0f;
-
-	TSharedPtr<SGenerationControllerTab> ControllerTab ;
-
-	FString SelectedDataAssetPath ;
-
-	bool  bIsFirstGen ;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator",meta=(AllowPrivateAccess="true"))
+	FVector2D GridSize;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator",meta=(AllowPrivateAccess="true"))
+	FVector2D TileSize;
+	
+	
 };

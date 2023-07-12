@@ -26,6 +26,7 @@ protected:
 
 public:
 
+	UPROPERTY()
 	UTopDownGameInstance*TopDownGameInstance;
 
 	
@@ -39,24 +40,6 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
 	class UInputAction* OpenUIAction;
-	
-	
-
-	//UI
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="UI")
-	FName TabID ;
-	//The Actual Dock TaB
-	TSharedPtr<SDockTab> MyDockTab;
-	TSharedPtr<SGenerationControllerTab> ControllerWidget;
-	
-	static TSharedPtr<SWindow>ControllerWindow ;
-
-	/**UI FUNCTIONS */
-	void ToggleTab();
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-	bool OnDelegate ();
-	static FOnGenerateButtonClick GenerateClickDelegate_Actor ;
-
 
 	
 	/**user can select the    custom generator if they  want to  use  custom  algorithm */
