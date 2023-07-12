@@ -850,3 +850,41 @@ bool ABaseProceduralActor::Init()
         	}
         	
         }
+        
+        
+        	// Get the enhanced input subsystem for the local player
+        	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+        	if (!LocalPlayer)
+        	{
+        		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Local player Not found "));}
+        		return;
+        	}
+        /*
+        	UEnhancedInputLocalPlayerSubsystem* EnhancedInputModule = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+        	if(!EnhancedInputModule)
+        	{
+        		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Enhancce input subsystem not fofund "));}
+        		return;
+        	}
+        	
+        	if(!ProceduralGenerationMapping )
+        	{
+        		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Maping  context  not fofund "));}
+        		return;
+        	}
+        	//EnhancedInputModule->AddMappingContext(ProceduralGenerationMapping,-1);
+        	/*
+        	// Create an input component and attach it to the player controller
+        	UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
+        	if (!EnhancedInputComp )
+        	{
+        		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" EnhancedInputComp  ccast failded "));}
+        		return;
+        	}
+        	
+        	if(OpenUIAction)
+        	{
+        		EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
+        		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" BindAcction done "));}
+        	}*/
+        		

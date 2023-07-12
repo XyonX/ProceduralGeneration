@@ -1,21 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "BaseProceduralActor.h"
-
-//#include "../../../../../../../UE_5.1/Engine/Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
-#include "Components/InstancedStaticMeshComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Containers/Array.h"
-#include "ProceduralGeneration/Tiles/Tile.h"
-#include "UObject/ConstructorHelpers.h"
-#include "GameFramework/PlayerController.h"
-//#include "InputMappingContext.h"
-//#include "EnhancedInputModule.h"
-#include "CorePlugin/Spawnables/Spawnable.h"
-#include "CoreUI/DockTab/GenerationControllerTab.h"
-#include "Engine/LocalPlayer.h"
 #include "ProceduralGeneration/Game/TopDownGameInstance.h"
 #include "ProceduralGeneration/Generator/CoreGenerator.h"
 #include "ProceduralGeneration/Spawner/CoreSpawner.h"
+
 
 
 #define LogSwitch 1
@@ -29,22 +17,6 @@ ABaseProceduralActor::ABaseProceduralActor()
 	// TURNING OFF TICK
 	PrimaryActorTick.bCanEverTick = false;
 	
-	// CREATING  INSTANCE MESH FOR BASE FLOOR 
-	FlorInstanceMeshComponent= CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("TileMesh"));
-	
-	
-	//SETTING UP DEFAULT TILE
-	DefaultTile = CreateDefaultSubobject<UTile>("DefaultTile");
-	DefaultTile->World_Location=FVector(0.0f,0.0f,100.0f);
-	DefaultTile->Position_2D=FVector2D(0,0);
-	DefaultTile->AllAvailableSpawnableToChooseFrom.Empty();
-	
-	DefaultSpawnable = CreateDefaultSubobject<USpawnable>("DefaultSpawnable");
-	UTexture2D* DefaultTexture = UTexture2D::StaticClass()->GetDefaultObject<UTexture2D>();
-	DefaultSpawnable->SetIcon(DefaultTexture);
-	DefaultSpawnable->SetMesh(FloorMesh);
-	
-	
 }
 
 void ABaseProceduralActor::BeginPlay()
@@ -53,22 +25,7 @@ void ABaseProceduralActor::BeginPlay()
 	Super::BeginPlay();
 	SetupInput();
 	
-
 	TopDownGameInstance=Cast<UTopDownGameInstance>(GetGameInstance());
-	if(TopDownGameInstance)
-	{
-		TotalSpawnables=&TopDownGameInstance->ProceduralSpawnables;
-	}
-	else
-	{
-		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Top Down Game Instance not found !!!  "));
-		}
-		return;
-	}
-
-	DefaultGenerator = UCoreGenerator::StaticClass();
-	DefaultSpawner=UCoreSpawner::StaticClass();
 	
 
 	if(RunGenerator() == false)
@@ -95,20 +52,6 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	for (int32 i = AllTilesPTR.Num() - 1; i >= 0; i--)
-	{
-		UTile* Tile = AllTilesPTR[i];
-		Tile->ConditionalBeginDestroy();
-		AllTilesPTR.RemoveAt(i);
-	}
-	AllTilesPTR.Empty();
-	
-	if(DefaultTile != nullptr)
-	{
-		DefaultTile->ConditionalBeginDestroy();
-		DefaultTile=nullptr;
-	}
-
 	if (ControllerWindow.IsValid() && ControllerWindow->IsVisible())
 	{
 		// The window is already visible, so just hide it
@@ -129,44 +72,6 @@ void ABaseProceduralActor::SetupInput()
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Controller Not found "));}
 		return;
 	}
-
-	// Get the enhanced input subsystem for the local player
-	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
-	if (!LocalPlayer)
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Local player Not found "));}
-		return;
-	}
-/*
-	UEnhancedInputLocalPlayerSubsystem* EnhancedInputModule = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-	if(!EnhancedInputModule)
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Enhancce input subsystem not fofund "));}
-		return;
-	}
-	
-	if(!ProceduralGenerationMapping )
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Maping  context  not fofund "));}
-		return;
-	}
-	//EnhancedInputModule->AddMappingContext(ProceduralGenerationMapping,-1);
-	/*
-	// Create an input component and attach it to the player controller
-	UEnhancedInputComponent* EnhancedInputComp =  Cast<UEnhancedInputComponent>(PlayerController->InputComponent) ;
-	if (!EnhancedInputComp )
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" EnhancedInputComp  ccast failded "));}
-		return;
-	}
-	
-	if(OpenUIAction)
-	{
-		EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" BindAcction done "));}
-	}*/
-		
-	
 	
 }
 
@@ -261,18 +166,20 @@ bool ABaseProceduralActor::OnDelegate()
 bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
-	Generator = NewObject<UCoreGenerator>(this, DefaultGenerator);
-	Generator->Init(ControllerWidget,FloorMesh,Map_Height,Map_Width);
-	Generator->AddUIEntry();
-	return  Generator->Run(AllTilesPTR,TotalSpawnables);
+	//Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
+	//Generator->Init(ControllerWidget,FloorMesh,Map_Height,CustomGenerator);
+	//Generator->AddUIEntry();
+	//return  Generator->Run(AllTilesPTR,TotalSpawnables);
+	return false;
 }
 
 bool ABaseProceduralActor::RunSpawner()
 {
-	Spawner = NewObject<UCoreSpawner>(this,DefaultSpawner);
-	Spawner->Init(&AllTilesPTR,TotalSpawnables,DefaultTile,DefaultSpawnable,Map_Height,Map_Width);
+	//Spawner = NewObject<UCoreSpawner>(this,DefaultSpawner);
+	//Spawner->Init(&AllTilesPTR,TotalSpawnables,DefaultTile,DefaultSpawnable,Map_Height,Map_Width);
 
-	return  Spawner->Run();
+	//return  Spawner->Run();
+	return false;
 }
 
 

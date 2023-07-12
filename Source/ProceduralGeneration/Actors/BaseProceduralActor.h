@@ -1,21 +1,14 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "LevelEditorActions.h"
 #include "CoreUI/DockTab/GenerationControllerTab.h"
-#include "ProceduralGeneration/Debugging/CoreDebugContainer.h"
+#include "GameFramework/Actor.h"
 #include "BaseProceduralActor.generated.h"
 
-class UCoreGenerator;
-class UCoreSpawner;
+
 class UTopDownGameInstance;
-class USpawnable;
-class ACoreDebugContainer;
-class UTile;
-class UTileMesh;
-
-
-
+class UCoreSpawner;
+class UCoreGenerator;
+class SGenerationControllerTab;
 UCLASS()
 class PROCEDURALGENERATION_API ABaseProceduralActor : public AActor
 {
@@ -33,29 +26,7 @@ protected:
 
 public:
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
-    int Map_Height =4;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
-    int Map_Width =4;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    UInstancedStaticMeshComponent* FlorInstanceMeshComponent;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    UStaticMesh* FloorMesh;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-    TArray<UTile*> AllTilesPTR;
-	TMap<int32 ,USpawnable*>* TotalSpawnables;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	UTile* DefaultTile;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	USpawnable* DefaultSpawnable;
-	UPROPERTY()
 	UTopDownGameInstance*TopDownGameInstance;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Debug")
-    ACoreDebugContainer* DebugContainerActor;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	FString TileMeshDataAssetName = "DT_TileMesh";
-	FName TileMeshDataAssetName_FName = "DT_TileMesh";
-	TDebugger Debugger ;
 
 	
 	//INPUT
@@ -80,33 +51,30 @@ public:
 	
 	static TSharedPtr<SWindow>ControllerWindow ;
 
-	//UI FUNCTIONS
+	/**UI FUNCTIONS */
 	void ToggleTab();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	bool OnDelegate ();
 	static FOnGenerateButtonClick GenerateClickDelegate_Actor ;
 
 
-	// Default  Generator  if   custom   generator  is  not  available
-
-	TSubclassOf<UCoreGenerator>DefaultGenerator;
-	TSubclassOf<UCoreSpawner>DefaultSpawner;
-
-	//user can select the    custom generator ifd    they  want to  use  custom  algorithm
+	
+	/**user can select the    custom generator if they  want to  use  custom  algorithm */
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Defaults")
 	TSubclassOf<UCoreGenerator> CustomGenerator;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Defaults")
 	TSubclassOf<UCoreSpawner> CustomSpawner;
 	
-	//TSharedPtr<UCoreGenerator>Generator;
+	bool RunGenerator ();
+	bool RunSpawner ();
+
+
+private:
+
 	UPROPERTY()
 	UCoreGenerator* Generator;
 	UPROPERTY()
 	UCoreSpawner* Spawner;
-	
-
-	bool RunGenerator ();
-	bool RunSpawner ();
 	
 	
 };
