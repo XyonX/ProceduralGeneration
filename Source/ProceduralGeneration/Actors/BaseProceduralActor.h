@@ -5,6 +5,7 @@
 #include "BaseProceduralActor.generated.h"
 
 
+class UTile;
 class UTopDownGameInstance;
 class UCoreSpawner;
 class UCoreGenerator;
@@ -23,24 +24,10 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-
 public:
 
 	UPROPERTY()
 	UTopDownGameInstance*TopDownGameInstance;
-
-	
-	//INPUT
-	//Create a input Component and bind it with the fucntion
-	void SetupInput();
-	
-	// Context THAT CONTAINS INPUT ACTIONS CAN HAVE MORE THAN ONE 
-	UPROPERTY (EditDefaultsOnly,BlueprintReadWrite,Category="Input mapping Context")
-	class UInputMappingContext*ProceduralGenerationMapping;
-	
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Input Actions")
-	class UInputAction* OpenUIAction;
-
 	
 	/**user can select the    custom generator if they  want to  use  custom  algorithm */
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Defaults")
@@ -58,6 +45,9 @@ private:
 	UCoreGenerator* Generator;
 	UPROPERTY()
 	UCoreSpawner* Spawner;
+
+
+	TArray<UTile*>* Grid;
 	
 	
 };

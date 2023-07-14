@@ -11,6 +11,9 @@ ABaseProceduralActor::ABaseProceduralActor()
 {
 	// TURNING OFF TICK
 	PrimaryActorTick.bCanEverTick = false;
+
+	CustomGenerator=UCoreGenerator::StaticClass();
+	CustomSpawner=UCoreSpawner::StaticClass();
 	
 }
 
@@ -18,7 +21,6 @@ void ABaseProceduralActor::BeginPlay()
 {
 	
 	Super::BeginPlay();
-	SetupInput();
 	
 	TopDownGameInstance=Cast<UTopDownGameInstance>(GetGameInstance());
 	
@@ -30,6 +32,15 @@ void ABaseProceduralActor::BeginPlay()
 		}
 		return;
 	}
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Grid Created !!!  "));
+	}
+	for (	UTile*Tile : (*Grid)  )
+	{
+		DrawDebugPoint(GetWorld(),Tile->GetWorldLocation(),10,FColor::Green,true,-1,0);//depth priority of 0 means always visible
+		DrawDebugString(GetWorld(), Tile->GetWorldLocation(), *FString::Printf(TEXT(" %f,%f"),Tile->GetWorldLocation().X, Tile->GetWorldLocation().Y), nullptr, FColor::Red, -1.0F, false);
+	}
+	/*
 	if(RunSpawner() ==false)
 	{
 		if (GEngine) {
@@ -39,7 +50,7 @@ void ABaseProceduralActor::BeginPlay()
 	}
 	if (GEngine) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Generation Successfull !!!  "));
-	}
+	}*/
 
 }
 
@@ -48,26 +59,18 @@ void ABaseProceduralActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void ABaseProceduralActor::SetupInput()
-{
-	
-	// Get the player controller
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!PlayerController)
-	{
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Controller Not found "));}
-		return;
-	}
-	
-}
-
 bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
-	//Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
-	//Generator->Init(ControllerWidget,FloorMesh,NumTiles_X,CustomGenerator);
-	//Generator->AddUIEntry();
-	//return  Generator->Run(AllTilesPTR,TotalSpawnables);
+	Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
+	if(Generator)
+	{
+		Grid= Generator->Run();
+		if(!Grid->IsEmpty())
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
