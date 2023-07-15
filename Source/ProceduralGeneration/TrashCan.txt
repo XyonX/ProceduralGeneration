@@ -887,4 +887,39 @@ bool ABaseProceduralActor::Init()
         		EnhancedInputComp->BindAction(	OpenUIAction,ETriggerEvent::Triggered,this,&ABaseProceduralActor::ToggleTab);
         		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" BindAcction done "));}
         	}*/
+        	
+        		int SectionSize_X =GridSize.X/NumOfSection.X;
+            	int SectionSize_Y =GridSize.Y/NumOfSection.Y;
+            	int32 Index =0;
+            	for (int32 SecY =0 ;SecY<NumOfSection.Y ; SecY++)
+            	{
+            		for(int32 SecX =0 ;SecX<NumOfSection.X ; SecX++)
+            		{
+            			Index++;
+            			UGridSection*Section =NewObject<UGridSection>(Owner);
+            			Section->Index=Index;
+            			FVector WorldLocation=FVector(SecY,SecX*SectionSize_X,0);
+            			Section->WorldLocation =WorldLocation;
+            			Section->Center =WorldLocation+FVector(SectionSize_X/2,SectionSize_Y/2,0);
+            			int SecStartY =SecY*(NumVertsY_Lod0/NumOfSection.Y);
+            			int SecEndY =(SecY+1)*(NumVertsY_Lod0/NumOfSection.Y);
+            			int SecStartX =SecX*(NumVertsX_Lod0/NumOfSection.X);
+            			int SecEndX =(SecX+1)*(NumVertsX_Lod0/NumOfSection.X);
+            
+            			
+            
+            			for (int  InSecY =SecStartY ; SecY < SecEndY ; SecY++)
+            			{
+            				for(int SecX=SecStartX ; SecX<SecEndX  ; SecX++)
+            				{
+            					//take the vector ref from the main vertices array and put it to the section array container
+            					const FVector& Vector = Vertices[(SecY*SectionSize_Y)+SecX];
+            					TArrayView<const FVector> VectorReference(&Vector, 1);
+            					Section->SectionVertices.Add(VectorReference);
+            					
+            				}
+            			}
+            			Grid.Add(Section);
+            		}
+            	}
         		

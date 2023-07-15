@@ -13,8 +13,8 @@ ABaseLandscapeActor::ABaseLandscapeActor()
 
 	PMC = CreateDefaultSubobject<UProceduralMeshComponent>("PMC ");
 	SetRootComponent(PMC);
-	MapHeight =100'000;
-	MapWidth =100'000;
+	MapHeight =1000'00;
+	MapWidth =1000'00;
 
 	NumVertsX =1024;
 	NumVertsY=1024;

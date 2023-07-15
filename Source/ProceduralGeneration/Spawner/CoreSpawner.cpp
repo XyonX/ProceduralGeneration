@@ -47,18 +47,18 @@ void UCoreSpawner::SetTotalSpawnables(TMap<int32, USpawnable*>* InTotalSpawnable
 		TotalSpawnables= InTotalSpawnables;
 	}
 }
-
+/*
 USpawnable* UCoreSpawner::RandomSpawnableFromAvailableSpawnable(UTile* InTile)
 {
 	//if(Tile.AllAvailableMeshToChooseFrom.Num() == 0)
-	if(InTile->AllAvailableSpawnableToChooseFrom.IsEmpty())
+	if(InTile->AllocatedSpawnables.IsEmpty())
 	{
 		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("   Available mesh list is empty For this tile unable to select any random Mesh "));}
 		return DefaultSpawnable;
 	}
 	
-	int RandomMESH = FMath::RandRange(0,InTile->AllAvailableSpawnableToChooseFrom.Num()-1 );
-	USpawnable* SelectedSpawnable = InTile->AllAvailableSpawnableToChooseFrom[RandomMESH];
+	int RandomMESH = FMath::RandRange(0,InTile->AllocatedSpawnables.Num()-1 );
+	USpawnable* SelectedSpawnable = InTile->AllocatedSpawnables[RandomMESH];
 	return SelectedSpawnable;
 }
 
@@ -152,10 +152,10 @@ void UCoreSpawner::UpdateSurroundingMesh(UTile* SelectedTile, TArray<UTile*>* In
 		FVector2D Pos (Position2D.X-1,Position2D.Y+1);
 		UTile* RightDownNeighbour  = GetTileByPosition2D(Pos,InTotalTile);
 		UpdateAvailableMesh_RightDown(SelectedTile,RightDownNeighbour);
-	}*/
+	}**
 
-}
-
+}*/
+/*
 void UCoreSpawner::UpdateAvailableMesh_Left(UTile* SelectedTile, UTile* LeftNeighbour)
 {
 	TArray<USpawnable*> UpdatedAvailableTileMesh;
@@ -164,7 +164,7 @@ void UCoreSpawner::UpdateAvailableMesh_Left(UTile* SelectedTile, UTile* LeftNeig
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesLeft = LeftNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesLeft = LeftNeighbour->AllocatedSpawnables;
 	
 	for (USpawnable* LeftSpawnable : AllSpawnablesLeft )
 	{
@@ -177,7 +177,7 @@ void UCoreSpawner::UpdateAvailableMesh_Left(UTile* SelectedTile, UTile* LeftNeig
 		}
 			
 	}
-	LeftNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	LeftNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_LeftUp(UTile* SelectedTile, UTile* LeftUpNeighbour)
@@ -188,7 +188,7 @@ void UCoreSpawner::UpdateAvailableMesh_LeftUp(UTile* SelectedTile, UTile* LeftUp
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesLeftUp = LeftUpNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesLeftUp = LeftUpNeighbour->AllocatedSpawnables;
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -202,8 +202,8 @@ void UCoreSpawner::UpdateAvailableMesh_LeftUp(UTile* SelectedTile, UTile* LeftUp
 			UpdatedAvailableTileMesh.Add(LeftSpawnable);
 		}
 			
-	}*/
-	LeftUpNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	}**
+	LeftUpNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_LeftDown(UTile* SelectedTile, UTile* LeftDownNeighbour)
@@ -214,7 +214,7 @@ void UCoreSpawner::UpdateAvailableMesh_LeftDown(UTile* SelectedTile, UTile* Left
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesLeftDown = LeftDownNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesLeftDown = LeftDownNeighbour->AllocatedSpawnables;
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -228,8 +228,8 @@ void UCoreSpawner::UpdateAvailableMesh_LeftDown(UTile* SelectedTile, UTile* Left
 			UpdatedAvailableTileMesh.Add(LeftSpawnable);
 		}
 			
-	}*/
-	LeftDownNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	}**
+	LeftDownNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNeighbour)
@@ -240,7 +240,7 @@ void UCoreSpawner::UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNe
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesRight = RightNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesRight = RightNeighbour->AllocatedSpawnables;
 	
 	for (USpawnable* RightSpawnable : AllSpawnablesRight )
 	{
@@ -253,7 +253,7 @@ void UCoreSpawner::UpdateAvailableMesh_Right(UTile* SelectedTile, UTile* RightNe
 		}
 			
 	}
-	RightNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	RightNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* RightUpNeighbour)
@@ -264,7 +264,7 @@ void UCoreSpawner::UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* Right
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesRightUp = RightUpNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesRightUp = RightUpNeighbour->AllocatedSpawnables;
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -278,8 +278,8 @@ void UCoreSpawner::UpdateAvailableMesh_RightUp(UTile* SelectedTile, UTile* Right
 			UpdatedAvailableTileMesh.Add(LeftSpawnable);
 		}
 			
-	}*/
-	RightUpNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	}**
+	RightUpNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* RightDownNeighbour)
@@ -290,7 +290,7 @@ void UCoreSpawner::UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* Rig
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesRightDown = RightDownNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesRightDown = RightDownNeighbour->AllocatedSpawnables;
 	UpdatedAvailableTileMesh.Add(DefaultSpawnable);
 
 	/*
@@ -304,8 +304,8 @@ void UCoreSpawner::UpdateAvailableMesh_RightDown(UTile* SelectedTile, UTile* Rig
 			UpdatedAvailableTileMesh.Add(LeftSpawnable);
 		}
 			
-	}*/
-	RightDownNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	}**
+	RightDownNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbour)
@@ -316,7 +316,7 @@ void UCoreSpawner::UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbou
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesUp = UpNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesUp = UpNeighbour->AllocatedSpawnables;
 	
 	for (USpawnable* UpSpawnable : AllSpawnablesUp )
 	{
@@ -329,7 +329,7 @@ void UCoreSpawner::UpdateAvailableMesh_Up(UTile* SelectedTile, UTile* UpNeighbou
 		}
 			
 	}
-	UpNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	UpNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 void UCoreSpawner::UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeighbour)
@@ -340,7 +340,7 @@ void UCoreSpawner::UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeig
 	{
 		return;
 	}
-	TArray<USpawnable*> AllSpawnablesUp = DownNeighbour->AllAvailableSpawnableToChooseFrom;
+	TArray<USpawnable*> AllSpawnablesUp = DownNeighbour->AllocatedSpawnables;
 	
 	for (USpawnable* DownSpawnable : AllSpawnablesUp )
 	{
@@ -353,7 +353,7 @@ void UCoreSpawner::UpdateAvailableMesh_Down(UTile* SelectedTile, UTile* DownNeig
 		}
 			
 	}
-	DownNeighbour->AllAvailableSpawnableToChooseFrom =UpdatedAvailableTileMesh;
+	DownNeighbour->AllocatedSpawnables =UpdatedAvailableTileMesh;
 }
 
 
@@ -369,7 +369,7 @@ UTile* UCoreSpawner::ReturnTileWithLowestEntropy(TArray<UTile*>* inTotalTiles)
 		{
 			continue;
 		}
-		if( tile->AllAvailableSpawnableToChooseFrom.Num() <=0 )
+		if( tile->AllocatedSpawnables.Num() <=0 )
 		{
 			tile->bIsSaturated  =true;
 			RemainingTiles.Remove(tile);
@@ -384,7 +384,7 @@ UTile* UCoreSpawner::ReturnTileWithLowestEntropy(TArray<UTile*>* inTotalTiles)
 			bIsGenSaturated =false;
 			continue;
 		}
-		if(tile->AllAvailableSpawnableToChooseFrom.Num()< LowestEntropyTile->AllAvailableSpawnableToChooseFrom.Num())
+		if(tile->AllocatedSpawnables.Num()< LowestEntropyTile->AllocatedSpawnables.Num())
 		{
 			LowestEntropyTile = tile;
 			bIsGenSaturated=false;
@@ -456,7 +456,7 @@ void UCoreSpawner::WaveFunctionCollapse()
 		tile->SelectedTiledMesh =DefaultTileMesh;
 		DefaultTileMesh->InstancedMesh->AddInstance(Transform);
 		
-	}*/
+	}**
 	
 }
 
@@ -482,4 +482,4 @@ bool UCoreSpawner::Run()
 		}
 		return false;
 	}
-}
+}*/

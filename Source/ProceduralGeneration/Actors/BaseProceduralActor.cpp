@@ -35,11 +35,11 @@ void ABaseProceduralActor::BeginPlay()
 	if (GEngine) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Grid Created !!!  "));
 	}
-	for (	UTile*Tile : (*Grid)  )
+/*	for (	UTile*Tile : (*Grid)  )
 	{
 		DrawDebugPoint(GetWorld(),Tile->GetWorldLocation(),10,FColor::Green,true,-1,0);//depth priority of 0 means always visible
 		DrawDebugString(GetWorld(), Tile->GetWorldLocation(), *FString::Printf(TEXT(" %f,%f"),Tile->GetWorldLocation().X, Tile->GetWorldLocation().Y), nullptr, FColor::Red, -1.0F, false);
-	}
+	}*/
 	/*
 	if(RunSpawner() ==false)
 	{
@@ -63,7 +63,9 @@ bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
 	Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
-	if(Generator)
+	return true;
+	
+/*	if(Generator)
 	{
 		Grid= Generator->Run();
 		if(!Grid->IsEmpty())
@@ -71,7 +73,7 @@ bool ABaseProceduralActor::RunGenerator()
 			return true;
 		}
 	}
-	return false;
+	return false;*/
 }
 
 bool ABaseProceduralActor::RunSpawner()

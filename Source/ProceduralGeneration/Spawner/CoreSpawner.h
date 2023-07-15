@@ -27,7 +27,7 @@ public:
 	void SetTotalSpawnables (TMap<int32,USpawnable*>* InTotalSpawnables);
 
 
-
+/*
 	//Generation Function
 
 	// Choose a random mesh from available mesh array
@@ -59,7 +59,7 @@ public:
 
 
 	void WaveFunctionCollapse ();
-	bool Run ();
+	bool Run ();*/
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")

@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "CoreGenerator.generated.h"
+#include "VoronoiDiagram.generated.h"
 
 
 // The Base class of All tile  generation algorithm 
