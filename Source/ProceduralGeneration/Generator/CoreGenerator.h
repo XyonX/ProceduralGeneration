@@ -31,9 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual FVector2D ConfigureGrid();
 	UFUNCTION(BlueprintCallable)
-	virtual bool GenerateGrid(FVector2D InGridSize ,FVector2D InTileSize , TArray<UGridSection*>&OutGrid);
-	UFUNCTION(BlueprintCallable)
-	virtual TArray<UGridSection*>* ConfigureGridSection ();
+	virtual bool GenerateGrid(FVector2D InGridSize , TArray<UGridSection*>&OutGrid);
+	virtual TArray<UGridSection*>* ConfigureGridSections ();
 
 
 public:
@@ -44,8 +43,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetGridSize ( ){ return  GridSize;};
 	UFUNCTION(BlueprintCallable)
-	FVector2D GetTileSize(){return  TileSize;};
-	UFUNCTION(BlueprintCallable)
 	FVector2D GetNumOfSections(){return NumOfSection;};
 
 	
@@ -54,19 +51,39 @@ public:
 	void Receiver_OnCharacterMovement (FVector CharacterLocation);
 	
 protected:
-	
+
+
+
 
 	
-	/** Data */
-	
+	/** Grid Size */	/**--------------*/
+
+	//The scaler size representation of the grid in Meter 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
 	FVector2D GridSize;
-	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
-	FVector2D TileSize;
+	FVector2D SectionSize;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
+	FVector2D ComponentSize;
+
+	/** Input Data */
+	
+	/**Density of the landscape in close proximity */
+	/** in  100 Unreal Unit or 1M (RealWorld Unit)  */
+	UPROPERTY()
+	FVector2D QuadDensity_Lod0;
+	//Density of the landscape Sections far from the player 
+	UPROPERTY()
+	FVector2D QuadDensity_Lod1;
+
+	/** Grid Counts */	/**--------------*/
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
 	FVector2D NumOfSection;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
+	FVector2D NumOfComponentsPerSection;
+	
+
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator",meta=(AllowPrivateAccess="true"))
 	EGridType GridType;
@@ -77,12 +94,19 @@ protected:
 	FString HeightMapPath;
 	FVector Center;
 	FVector2D Extents;
+	
 
-	int32 NumVertsX_Lod0;
-	int32 NumVertsY_Lod0;
+	/** Grid Density */	/**--------------*/
 
-	int32 NumVertsX_Lod1;
-	int32 NumVertsY_Lod1;
+	/** Lod 0 */
+	FVector2D NumVerts_Lod0;
+	FVector2D NumQuadsPerSection_Lod0;
+	FVector2D NumQuadsPerComponent_Lod0;
+
+	/** Lod 1 */
+	FVector2D NumVerts_Lod1;
+	FVector2D NumQuadsPerSection_Lod1;
+	FVector2D NumQuadsPerComponent_Lod1;
 
 	UPROPERTY()
 	TArray<float> HeightMap;
@@ -93,21 +117,7 @@ protected:
 	TArray<FVector>Normals;
 	TArray<FVector2D>UVs;
 
-	/**Density of the landscape in close proximity */
-	/** in  100 Unreal Unit or 1M (RealWorld Unit)  */
-	UPROPERTY()
-	int32 QuadDensity_Lod0;
-	//Density of the landscape Sections far from the player 
-	UPROPERTY()
-	int32 QuadDensity_Lod1;
 
-	/**Density of the landscape in close proximity */
-	/** 1 UnitDensity = 100 Unreal Unit = 1M (RealWorld Unit)  */
-	UPROPERTY()
-	int32 VertexDensity_Lod0;
-	//Density of the landscape Sections far from the player 
-	UPROPERTY()
-	int32 VertexDensity_Lod1;
 
 	
 

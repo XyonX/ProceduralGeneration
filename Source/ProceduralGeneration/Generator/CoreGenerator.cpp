@@ -10,7 +10,6 @@ UCoreGenerator::UCoreGenerator()
 {
 
 	GridSize=FVector2D(4,4);
-	TileSize=FVector2D(1000.f,1000.f);
 }
 
 UCoreGenerator::~UCoreGenerator()
@@ -28,30 +27,42 @@ UCoreGenerator::~UCoreGenerator()
 
 UGridSection* UCoreGenerator::Run( )
 {
-	AActor* Owner = GetTypedOuter<AActor>();
+	Owner = GetTypedOuter<AActor>();
 	if (Owner == nullptr)
 	{
 		return nullptr;
 	}
 
-	FVector2D TileDimension = ConfigureGrid();
-	GenerateGrid( GridSize ,TileDimension,Grid );
+	ConfigureGrid();
+	GenerateGrid( GridSize ,Grid );
 
 	return  DynamicGirdSection;
 }
 
 bool UCoreGenerator::Init(FGridData GridData)
 {
-	GridSize=GridData.GridSize;
-	GridType=GridData.GridType;
-	TileSize=GridData.TileSize;
-	NumOfSection=GridData.NumOfSection;
 	HeightMapPath=GridData.HeightMapFilePath;
-	Origin=GridData.CustomOrigin;
-
+    Origin=GridData.CustomOrigin;
 	Center=Origin+FVector(GridSize.X/2,GridSize.Y/2,0);
-
 	QuadDensity_Lod0 = GridData.QuadDensity_Lod0;
+	
+	if(GridData.GridSize.X == GridData.GridSize.Y)
+	{
+		GridSize=GridData.GridSize;
+	}
+	else if (GridData.GridSize.X < GridData.GridSize.Y)
+	{
+		GridSize=FVector2D( GridData.GridSize.Y ,GridData.GridSize.Y) ;
+	}
+	else
+	{
+		GridSize=FVector2D( GridData.GridSize.X ,GridData.GridSize.X) ;
+	}
+
+
+
+/*
+
 	VertexDensity_Lod0 = UKismetMathLibrary::Sqrt(QuadDensity_Lod0);
 
 	NumVertsX_Lod0 = static_cast<int32>((GridSize.X / 100) * VertexDensity_Lod0);
@@ -61,24 +72,41 @@ bool UCoreGenerator::Init(FGridData GridData)
 	VertexDensity_Lod1 = UKismetMathLibrary::Sqrt(QuadDensity_Lod1);
 
 	NumVertsX_Lod1 = static_cast<int32>((GridSize.X / 100) * VertexDensity_Lod1);
-	NumVertsY_Lod1 = static_cast<int32>((GridSize.Y / 100) * VertexDensity_Lod1);
+	NumVertsY_Lod1 = static_cast<int32>((GridSize.Y / 100) * VertexDensity_Lod1);*/
 
 	return true;
 }
 
 FVector2D UCoreGenerator::ConfigureGrid()
 {
-	return TileSize;
+	SectionSize=FVector2D(100'00,10'000);
+	if(GridSize.X < SectionSize.X && GridSize.Y < SectionSize.Y )
+	{
+		GridSize =SectionSize;
+	}
+	NumOfSection = GridSize/SectionSize;
+	ComponentSize =FVector2D(25'00,25'00);
+	NumOfComponentsPerSection =SectionSize/ComponentSize;
+	
+	NumVerts_Lod0 =GridSize*QuadDensity_Lod0;
+	NumQuadsPerSection_Lod0 = SectionSize*QuadDensity_Lod0;
+
+	NumVerts_Lod0 =GridSize*QuadDensity_Lod1;
+	NumQuadsPerSection_Lod0 = SectionSize*QuadDensity_Lod1;
+
+
+	
+	return NumOfSection;
 }
 
-bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, FVector2D InTileSize, TArray<UGridSection*>& OutGrid)
+bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, TArray<UGridSection*>& OutGrid)
 {
 	int index=0;
-	for (int Y = 0 ; Y<  NumVertsY_Lod0 ; Y++)
+	for (int Y = 0 ; Y<  NumVerts_Lod0.Y ; Y++)
 	{
-		for (int X = 0 ; X<NumVertsX_Lod0 ; X++)
+		for (int X = 0 ; X<NumVerts_Lod0.X ; X++)
 		{
-			float Height = HeightMap[(Y*NumVertsX_Lod0)+X];
+			float Height = HeightMap[(Y*NumVerts_Lod0.X)+X];
 			FVector Location = FVector((X+Center.X),(Y+Center.Y),(Height+Center.Z));
 			Vertices.Add(Location);
 		}
@@ -86,10 +114,10 @@ bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, FVector2D InTileSize, TA
 	return true;
 }
 
-TArray<UGridSection*>* UCoreGenerator::ConfigureGridSection()
+TArray<UGridSection*>* UCoreGenerator::ConfigureGridSections()
 {
-	int SectionSize_X =GridSize.X/NumOfSection.X;
-	int SectionSize_Y =GridSize.Y/NumOfSection.Y;
+	int NumOfVertsPerSection_X =NumVerts_Lod0.X /NumOfSection.X;
+	int NumOfVertsPerSection_Y =NumVerts_Lod0.Y /NumOfSection.Y;
 	int32 Index =0;
 	for (int32 SecY =0 ;SecY<NumOfSection.Y ; SecY++)
 	{
@@ -98,25 +126,35 @@ TArray<UGridSection*>* UCoreGenerator::ConfigureGridSection()
 			Index++;
 			UGridSection*Section =NewObject<UGridSection>(Owner);
 			Section->Index=Index;
-			FVector WorldLocation=FVector(SecY,SecX*SectionSize_X,0);
+			FVector WorldLocation=FVector(SecY*NumOfVertsPerSection_Y,SecX*NumOfVertsPerSection_X,0);
 			Section->WorldLocation =WorldLocation;
-			Section->Center =WorldLocation+FVector(SectionSize_X/2,SectionSize_Y/2,0);
+			Section->Center =WorldLocation+FVector(NumOfVertsPerSection_X/2,NumOfVertsPerSection_Y/2,0);
+			
+			int SecStartY =SecY*NumOfVertsPerSection_Y;
+			int SecEndY =(SecY+1)*NumOfVertsPerSection_Y;
+			int SecStartX =SecX*NumOfVertsPerSection_X;
+			int SecEndX =(SecX+1)*NumOfVertsPerSection_X;
 
-			TArray<FVector>Verts;
-			int SecStartY =SecY*(NumVertsY_Lod0/NumOfSection.Y);
-			int SecEndY =(SecY+1)*(NumVertsY_Lod0/NumOfSection.Y);
-			for (int  SecY*VertsY =0 ; VertsY < SecEndY ; VertsY++)
+			
+
+			 TArray<TArrayView<const FVector>>ArrayReference;
+			for (int  InSecY =SecStartY ; InSecY < SecEndY ; InSecY++)
 			{
-				int SecStartX =SecX*(NumVertsX_Lod0/NumOfSection.X);
-				int SecEndX =(SecX+1)*(NumVertsX_Lod0/NumOfSection.X);
-				for(int VertsX=0 ; VertsX< SectionSize_X ; VertsX++)
+				for(int InSecX=SecStartX ; InSecX<SecEndX  ; InSecX++)
 				{
-					Verts
+					//take the vector ref from the main vertices array and put it to the section array container
+					const FVector& Vector = Vertices[(InSecY*NumVerts_Lod0.X)+InSecX];
+					TArrayView<const FVector> VectorReference(&Vector, 1);
+					ArrayReference.Add(VectorReference);
+					
 				}
 			}
+			Section->Init(Owner,NumQuadsPerComponent_Lod0,NumOfComponentsPerSection,ArrayReference);
 			Grid.Add(Section);
 		}
 	}
+	
+	return &Grid;
 }
 
 void UCoreGenerator::Receiver_OnCharacterMovement(FVector CharacterLocation)
