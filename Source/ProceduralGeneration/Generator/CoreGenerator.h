@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CorePlugin/Data/GridData.h"
 #include "UObject/Object.h"
+#include "CorePlugin/Data/GridData.h"
 #include "CoreGenerator.generated.h"
 
+
+class UGridSection;
 
 class UProceduralMeshComponent;
 // The Base class of All tile  generation algorithm 
@@ -16,7 +18,6 @@ class PROCEDURALGENERATION_API UCoreGenerator : public UObject , public TSharedF
 	GENERATED_BODY()
 public:
 	UCoreGenerator();
-	~UCoreGenerator();
 
 	
 	//Generation
@@ -29,7 +30,7 @@ public:
 	virtual bool Init (FGridData GridData);
 
 	UFUNCTION(BlueprintCallable)
-	virtual FVector2D ConfigureGrid();
+	virtual void ConfigureGrid();
 	UFUNCTION(BlueprintCallable)
 	virtual bool GenerateGrid(FVector2D InGridSize , TArray<UGridSection*>&OutGrid);
 	virtual TArray<UGridSection*>* ConfigureGridSections ();
@@ -53,8 +54,8 @@ public:
 protected:
 
 
-
-
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
+	FGridData Defaults;
 	
 	/** Grid Size */	/**--------------*/
 
@@ -66,8 +67,21 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
 	FVector2D ComponentSize;
 
-	/** Input Data */
+	/** Grid Counts */	/**--------------*/
 	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
+	FVector2D NumOfSection;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
+	FVector2D NumOfComponentsPerSection;
+
+	/** Data */
+	FVector Center;
+	FVector Origin;
+	FString HeightMapPath;
+	FVector Extents;
+	
+
+	/** Input Data */
 	/**Density of the landscape in close proximity */
 	/** in  100 Unreal Unit or 1M (RealWorld Unit)  */
 	UPROPERTY()
@@ -75,54 +89,22 @@ protected:
 	//Density of the landscape Sections far from the player 
 	UPROPERTY()
 	FVector2D QuadDensity_Lod1;
-
-	/** Grid Counts */	/**--------------*/
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
-	FVector2D NumOfSection;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
-	FVector2D NumOfComponentsPerSection;
 	
-
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator",meta=(AllowPrivateAccess="true"))
-	EGridType GridType;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
-	FVector Origin;
-
-	FString HeightMapPath;
-	FVector Center;
-	FVector2D Extents;
-	
-
-	/** Grid Density */	/**--------------*/
-
 	/** Lod 0 */
 	FVector2D NumVerts_Lod0;
-	FVector2D NumQuadsPerSection_Lod0;
-	FVector2D NumQuadsPerComponent_Lod0;
-
 	/** Lod 1 */
 	FVector2D NumVerts_Lod1;
-	FVector2D NumQuadsPerSection_Lod1;
-	FVector2D NumQuadsPerComponent_Lod1;
 
+	
 	UPROPERTY()
 	TArray<float> HeightMap;
-	
 	TArray<FVector>Vertices;
 	TArray<int32>VertexIndex;
 	TArray<int32>Triangles;
 	TArray<FVector>Normals;
 	TArray<FVector2D>UVs;
-
-
-
 	
-
-
-
 	/** Reference */
 	UPROPERTY()
 	

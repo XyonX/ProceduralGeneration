@@ -2,27 +2,12 @@
 
 #include "CoreGenerator.h"
 
-#include "Kismet/KismetMathLibrary.h"
-#include "ProceduralGeneration/Tiles/Tile.h"
+
+#include "ProceduralGeneration/Terrain/GridSection.h"
 
 
 UCoreGenerator::UCoreGenerator()
 {
-
-	GridSize=FVector2D(4,4);
-}
-
-UCoreGenerator::~UCoreGenerator()
-{
-/*
-	for (int32 i = Grid.Num() - 1; i >= 0; i--)
-	{
-		UTile* Tile = Grid[i];
-		Tile->ConditionalBeginDestroy();
-		Grid.RemoveAt(i);
-	}
-	Grid.Empty();*/
-
 }
 
 UGridSection* UCoreGenerator::Run( )
@@ -33,8 +18,10 @@ UGridSection* UCoreGenerator::Run( )
 		return nullptr;
 	}
 
+	Init(Defaults);
 	ConfigureGrid();
 	GenerateGrid( GridSize ,Grid );
+	ConfigureGridSections();
 
 	return  DynamicGirdSection;
 }
@@ -43,60 +30,26 @@ bool UCoreGenerator::Init(FGridData GridData)
 {
 	HeightMapPath=GridData.HeightMapFilePath;
     Origin=GridData.CustomOrigin;
-	Center=Origin+FVector(GridSize.X/2,GridSize.Y/2,0);
 	QuadDensity_Lod0 = GridData.QuadDensity_Lod0;
-	
-	if(GridData.GridSize.X == GridData.GridSize.Y)
-	{
-		GridSize=GridData.GridSize;
-	}
-	else if (GridData.GridSize.X < GridData.GridSize.Y)
-	{
-		GridSize=FVector2D( GridData.GridSize.Y ,GridData.GridSize.Y) ;
-	}
-	else
-	{
-		GridSize=FVector2D( GridData.GridSize.X ,GridData.GridSize.X) ;
-	}
-
-
-
-/*
-
-	VertexDensity_Lod0 = UKismetMathLibrary::Sqrt(QuadDensity_Lod0);
-
-	NumVertsX_Lod0 = static_cast<int32>((GridSize.X / 100) * VertexDensity_Lod0);
-	NumVertsY_Lod0 = static_cast<int32>((GridSize.Y / 100) * VertexDensity_Lod0);
-
-	QuadDensity_Lod1 = GridData.QuadDensity_Lod1;
-	VertexDensity_Lod1 = UKismetMathLibrary::Sqrt(QuadDensity_Lod1);
-
-	NumVertsX_Lod1 = static_cast<int32>((GridSize.X / 100) * VertexDensity_Lod1);
-	NumVertsY_Lod1 = static_cast<int32>((GridSize.Y / 100) * VertexDensity_Lod1);*/
-
+	NumOfSection=GridData.NumOfGridSections;
 	return true;
 }
 
-FVector2D UCoreGenerator::ConfigureGrid()
+void UCoreGenerator::ConfigureGrid()
 {
-	SectionSize=FVector2D(100'00,10'000);
-	if(GridSize.X < SectionSize.X && GridSize.Y < SectionSize.Y )
-	{
-		GridSize =SectionSize;
-	}
-	NumOfSection = GridSize/SectionSize;
-	ComponentSize =FVector2D(25'00,25'00);
+	SectionSize=FVector2D(20'00,20'00);
+	GridSize=SectionSize*NumOfSection;
+	ComponentSize =FVector2D(5'00,5'00);
 	NumOfComponentsPerSection =SectionSize/ComponentSize;
 	
-	NumVerts_Lod0 =GridSize*QuadDensity_Lod0;
-	NumQuadsPerSection_Lod0 = SectionSize*QuadDensity_Lod0;
+	NumVerts_Lod0 =((GridSize/100) *QuadDensity_Lod0)+1;
+	NumVerts_Lod1 =((GridSize/100)*QuadDensity_Lod1)+1;
 
-	NumVerts_Lod0 =GridSize*QuadDensity_Lod1;
-	NumQuadsPerSection_Lod0 = SectionSize*QuadDensity_Lod1;
-
-
+	Center=Origin+FVector(GridSize.X/2,GridSize.Y/2,0);
 	
-	return NumOfSection;
+	Extents = FVector(GridSize.X/2,GridSize.Y/2,0);
+
+	DrawDebugBox(GetWorld(),Center,Extents,FColor::Black,true,-1);
 }
 
 bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, TArray<UGridSection*>& OutGrid)
@@ -106,8 +59,10 @@ bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, TArray<UGridSection*>& O
 	{
 		for (int X = 0 ; X<NumVerts_Lod0.X ; X++)
 		{
-			float Height = HeightMap[(Y*NumVerts_Lod0.X)+X];
-			FVector Location = FVector((X+Center.X),(Y+Center.Y),(Height+Center.Z));
+			//float Height = HeightMap[(Y*NumVerts_Lod0.X)+X];
+			int DistanceBetweenVertex_X = 100/QuadDensity_Lod0.X;
+			int DistanceBetweenVertex_Y = 100/QuadDensity_Lod0.Y;
+			FVector Location = FVector(X*DistanceBetweenVertex_X,Y*DistanceBetweenVertex_Y,0);
 			Vertices.Add(Location);
 		}
 	}
@@ -116,8 +71,6 @@ bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, TArray<UGridSection*>& O
 
 TArray<UGridSection*>* UCoreGenerator::ConfigureGridSections()
 {
-	int NumOfVertsPerSection_X =NumVerts_Lod0.X /NumOfSection.X;
-	int NumOfVertsPerSection_Y =NumVerts_Lod0.Y /NumOfSection.Y;
 	int32 Index =0;
 	for (int32 SecY =0 ;SecY<NumOfSection.Y ; SecY++)
 	{
@@ -126,30 +79,38 @@ TArray<UGridSection*>* UCoreGenerator::ConfigureGridSections()
 			Index++;
 			UGridSection*Section =NewObject<UGridSection>(Owner);
 			Section->Index=Index;
-			FVector WorldLocation=FVector(SecY*NumOfVertsPerSection_Y,SecX*NumOfVertsPerSection_X,0);
+
+			FVector2D Pos2D = FVector2D(SecY,SecX);
+			FVector WorldLocation = FVector (SecX*SectionSize.X,SecY*SectionSize.Y,0);
+			DrawDebugString(GetWorld(),WorldLocation,FString::Printf(TEXT("%f ,%f"),WorldLocation.X,WorldLocation.Y));
+			Section->Pos2D =Pos2D;
 			Section->WorldLocation =WorldLocation;
-			Section->Center =WorldLocation+FVector(NumOfVertsPerSection_X/2,NumOfVertsPerSection_Y/2,0);
+			Section->Center =WorldLocation+FVector(SectionSize.X/2,SectionSize.Y/2,0);
 			
-			int SecStartY =SecY*NumOfVertsPerSection_Y;
-			int SecEndY =(SecY+1)*NumOfVertsPerSection_Y;
-			int SecStartX =SecX*NumOfVertsPerSection_X;
-			int SecEndX =(SecX+1)*NumOfVertsPerSection_X;
+			//int SecStartY =(SecY*NumOfComponentsPerSection.Y*QuadDensity_Lod0.Y);
+			//int  SecEndY =((SecY+1)*NumOfComponentsPerSection.Y*QuadDensity_Lod0.Y);
+			//int  SecStartX =(SecX*NumOfComponentsPerSection.X*QuadDensity_Lod0.X);
+			//int SecEndX =((SecX+1)*NumOfComponentsPerSection.X*QuadDensity_Lod0.X);
+
+			int SecStartY =(SecY*(SectionSize.Y/100)*QuadDensity_Lod0.Y);
+			int  SecEndY =((SecY+1)*(SectionSize.Y/100)*QuadDensity_Lod0.Y);
+			int  SecStartX =(SecX*(SectionSize.X/100)*QuadDensity_Lod0.X);
+			int SecEndX =((SecX+1)*(SectionSize.X/100)*QuadDensity_Lod0.X);
 
 			
-
-			 TArray<TArrayView<const FVector>>ArrayReference;
-			for (int  InSecY =SecStartY ; InSecY < SecEndY ; InSecY++)
+			 TArray<TArrayView<const FVector>>SectionArray;
+			for (int  InSecY =SecStartY ; InSecY <= SecEndY ; InSecY++)
 			{
-				for(int InSecX=SecStartX ; InSecX<SecEndX  ; InSecX++)
+				for(int InSecX=SecStartX ; InSecX<=SecEndX  ; InSecX++)
 				{
 					//take the vector ref from the main vertices array and put it to the section array container
 					const FVector& Vector = Vertices[(InSecY*NumVerts_Lod0.X)+InSecX];
 					TArrayView<const FVector> VectorReference(&Vector, 1);
-					ArrayReference.Add(VectorReference);
+					SectionArray.Add(VectorReference);
 					
 				}
 			}
-			Section->Init(Owner,NumQuadsPerComponent_Lod0,NumOfComponentsPerSection,ArrayReference);
+			Section->Init(Owner,SectionSize,ComponentSize,QuadDensity_Lod0,SectionArray);
 			Grid.Add(Section);
 		}
 	}
