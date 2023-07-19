@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProceduralMeshComponent.h"
 #include "UObject/Object.h"
 #include "GridComponent.generated.h"
 
@@ -17,14 +18,32 @@ class PROCEDURALGENERATION_API UGridComponent : public UObject
 public:
 	
 	/* Functions */
-	void Init ();
+	void Init (TArray<FVector>& InVerticesRef,UProceduralMeshComponent*InProceduralMeshComponent,TArray<int32>InTriangles,
+	TArray<FVector>InNormals,int32 InGlobalIndex, UMaterialInterface*InMaterial );
+
+	bool GenerateMeshSection ();
 
 	/** Data */
 	FBox Bounds;
 	int32 GlobalIndex;
 	int32 LocalIndex;
+	FVector2D GlobalPos2D;
+	FVector2D LocalPos2D;
 	FVector WorldLocation;
 	FVector Center;
 	FVector Extents;
-	TArray<TArrayView<const FVector>> ComponentVertices;
+	
+	TArray<FVector>VerticesRef;
+	TArray<int32>Triangles;
+	TArray<FVector>Normals;
+	TArray<int32>Indices;
+
+	
+
+private:
+
+	UPROPERTY()
+	UProceduralMeshComponent*ProceduralMesh;
+	UPROPERTY()
+	UMaterialInterface*DefaultMaterial;
 };
