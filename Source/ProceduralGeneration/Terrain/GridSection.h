@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProceduralMeshComponent.h"
 #include "UObject/Object.h"
 #include "GridSection.generated.h"
 
@@ -16,8 +17,8 @@ class PROCEDURALGENERATION_API UGridSection : public UObject
 public:
 
 	/* Functions */
-	void Init (AActor* Owner, FVector2D InSectionSize, FVector2D InComponentSize, FVector2D InQuadDensity,
-	TArray<TArrayView<const FVector>> InSectionVertices);
+	void Init (AActor* InOwner,int32 InIndex, TArray<FVector>& InVerticesRef, FVector2D InSectionSize, FVector2D InComponentSize, FVector2D InQuadDensity,
+	TArray<int32>InSectionIndices , UProceduralMeshComponent*InPMC,FVector2D InNumOfComponent, UMaterialInterface*InMaterial);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Index;
@@ -28,10 +29,19 @@ public:
 	FVector WorldLocation;
 	FVector2D NumOfComponents;
 	FVector2D QuadDensity_Lod0;
-	
 	FVector2D Pos2D;
 
-	TArray<TArrayView<const FVector>> SectionVertices;
+	//TArray<TArrayView<const FVector>> SectionVertices;
+	TArray<int32> SectionIndices;
+	TArray<FVector>VerticesRef;
+
+	
 	UPROPERTY()
 	TMap<FVector2D , UGridComponent*> SectionComponents;
+	UPROPERTY()
+	UProceduralMeshComponent*ProceduralMeshComponent;
+	UPROPERTY()
+	AActor*Owner ;
+	UPROPERTY()
+	UMaterialInterface*DefaultMaterial;
 };
