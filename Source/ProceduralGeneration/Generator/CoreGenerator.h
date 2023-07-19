@@ -117,6 +117,9 @@ protected:
 	UProceduralMeshComponent*ProceduralMesh;
 
 	UPROPERTY()
+	UMaterialInterface*DefaultMaterial;
+
+	UPROPERTY()
 	AActor*Owner;
 	
 
