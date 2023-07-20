@@ -19,6 +19,9 @@ UGridSection* UCoreGenerator::Run( )
 		return nullptr;
 	}
 	ProceduralMesh= NewObject<UProceduralMeshComponent>(Owner);
+	ProceduralMesh->RegisterComponent();
+	//ProceduralMesh->SetupAttachment(Owner->GetRootComponent());
+	ProceduralMesh->SetVisibility(true);
 	ProceduralMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	ProceduralMesh->Activate();
 	if(ProceduralMesh == nullptr)
@@ -97,11 +100,6 @@ TArray<UGridSection*>* UCoreGenerator::ConfigureGridSections()
 			Section->Pos2D =Pos2D;
 			Section->WorldLocation =WorldLocation;
 			Section->Center =WorldLocation+FVector(SectionSize.X/2,SectionSize.Y/2,0);
-			
-			//int SecStartY =(SecY*NumOfComponentsPerSection.Y*QuadDensity_Lod0.Y);
-			//int  SecEndY =((SecY+1)*NumOfComponentsPerSection.Y*QuadDensity_Lod0.Y);
-			//int  SecStartX =(SecX*NumOfComponentsPerSection.X*QuadDensity_Lod0.X);
-			//int SecEndX =((SecX+1)*NumOfComponentsPerSection.X*QuadDensity_Lod0.X);
 
 			int SecStartY =(SecY*(SectionSize.Y/100)*QuadDensity_Lod0.Y);
 			int  SecEndY =((SecY+1)*(SectionSize.Y/100)*QuadDensity_Lod0.Y);
@@ -109,22 +107,10 @@ TArray<UGridSection*>* UCoreGenerator::ConfigureGridSections()
 			int SecEndX =((SecX+1)*(SectionSize.X/100)*QuadDensity_Lod0.X);
 
 			
-			 //TArray<TArrayView<const FVector>>SectionArray;
-			TArray<int32>SectionIndices;
-			for (int  InSecY =SecStartY ; InSecY <= SecEndY ; InSecY++)
-			{
-				for(int InSecX=SecStartX ; InSecX<=SecEndX  ; InSecX++)
-				{
-					//take the vector ref from the main vertices array and put it to the section array container
-					int32 Indices = (InSecY*NumVerts_Lod0.X)+InSecX;
-					//const FVector& Vector = Vertices[Indices];
-					//TArrayView<const FVector> VectorReference(&Vector, 1);
-					//SectionArray.Add(VectorReference);
-					SectionIndices.Add(Indices);
-					
-				}
-			}
-			Section->Init(Owner,SectionIndex,Vertices,SectionSize,ComponentSize,QuadDensity_Lod0,SectionIndices,ProceduralMesh,NumOfComponentsPerSection*NumOfSection,DefaultMaterial);
+
+
+
+			Section->Init(Owner,SectionIndex,Vertices,SectionSize,ComponentSize,QuadDensity_Lod0,ProceduralMesh,NumVerts_Lod0,DefaultMaterial);
 			Grid.Add(Section);
 		}
 	}

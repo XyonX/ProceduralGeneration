@@ -34,13 +34,16 @@ public:
 	TSubclassOf<UCoreGenerator> CustomGenerator;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Defaults")
 	TSubclassOf<UCoreSpawner> CustomSpawner;
+
 	
 	bool RunGenerator ();
 	bool RunSpawner ();
+	void GenerateTerrainAsync();
 
 
 private:
 
+	FRunnableThread* GeneratorThread;
 	UPROPERTY()
 	UCoreGenerator* Generator;
 	UPROPERTY()

@@ -38,6 +38,7 @@ public:
 	TArray<FVector>Normals;
 	TArray<int32>Indices;
 
+
 	
 
 private:

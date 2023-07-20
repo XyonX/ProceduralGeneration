@@ -23,7 +23,6 @@ void ABaseProceduralActor::BeginPlay()
 	Super::BeginPlay();
 	
 	TopDownGameInstance=Cast<UTopDownGameInstance>(GetGameInstance());
-	
 
 	if(RunGenerator() == false)
 	{
@@ -35,6 +34,8 @@ void ABaseProceduralActor::BeginPlay()
 	if (GEngine) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT(" Grid Created !!!  "));
 	}
+	
+	
 /*	for (	UTile*Tile : (*Grid)  )
 	{
 		DrawDebugPoint(GetWorld(),Tile->GetWorldLocation(),10,FColor::Green,true,-1,0);//depth priority of 0 means always visible
@@ -63,6 +64,7 @@ bool ABaseProceduralActor::RunGenerator()
 {
 	// Create a new instance of UCoreGenerator class
 	Generator = NewObject<UCoreGenerator>(this, CustomGenerator);
+	Generator->Run();
 	return true;
 	
 /*	if(Generator)
@@ -80,9 +82,13 @@ bool ABaseProceduralActor::RunSpawner()
 {
 	//Spawner = NewObject<UCoreSpawner>(this,DefaultSpawner);
 	//Spawner->Init(&AllTilesPTR,TotalSpawnables,DefaultTile,DefaultSpawnable,NumTiles_X,NumTiles_Y);
-
 	//return  Spawner->Run();
 	return false;
+}
+
+void ABaseProceduralActor::GenerateTerrainAsync()
+{
+
 }
 
 

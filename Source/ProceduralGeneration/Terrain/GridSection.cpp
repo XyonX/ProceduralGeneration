@@ -5,29 +5,28 @@
 #include "GridComponent.h"
 
 
-void UGridSection::Init(AActor* InOwner,int32 InIndex, TArray<FVector>& InVerticesRef, FVector2D InSectionSize, FVector2D InComponentSize, FVector2D InQuadDensity,
-	TArray<int32>InSectionIndices , UProceduralMeshComponent*InPMC , FVector2D InNumOfComponents , UMaterialInterface*InMaterial)
+void UGridSection::Init(AActor* InOwner,int32 InIndex, TArray<FVector>& InVerticesRef, FVector2D InSectionSize, FVector2D InComponentSize, FVector2D InQuadDensity
+	, UProceduralMeshComponent*InPMC  ,FVector2D InNumVertex_lod0, UMaterialInterface*InMaterial)
 {
 	SectionSize=InSectionSize;
 	ComponentSize=InComponentSize;
 	QuadDensity_Lod0=InQuadDensity;
-	//SectionVertices=InSectionVertices;
 	VerticesRef=InVerticesRef;
-	SectionIndices=InSectionIndices;
 	NumOfComponents = InSectionSize/InComponentSize;
 	ProceduralMeshComponent=InPMC;
 	Index=InIndex;
 	Owner=InOwner;
 	DefaultMaterial=InMaterial;
+	NumVertexLod0=InNumVertex_lod0;
 	
 	Bounds.Min=FVector ( Center.X-SectionSize.X/2 , Center.Y-SectionSize.Y/2,Center.Z);
 	Bounds.Max=FVector ( Center.X+SectionSize.X/2 , Center.Y+SectionSize.Y/2,Center.Z);
 
-	int NumVertexPerSection_X = ((SectionSize.X/100) *QuadDensity_Lod0.X)+1;
-	int NumVertexPerSection_Y = ((SectionSize.Y/100) *QuadDensity_Lod0.Y)+1;
-	int NumVertexPerComponent_X = ((ComponentSize.X/100) *QuadDensity_Lod0.X)+1;
-	int NumVertexPerComponent_Y = ((ComponentSize.Y/100) *QuadDensity_Lod0.Y)+1;
+	FVector2D NumVertexPerSection = ((SectionSize/100) *QuadDensity_Lod0)+1;
+	FVector2D NumVertexPerComponent = ((ComponentSize/100) *QuadDensity_Lod0)+1;
 	int  Componentindex =0;
+	FVector2D SectionOffset = Pos2D*(NumVertexPerSection-1);
+	
 	for (int YthComp =0 ; YthComp < NumOfComponents.Y ; YthComp++)
 	{
 		for (int XthComp =0 ; XthComp < NumOfComponents.X ; XthComp++)
@@ -43,45 +42,50 @@ void UGridSection::Init(AActor* InOwner,int32 InIndex, TArray<FVector>& InVertic
 			int GlobPos_Y = (Pos2D.Y*NumOfComponents.Y)+YthComp;
 			
 			GridComp->GlobalPos2D=FVector2D(GlobPos_X,GlobPos_Y);
-			GridComp->LocalPos2D= FVector2D(XthComp,YthComp);
+			FVector2D CompLocalPos = FVector2D(XthComp,YthComp);
+			GridComp->LocalPos2D= CompLocalPos;
 			
 			GridComp->GlobalIndex= (GlobPos_Y*NumOfComponents.X)+GlobPos_X;
 			
 
 			DrawDebugString(GetWorld(),WorldLocation,FString::Printf(TEXT("%f ,%f"),CompLoc.X,CompLoc.Y));
 
+			
+			FVector2D ComponentOffset =(NumVertexPerComponent-1)*CompLocalPos;
+			
+
 			int CompStartY =(YthComp*(ComponentSize.Y/100)*QuadDensity_Lod0.Y);
 			int  CompEndY =((YthComp+1)*(ComponentSize.Y/100)*QuadDensity_Lod0.Y);
 			int  CompStartX =(XthComp*(ComponentSize.X/100)*QuadDensity_Lod0.X);
 			int CompEndX =((XthComp+1)*(ComponentSize.X/100)*QuadDensity_Lod0.X);
 			
-
-			//TArray<TArrayView<const FVector>>VerticesArray;
+			
 			TArray<int32>Triangles;
 			TArray<FVector>Normals;
-			
+
+			int32 VertexGlobalIndex;
 			for (int InComponentY =CompStartY ; InComponentY <=CompEndY;InComponentY++ )
 			{
 				for (int InComponentX =CompStartX ; InComponentX <=CompEndX;InComponentX++ )
 				{
 					
-					FVector Normal = FVector (0.0f,0.0f,1.0f);
-					
-					//VerticesArray.Add(VectorRef);
-					Normals.Add(Normal);
 
-					//Calculate Triangle
-					
-
-					if( InComponentY<CompEndY-1 && InComponentX <CompEndX-1)
+					if( InComponentY<CompEndY && InComponentX <CompEndX)
 					{
-						int Ind = (InComponentY*NumVertexPerSection_X)+InComponentX;
-						
-						int32 A =SectionIndices[Ind] ;
-						int32 B = SectionIndices[((InComponentY+1)*NumVertexPerSection_X)+InComponentX];
-						int32 C =SectionIndices[B+1];
-						int32 D =SectionIndices[A+1];
 
+
+						FVector2D VerPos_Component = FVector2D(InComponentX,InComponentY);
+						FVector2D TotalOffset = SectionOffset;
+						FVector2D  VertexGlobalPos2D =VerPos_Component+TotalOffset;
+						
+						
+						VertexGlobalIndex = (VertexGlobalPos2D.Y*NumVertexLod0.X)+VertexGlobalPos2D.X;
+
+						int32 A =(VertexGlobalPos2D.Y*NumVertexLod0.X)+VertexGlobalPos2D.X ;
+						int32 B =((VertexGlobalPos2D.Y+1)*NumVertexLod0.X)+VertexGlobalPos2D.X;
+						int32 C =B+1;
+						int32 D =A+1;
+						
 						Triangles.Add(A);
 						Triangles.Add(B);
 						Triangles.Add(C);
@@ -89,10 +93,14 @@ void UGridSection::Init(AActor* InOwner,int32 InIndex, TArray<FVector>& InVertic
 						Triangles.Add(C);
 						Triangles.Add(D);
 						Triangles.Add(A);
+
+
+						FVector Normal = FVector (0.0f,0.0f,1.0f);
+						Normals.Add(Normal);
 					}
 				}
 			}
-			GridComp->Init(VerticesRef,ProceduralMeshComponent,Triangles,Normals,Componentindex*Index,DefaultMaterial);
+			GridComp->Init(VerticesRef,ProceduralMeshComponent,Triangles,Normals,VertexGlobalIndex,DefaultMaterial);
 			SectionComponents.Add(FVector2D(YthComp,XthComp),GridComp);
 		}
 	}

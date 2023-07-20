@@ -2,6 +2,7 @@
 
 
 #include "GridComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 
@@ -33,7 +34,18 @@ bool UGridComponent::GenerateMeshSection()
 	if(DefaultMaterial)
 	{
 		// Set the default material for the mesh section
-		ProceduralMesh->SetMaterial(GlobalIndex, DefaultMaterial);
+		
+		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(DefaultMaterial, this);
+		// Set the desired color for the tile
+		FLinearColor ColorParameter = FLinearColor::MakeRandomColor();
+		//ColorParameter.A =0.1;
+		DynMaterial->SetVectorParameterValue("Base_Color", ColorParameter);
+		FVector OPCT =FVector(1.0f,1.0f,1.0f);
+		FVector EMSV =FVector(0.0f,0.f,0.0f);
+		DynMaterial->SetVectorParameterValue("Opacity", OPCT);
+		DynMaterial->SetVectorParameterValue("Emissive_Color", EMSV);
+
+		ProceduralMesh->SetMaterial(GlobalIndex, DynMaterial);
 	}
 
 

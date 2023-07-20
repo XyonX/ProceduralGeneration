@@ -17,8 +17,8 @@ class PROCEDURALGENERATION_API UGridSection : public UObject
 public:
 
 	/* Functions */
-	void Init (AActor* InOwner,int32 InIndex, TArray<FVector>& InVerticesRef, FVector2D InSectionSize, FVector2D InComponentSize, FVector2D InQuadDensity,
-	TArray<int32>InSectionIndices , UProceduralMeshComponent*InPMC,FVector2D InNumOfComponent, UMaterialInterface*InMaterial);
+	void Init (AActor* InOwner,int32 InIndex, TArray<FVector>& InVerticesRef, FVector2D InSectionSize, FVector2D InComponentSize, FVector2D InQuadDensity
+		, UProceduralMeshComponent*InPMC,FVector2D InNumVertex_lod0, UMaterialInterface*InMaterial);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Index;
@@ -28,11 +28,10 @@ public:
 	FVector2D ComponentSize;
 	FVector WorldLocation;
 	FVector2D NumOfComponents;
+	FVector2D NumVertexLod0;
 	FVector2D QuadDensity_Lod0;
 	FVector2D Pos2D;
-
-	//TArray<TArrayView<const FVector>> SectionVertices;
-	TArray<int32> SectionIndices;
+	
 	TArray<FVector>VerticesRef;
 
 	
