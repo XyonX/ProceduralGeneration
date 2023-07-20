@@ -44,7 +44,6 @@ bool UGridComponent::GenerateMeshSection()
 		FVector EMSV =FVector(0.0f,0.f,0.0f);
 		DynMaterial->SetVectorParameterValue("Opacity", OPCT);
 		DynMaterial->SetVectorParameterValue("Emissive_Color", EMSV);
-
 		ProceduralMesh->SetMaterial(GlobalIndex, DynMaterial);
 	}
 

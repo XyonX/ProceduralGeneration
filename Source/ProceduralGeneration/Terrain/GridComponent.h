@@ -24,7 +24,6 @@ public:
 	bool GenerateMeshSection ();
 
 	/** Data */
-	FBox Bounds;
 	int32 GlobalIndex;
 	int32 LocalIndex;
 	FVector2D GlobalPos2D;
@@ -36,7 +35,6 @@ public:
 	TArray<FVector>VerticesRef;
 	TArray<int32>Triangles;
 	TArray<FVector>Normals;
-	TArray<int32>Indices;
 
 
 	

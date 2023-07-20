@@ -33,7 +33,7 @@ public:
 	virtual void ConfigureGrid();
 	UFUNCTION(BlueprintCallable)
 	virtual bool GenerateGrid(FVector2D InGridSize , TArray<UGridSection*>&OutGrid);
-	virtual TArray<UGridSection*>* ConfigureGridSections ();
+	virtual bool GenerateGridSections ();
 
 
 public:
@@ -45,9 +45,18 @@ public:
 	FVector2D GetGridSize ( ){ return  GridSize;};
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetNumOfSections(){return NumOfSection;};
-
+	UFUNCTION(BlueprintCallable)
+	AActor*GetOwner (){return Owner;};
+	FVector2D GetSectionSize(){return SectionSize;};
+	FVector2D GetQuadDensity (){return QuadDensity_Lod0;};
+	TArray<FVector>& GetVertices (){return Vertices;};
+	FVector2D GetComponentSize (){return ComponentSize;};
+	UProceduralMeshComponent*GetPMC(){return  ProceduralMesh;};
+	FVector2D GetNumVertsLod0(){return NumVerts_Lod0;};
+	UMaterialInterface*GetDefaultMaterial (){return DefaultMaterial;};
 	
 	TArray<UGridSection*>* GetGrid   () {return  &Grid;}
+	bool AddSectionToGrid (UGridSection*InSection);
 
 	void Receiver_OnCharacterMovement (FVector CharacterLocation);
 	
@@ -66,6 +75,8 @@ protected:
 	FVector2D SectionSize;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
 	FVector2D ComponentSize;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Generator")
+	float HeightMultiplier;
 
 	/** Grid Counts */	/**--------------*/
 	
@@ -78,6 +89,7 @@ protected:
 	FVector Center;
 	FVector Origin;
 	FString HeightMapPath;
+	
 	FVector Extents;
 	
 
