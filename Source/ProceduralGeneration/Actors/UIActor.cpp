@@ -1,10 +1,15 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿/******************************************************************************
+* Project Core - Generic UE Project
+* Copyright (c) [2023] [ Joydip chakraborty ]
+* This class is part of the ProjectCore open-source project. 
+* ******************************************************************************/
 
 
 #include "UIActor.h"
 
 #include "Actions/AsyncAction_CreateWidgetAsync.h"
 #include "CoreUI/Slate/Cards/SBuildingCard.h"
+#include "CoreUI/UI/LoadingScreenUI.h"
 #include "CoreUI/UI/TopDownIngameScreen.h"
 
 
@@ -41,7 +46,7 @@ void AUIActor::Tick(float DeltaTime)
 
 void AUIActor::SpawnUI_UMG_1()
 {
-	IngameScreen = CreateWidget<UTopDownIngameScreen>(GetWorld(), UTopDownIngameScreen::StaticClass());;
+	IngameScreen = CreateWidget<UTopDownIngameScreen>(GetWorld(), UTopDownIngameScreen::StaticClass());
 	IngameScreen->SetSize(Height,Width);
 	if(TDGameInstance)
 	{
