@@ -3,10 +3,16 @@
 #include "CoreGenerator.h"
 #include "CorePlugin/Helpers/FileImporter.h"
 #include "ProceduralGeneration/Terrain/GridSection.h"
+#include "Async/Async.h"
 #include "ProceduralGeneration/Threading/GridGenerationWorker.h"
 
 
 UCoreGenerator::UCoreGenerator()
+{
+	
+}
+
+void UCoreGenerator::CustomTick()
 {
 	
 }
@@ -32,7 +38,8 @@ UGridSection* UCoreGenerator::Run( )
 	Init(Defaults);
 	ConfigureGrid();
 	GenerateGrid( GridSize ,Grid );
-	GenerateGridSections();
+	//GenerateGridSections();
+	GenerateGridSections_Async();
 
 	//return  DynamicGirdSection;
 	return nullptr;
@@ -91,9 +98,51 @@ bool UCoreGenerator::GenerateGrid(FVector2D InGridSize, TArray<UGridSection*>& O
 
 bool UCoreGenerator::GenerateGridSections()
 {
-	UGridGenerationWorker* MeshGenerationWorker = NewObject<UGridGenerationWorker>();
-	MeshGenerationWorker->SetParameters(this);
-	FRunnableThread::Create(MeshGenerationWorker, TEXT("MeshGenerationThread"));
+	//UGridGenerationWorker* MeshGenerationWorker = NewObject<UGridGenerationWorker>();
+	//MeshGenerationWorker->SetParameters(this);
+	//FRunnableThread::Create(MeshGenerationWorker, TEXT("MeshGenerationThread"));
+
+	//if(Generator==nullptr)
+	//{
+		//return;
+	//}
+
+	
+	int32 SectionIndex =0;
+
+	for (int32 SecY =0 ;SecY<NumOfSection.Y ; SecY++)
+	{
+		for(int32 SecX =0 ;SecX<NumOfSection.X ; SecX++)
+		{
+			SectionIndex++;
+			UGridSection*Section =NewObject<UGridSection>(Owner);
+			Section->Index=SectionIndex;
+
+			FVector2D Pos2D = FVector2D(SecX,SecY);
+			FVector WorldLocation = FVector (SecX*SectionSize.X,SecY*SectionSize.Y,0);
+			Section->Pos2D =Pos2D;
+			Section->WorldLocation =WorldLocation;
+			Section->Center =WorldLocation+FVector(SectionSize.X/2,SectionSize.Y/2,0);
+
+			int SecStartY =(SecY*(SectionSize.Y/100)*QuadDensity_Lod0.Y);
+			int  SecEndY =((SecY+1)*(SectionSize.Y/100)*QuadDensity_Lod0.Y);
+			int  SecStartX =(SecX*(SectionSize.X/100)*QuadDensity_Lod0.X);
+			int SecEndX =((SecX+1)*(SectionSize.X/100)*QuadDensity_Lod0.X);
+
+			Section->Init(Owner,SectionIndex,Vertices,SectionSize,ComponentSize,QuadDensity_Lod0,ProceduralMesh,NumVerts_Lod0,DefaultMaterial);
+			AddSectionToGrid(Section);
+		}
+	}
+
+	return true;
+}
+
+bool UCoreGenerator::GenerateGridSections_Async()
+{
+	FGraphEventRef MyTask = FFunctionGraphTask::CreateAndDispatchWhenReady([&]()
+	{
+		GenerateGridSections ();
+	}, TStatId(), nullptr, ENamedThreads::AnyThread);
 
 	return true;
 }

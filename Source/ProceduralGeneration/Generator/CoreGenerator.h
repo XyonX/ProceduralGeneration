@@ -1,4 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿/******************************************************************************
+* Project Core - Generic UE Project
+* Copyright (c) [2023] [ Joydip chakraborty ]
+* This class is part of the ProjectCore open-source project. 
+* ******************************************************************************/
 
 #pragma once
 
@@ -23,6 +27,9 @@ public:
 	//Generation
 
 	//The Main Function to Generate the grid
+
+	
+	void CustomTick();
 	
 	virtual UGridSection* Run () ;
 
@@ -34,6 +41,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual bool GenerateGrid(FVector2D InGridSize , TArray<UGridSection*>&OutGrid);
 	virtual bool GenerateGridSections ();
+	virtual bool GenerateGridSections_Async ();
 
 
 public:

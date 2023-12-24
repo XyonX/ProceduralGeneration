@@ -1,4 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/******************************************************************************
+* Project Core - Generic UE Project
+* Copyright (c) [2023] [ Joydip chakraborty ]
+* This class is part of the ProjectCore open-source project. 
+* ******************************************************************************/
 
 
 #include "GridSection.h"
@@ -48,7 +52,7 @@ void UGridSection::Init(AActor* InOwner,int32 InIndex, TArray<FVector>& InVertic
 			GridComp->GlobalIndex= (GlobPos_Y*NumOfComponents.X)+GlobPos_X;
 			
 
-			DrawDebugString(GetWorld(),WorldLocation,FString::Printf(TEXT("%f ,%f"),CompLoc.X,CompLoc.Y));
+			//DrawDebugString(GetWorld(),WorldLocation,FString::Printf(TEXT("%f ,%f"),CompLoc.X,CompLoc.Y));
 
 			
 			FVector2D ComponentOffset =(NumVertexPerComponent-1)*CompLocalPos;

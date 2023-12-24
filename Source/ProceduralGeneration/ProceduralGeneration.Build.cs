@@ -31,7 +31,9 @@ public class ProceduralGeneration : ModuleRules
 				"SlateCore",
 				"UnrealEd",
 				"InputCore",
-				"EnhancedInput"
+				"EnhancedInput",
+				"RHI",
+				"RenderCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
